@@ -1,6 +1,6 @@
 #!/bin/bash
-curr_dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
-source ${curr_dir}/env.sh
+curr_dir=$(dirname $0)
+. ${curr_dir}/env.sh
 
 DEVICE_TYPE=$1
 PROJECT_NAME=$2 # e.g. "captcha-train"

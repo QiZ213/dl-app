@@ -1,11 +1,11 @@
 #!/bin/bash
-curr_dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
-
 if [ $# -lt 3 ]; then
   echo "Illegal arguments, e.g. build-docker.sh gpu captcha-train 0.1"
   exit 128
 fi
-source ${curr_dir}/docker-settings.sh $@
+
+curr_dir=$(dirname $0)
+. ${curr_dir}/docker-settings.sh $@
 
 docker build -t ${DOCKER_TAG} \
   --build-arg device_type=${DEVICE_TYPE} \
