@@ -1,6 +1,6 @@
 #!/bin/bash
-curr_dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
-source ${curr_dir}/env.sh
+curr_dir=$(dirname $0)
+. ${curr_dir}/env.sh
 
 python ${PROJECT_HOME}/codes/examples/train_captcha.py  \
   --training_set_dir ${PROJECT_HOME}/data/10010 \

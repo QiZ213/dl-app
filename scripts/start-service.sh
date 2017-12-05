@@ -1,6 +1,6 @@
 #!/bin/bash
-curr_dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
-source ${curr_dir}/env.sh
+curr_dir=$(dirname $0)
+. ${curr_dir}/env.sh
 
 python ${PROJECT_HOME}/codes/service/flask/gunicorn_server.py  \
   --port=8080 \

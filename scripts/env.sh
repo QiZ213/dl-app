@@ -1,6 +1,7 @@
-#!/usr/bash
-curr_dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+#!/bin/bash
 
 # project settings
-PROJECT_HOME=${curr_dir}/..
+PROJECT_BIN=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
+PROJECT_HOME=${PROJECT_BIN}/..
+echo ${PROJECT_HOME}
 DATA_DIR=/opt/data
