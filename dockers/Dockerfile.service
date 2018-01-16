@@ -1,5 +1,6 @@
 ARG device_type
-FROM ppd:${device_type}-base
+ARG registry
+FROM ${registry}/ppd-${device_type}-base:0.1
 
 # install requirements
 ADD requirements.txt ${PROJECT_HOME_IN_DOCKER}/requirements.txt

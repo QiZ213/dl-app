@@ -1,6 +1,7 @@
 #!/bin/bash
-if [ $# -lt 3 ]; then
-  echo "Illegal arguments, e.g. run-docker.sh gpu captcha-train 0.1"
+if [ $# -lt 4 ]; then
+  echo "Illegal arguments: ./run-service.sh idc_name device_type service version"
+  echo "e.g. $ /bin/bash run-service.sh prod cpu captcha-service 0.1"
   exit 128
 fi
 
@@ -10,8 +11,13 @@ curr_dir=$(dirname $0)
 ! test -d ${PROJECT_HOME}/log && mkdir -p ${PROJECT_HOME}/log
 
 CMD="/bin/bash ${DOCKER_HOME}/bin/start-service.sh"
+${DOCKER} ps -a | grep ${PROJECT_NAME} && ${DOCKER} stop ${PROJECT_NAME} && ${DOCKER} rm -v ${PROJECT_NAME}
 ${DOCKER_ENGINE} run -it \
   --net=bridge \
+  --name ${PROJECT_NAME} \
   -p 8080:8080 \
   -v ${PROJECT_HOME}/log:${DOCKER_HOME}/log \
-  ${DOCKER_TAG} ${CMD}
+  ${DOCKER_TAG} ${CMD} \
+  || { echo "fail to run ${DOCKER_TAG}" && exit 64; }
+
+echo "start ${DOCKER_TAG} successfully"
