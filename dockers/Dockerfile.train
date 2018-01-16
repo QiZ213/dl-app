@@ -1,5 +1,6 @@
 ARG device_type
-FROM ppd:${device_type}-base
+ARG registry
+FROM ${registry}/ppd-${device_type}-base:0.1
 
 # assembling project structure
 ARG project_home_in_docker
