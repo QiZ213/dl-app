@@ -1,18 +1,19 @@
 from __future__ import print_function
 
-import argparse
 import os
 import os.path
 
 import cv2
-import keras
 import numpy as np
 import tensorflow as tf
+from sklearn.model_selection import train_test_split
+
+import keras
+from codes import DATA_DIR, LOG_DIR, MODEL_DIR
 from keras.callbacks import ModelCheckpoint
 from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Dense, Flatten
 from keras.models import Sequential
-from sklearn.model_selection import train_test_split
 
 FLAGS = tf.app.flags.FLAGS
 flags = tf.app.flags
@@ -133,19 +134,10 @@ def train(training_set_dir, model_dir, log_dir):
     print('Test accuracy:', score[1])
 
     json_string = model.to_json()
-    open(model_dir + '10010_v0_1_structure.json', 'w').write(json_string)
+    open(model_dir + '/10010_v0_1_structure.json', 'w').write(json_string)
 
 
 if __name__ == "__main__":
-    print("start")
-    parser = argparse.ArgumentParser(description='cmd parser')
-    parser.add_argument("--training_set_dir", default="data", dest="training_set_dir",
-                        help="specify path of training set")
-    parser.add_argument("--model_dir", default="model", dest="model_dir",
-                        help="specify path to stored trained model")
-    parser.add_argument("--log_dir", default="log", dest="log_dir",
-                        help="specify path to training log")
-    args = parser.parse_args()
-    print("cmd parsed")
-    train(args.training_set_dir, args.model_dir, args.log_dir)
+    print("start training ... ")
+    train(DATA_DIR + '/10010/', MODEL_DIR, LOG_DIR)
     print("train done")

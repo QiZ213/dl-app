@@ -24,11 +24,34 @@ else
   exit 64
 fi
 
+if [ "${PYTHON##/*/}" == "python3" ]; then
+  DOCKER_BASE=${DOCKER_REGISTRY}/ppd-${DEVICE_TYPE}-py3-base:${PROJECT_VERSION}
+elif [ "${PYTHON##/*/}" == "python" ]; then
+  DOCKER_BASE=${DOCKER_REGISTRY}/ppd-${DEVICE_TYPE}-base:${PROJECT_VERSION}
+else
+  echo "invalid python, either 2 or 3"
+  exit 64
+fi
+
 DOCKER=docker
 DOCKER_HOME="/opt/${PROJECT_NAME}"
-# DOCKER_BASE=${DOCKER_REGISTRY}/ppd-${DEVICE_TYPE}-base:${PROJECT_VERSION}
-DOCKER_BASE=ppd-${DEVICE_TYPE}-base:${PROJECT_VERSION}
+DOCKER_DATA_DIR=${DOCKER_HOME}/data
+DOCKER_LOG_DIR=${DOCKER_HOME}/log
+DOCKER_MODEL_DIR=${DOCKER_HOME}/models
 DOCKER_TAG="${PROJECT_NAME}:${PROJECT_VERSION}"
+
+# common docker-image building args
+BUILDING_ARGS="--build-arg project_home_in_docker=${DOCKER_HOME}"
+BUILDING_ARGS="${BUILDING_ARGS} --build-arg base=${DOCKER_BASE}"
+BUILDING_ARGS="${BUILDING_ARGS} --build-arg data_dir_in_docker=${DOCKER_DATA_DIR}"
+BUILDING_ARGS="${BUILDING_ARGS} --build-arg log_dir_in_docker=${DOCKER_LOG_DIR}"
+BUILDING_ARGS="${BUILDING_ARGS} --build-arg model_dir_in_docker=${DOCKER_MODEL_DIR}"
+
+# common docker-image running options
+RUNNING_OPTIONS="-v ${DATA_DIR}:${DOCKER_DATA_DIR}"
+RUNNING_OPTIONS="${RUNNING_OPTIONS} -v ${LOG_DIR}:${DOCKER_LOG_DIR}"
+RUNNING_OPTIONS="${RUNNING_OPTIONS} -v ${MODEL_DIR}:${DOCKER_MODEL_DIR}"
+
 
 delete_docker_container() {
   if [ $# != 1 ]; then
@@ -36,6 +59,7 @@ delete_docker_container() {
     return 64
   fi
   ${DOCKER} ps -a | grep $1 && ${DOCKER} stop $1 && ${DOCKER} rm -v $1
+  return 0
 }
 
 delete_docker_image() {
@@ -44,5 +68,5 @@ delete_docker_image() {
     return 64
   fi
   ${DOCKER} image inspect $1 &> /dev/null && ${DOCKER} rmi $1
+  return 0
 }
-

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 class BaseInferencer:
 
     # method to initialize service

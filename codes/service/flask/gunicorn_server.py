@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from gunicorn.app.base import Application
 from gunicorn.six import iteritems
 
