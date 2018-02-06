@@ -2,22 +2,15 @@ from __future__ import print_function
 
 import argparse
 import json
-import logging
 import os
 from importlib import import_module
 
 from flask import Flask
 from flask import request
 
-SERVICE_NAME = os.path.basename(os.path.dirname(__file__))
+from codes import logging
 
-logger = logging.getLogger(SERVICE_NAME)
-logger.setLevel(logging.ERROR)
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -29,8 +22,7 @@ def hello():
 
 @app.route("/service", methods=['POST'])
 def do_service():
-    data = [request.stream]
-    result = app.my_model.execute(data, 1)[0]
+    result = app.my_model.execute(request.stream)
     return result
 
 

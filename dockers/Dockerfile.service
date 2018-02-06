@@ -3,7 +3,7 @@ ARG registry
 FROM ${registry}/ppd-${device_type}-base:0.1
 
 # install requirements
-ADD requirements.txt ${PROJECT_HOME_IN_DOCKER}/requirements.txt
+ADD ./requirements.txt ${PROJECT_HOME_IN_DOCKER}/requirements.txt
 RUN pip install -r ${PROJECT_HOME_IN_DOCKER}/requirements.txt
 
 # assembling project structure
@@ -11,10 +11,8 @@ ARG project_home_in_docker
 ENV PROJECT_HOME_IN_DOCKER=${project_home_in_docker}
 ADD ./codes ${PROJECT_HOME_IN_DOCKER}/codes
 ADD ./confs ${PROJECT_HOME_IN_DOCKER}/confs
-ADD ./test_models ${PROJECT_HOME_IN_DOCKER}/test_models
 ADD ./scripts ${PROJECT_HOME_IN_DOCKER}/bin
-RUN mkdir -p ${PROJECT_HOME_IN_DOCKER}/log
 
 # setup python service env
 EXPOSE 8080
-ENV PYTHONPATH=$PYHTONPATH:${PROJECT_HOME_IN_DOCKER}
+ENV PYTHONPATH=${PYHTONPATH}:${PROJECT_HOME_IN_DOCKER}
