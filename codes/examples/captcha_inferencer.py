@@ -41,13 +41,10 @@ class CaptchaInferencer(BaseInferencer):
     def load_model(self):
         pass
 
-    def execute(self, data, batch_size):
-        results = []
-        for i in range(batch_size):
-            image = Image.open(data[i])
-            ret = self.model_10000.predict(image)
-            results.append(ret)
-        return results
+    def execute(self, data):
+        image = Image.open(data)
+        ret = self.model_10000.predict(image)
+        return ret
 
 
 class CaptchaUCloudInferencer(CaptchaInferencer):
