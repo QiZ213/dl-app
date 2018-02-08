@@ -1,0 +1,17 @@
+{
+  "http_server": {
+    "exec": {
+      "main_class": "Inferencer",
+      "main_file": "codes.inferencer"
+    },
+    "gunicorn": {
+      "worker": "4",
+      "worker_class": "gevent",
+      "timeout": 60,
+      "keepalive": 60,
+      "limit-request-line": 0,
+      "bind": "0.0.0.0:8080",
+      "log-level": "error"
+    }
+  }
+}

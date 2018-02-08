@@ -3,8 +3,6 @@ import thread
 import time
 from importlib import import_module
 
-from uai.arch_conf.base_conf import ArchJsonConfLoader
-
 LOG_FILE = 'uai.log'
 logger_title = 'uai'
 

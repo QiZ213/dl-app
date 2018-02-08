@@ -1,20 +1,27 @@
-ARG device_type
-ARG registry
-FROM ${registry}/ppd-${device_type}-base:0.1
+ARG base
+FROM ${base}
 
-# install requirements
-ADD requirements.txt ${PROJECT_HOME_IN_DOCKER}/requirements.txt
-RUN pip install -r ${PROJECT_HOME_IN_DOCKER}/requirements.txt
-
-# assembling project structure
+# Configure environment
 ARG project_home_in_docker
-ENV PROJECT_HOME_IN_DOCKER=${project_home_in_docker}
-ADD ./codes ${PROJECT_HOME_IN_DOCKER}/codes
-ADD ./confs ${PROJECT_HOME_IN_DOCKER}/confs
-ADD ./test_models ${PROJECT_HOME_IN_DOCKER}/test_models
-ADD ./scripts ${PROJECT_HOME_IN_DOCKER}/bin
-RUN mkdir -p ${PROJECT_HOME_IN_DOCKER}/log
+ENV PROJECT_HOME=${project_home_in_docker}
+ARG data_dir_in_docker
+ENV DATA_DIR=${data_dir_in_docker}
+ARG log_dir_in_docker
+ENV LOG_DIR=${log_dir_in_docker}
+ARG model_dir_in_docker
+ENV MODEL_DIR=${model_dir_in_docker}
+
+# Install requirements
+ADD ./requirements.txt ${PROJECT_HOME}/requirements.txt
+RUN pip install -r ${PROJECT_HOME}/requirements.txt
+
+# Assemble project
+ADD ./codes ${PROJECT_HOME}/codes
+ADD ./confs ${PROJECT_HOME}/confs
+ADD ./scripts ${PROJECT_HOME}/bin
+RUN chmod -R 750 ${PROJECT_HOME}/bin
 
 # setup python service env
 EXPOSE 8080
-ENV PYTHONPATH=$PYHTONPATH:${PROJECT_HOME_IN_DOCKER}
+WORKDIR ${PROJECT_HOME}
+ENV PYTHONPATH=${PYHTONPATH}:${PROJECT_HOME}
