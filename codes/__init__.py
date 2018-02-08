@@ -12,6 +12,10 @@ PROJECT_HOME = os.path.abspath(os.path.join(FILE_PATH, os.pardir))
 if PROJECT_HOME not in sys.path:
     sys.path.append(PROJECT_HOME)
 
+DATA_DIR = os.environ.get('DATA_DIR', PROJECT_HOME + '/data')
+LOG_DIR = os.environ.get('LOG_DIR', PROJECT_HOME + '/log')
+MODEL_DIR = os.environ.get('MODEL_DIR', PROJECT_HOME + '/models')
+
 # logging setting
 logging.basicConfig(format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%m-%d %H:%M')

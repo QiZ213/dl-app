@@ -6,7 +6,7 @@ if [ $# -lt 2 ]; then
 fi
 
 curr_dir=$(dirname $0)
-. ${curr_dir}/common-settings.sh
+. ${curr_dir}/../common-settings.sh
 
 IDC_NAME=$1
 OS=$2

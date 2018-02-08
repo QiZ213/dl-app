@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 
-from codes import PROJECT_HOME
+from codes import MODEL_DIR
 from codes.base_inferencer import BaseInferencer
 from keras.models import model_from_json
 
@@ -35,8 +35,8 @@ class CaptchaModel:
 
 class CaptchaInferencer(BaseInferencer):
     def __init__(self):
-        self.model_10000 = CaptchaModel(PROJECT_HOME + '/models/model_10000/10000_v3_structure.json',
-                                        PROJECT_HOME + '/models/model_10000/10000_v3_1r_12r_best_weight.hdf5')
+        self.model_10000 = CaptchaModel(MODEL_DIR + 'model_10000/10000_v3_structure.json',
+                                        MODEL_DIR + 'model_10000/10000_v3_1r_12r_best_weight.hdf5')
 
     def load_model(self):
         pass

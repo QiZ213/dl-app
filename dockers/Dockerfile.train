@@ -1,16 +1,24 @@
-ARG device_type
-ARG registry
-ARG version
-FROM ${registry}/ppd-${device_type}-base:${version}
+ARG base
+FROM ${base}
 
 # Docker script to set up training docker image.
 LABEL maintainer="Yun Zhu(zhuyun@ppdai.com)"
 
 # Configure environment
 ARG project_home_in_docker
-ENV PROJECT_HOME_IN_DOCKER=${project_home_in_docker}
+ENV PROJECT_HOME=${project_home_in_docker}
+ARG data_dir_in_docker
+ENV DATA_DIR=${data_dir_in_docker}
+ARG log_dir_in_docker
+ENV LOG_DIR=${log_dir_in_docker}
+ARG model_dir_in_docker
+ENV MODEL_DIR=${model_dir_in_docker}
 
-# Assembling project
-ADD ./codes ${PROJECT_HOME_IN_DOCKER}/codes
-ADD ./confs ${PROJECT_HOME_IN_DOCKER}/confs
-ADD ./scripts ${PROJECT_HOME_IN_DOCKER}/bin
+# Assemble project
+ADD ./codes ${PROJECT_HOME}/codes
+ADD ./confs ${PROJECT_HOME}/confs
+ADD ./scripts ${PROJECT_HOME}/bin
+RUN chmod -R 750 ${PROJECT_HOME}/bin
+
+WORKDIR ${PROJECT_HOME}
+ENV PYTHONPATH=${PYHTONPATH}:${PROJECT_HOME}
