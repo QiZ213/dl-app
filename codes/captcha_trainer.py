@@ -1,19 +1,18 @@
 from __future__ import print_function
 
-import os
 import os.path
 
 import cv2
+import keras
 import numpy as np
 import tensorflow as tf
-from sklearn.model_selection import train_test_split
-
-import keras
-from codes import DATA_DIR, LOG_DIR, MODEL_DIR
 from keras.callbacks import ModelCheckpoint
 from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Dense, Flatten
 from keras.models import Sequential
+from sklearn.model_selection import train_test_split
+
+from codes import DATA_DIR, LOG_DIR, MODEL_DIR
 
 FLAGS = tf.app.flags.FLAGS
 flags = tf.app.flags

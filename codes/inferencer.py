@@ -2,12 +2,12 @@
 
 import cv2
 import numpy as np
+from keras.models import load_model
 
-from codes import PROJECT_HOME
+from codes import MODEL_DIR
 from codes import cost_time
 from codes import logging
 from codes.base_inferencer import BaseInferencer
-from keras.models import load_model
 
 logger = logging.getLogger(__name__)
 
@@ -62,8 +62,8 @@ class OCRModel:
 class Inferencer(BaseInferencer):
     def __init__(self):
         self.model_class2_class10 = OCRModel(
-            PROJECT_HOME + '/models/Xception_model/transfer_model_Keras_Xception_class2/model_weights.h5',
-            PROJECT_HOME + '/models/Xception_model/transfer_model_Keras_Xception_class10/model_weights.h5')
+            MODEL_DIR + '/Xception_model/transfer_model_Keras_Xception_class2/model_weights.h5',
+            MODEL_DIR + '/Xception_model/transfer_model_Keras_Xception_class10/model_weights.h5')
         self.model_class2_class10.fake_predict()
         logger.info("init done!")
 

@@ -12,8 +12,8 @@ ARG model_dir_in_docker
 ENV MODEL_DIR=${model_dir_in_docker}
 
 # Install requirements
-ADD ./requirements.txt ${PROJECT_HOME}/requirements.txt
-RUN pip install -r ${PROJECT_HOME}/requirements.txt
+ADD ./requirements_service.txt ${PROJECT_HOME}/requirements_service.txt
+RUN pip install -r ${PROJECT_HOME}/requirements_service.txt
 
 # Assemble project
 ADD ./codes ${PROJECT_HOME}/codes
