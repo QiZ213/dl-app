@@ -21,10 +21,6 @@ ENV BASE_URL=${notebook_base_url}
 # Install jupyter notebook
 RUN pip install --no-cache-dir jupyter
 
-# Install matplotlib
-RUN conda install -yq matplotlib \
-    && conda clean -yt
-
 # Add Tini. Tini operates as a process subreaper for jupyter.
 # This prevents kernel crashes.
 # ENV TINI_VERSION v0.16.1
@@ -41,6 +37,10 @@ RUN useradd -m -s /bin/bash -N -u ${NB_UID} ${NB_USER} \
 
 EXPOSE 8888
 WORKDIR ${HOME}
+
+# Install requirements
+ADD ./requirements_train.txt ${PROJECT_HOME}/requirements_train.txt
+RUN pip install -r ${PROJECT_HOME}/requirements_train.txt
 
 # Assemble project
 COPY ./scripts/start.sh /usr/local/bin/

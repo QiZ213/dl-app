@@ -14,6 +14,10 @@ ENV LOG_DIR=${log_dir_in_docker}
 ARG model_dir_in_docker
 ENV MODEL_DIR=${model_dir_in_docker}
 
+# Install requirements
+ADD ./requirements_train.txt ${PROJECT_HOME}/requirements_train.txt
+RUN pip install -r ${PROJECT_HOME}/requirements_train.txt
+
 # Assemble project
 ADD ./codes ${PROJECT_HOME}/codes
 ADD ./confs ${PROJECT_HOME}/confs

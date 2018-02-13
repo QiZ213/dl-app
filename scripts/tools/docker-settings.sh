@@ -1,4 +1,5 @@
 #!/bin/bash
+# Script to define docker environment variables
 . "${BASH_SOURCE%/*}/../common-settings.sh"
 
 IDC_NAME=$1 # e.g. "prod"
@@ -35,9 +36,9 @@ fi
 
 DOCKER=docker
 DOCKER_HOME="/opt/${PROJECT_NAME}"
-DOCKER_DATA_DIR=${DOCKER_HOME}/data
-DOCKER_LOG_DIR=${DOCKER_HOME}/log
-DOCKER_MODEL_DIR=${DOCKER_HOME}/models
+DOCKER_DATA_DIR="${DOCKER_HOME}/data"
+DOCKER_LOG_DIR="${DOCKER_HOME}/log"
+DOCKER_MODEL_DIR="${DOCKER_HOME}/models"
 DOCKER_TAG="${PROJECT_NAME}:${PROJECT_VERSION}"
 
 # common docker-image building args
@@ -61,6 +62,7 @@ delete_docker_container() {
   ${DOCKER} ps -a | grep $1 && ${DOCKER} stop $1 && ${DOCKER} rm -v $1
   return 0
 }
+
 
 delete_docker_image() {
   if [ $# != 1 ]; then
