@@ -13,18 +13,21 @@ fi
 
 # Handle special flags if we're root
 if [ $(id -u) == 0 ]; then
+
   # Handle username change. Since this is cheap, do this unconditionally
   echo "Set username to: ${NB_USER}"
   usermod -d /home/${NB_USER} -l ${NB_USER} ppd
 
   # Handle home and working directory if the username changed
   if [[ "${NB_USER}" != "ppd" ]]; then
+
     # changing username, make sure home_dir exists
     # (it could be mounted, and we shouldn't create it if it already exists)
     if [[ ! -e "/home/$NB_USER" ]]; then
       echo "Relocating home dir to /home/${NB_USER}"
       mv /home/ppd "/home/${NB_USER}"
     fi
+
     # if work_dir is in /home/ppd, cd to /home/$NB_USER
     if [[ "${PWD}/" == "/home/ppd/"* ]]; then
       new_cwd=${PWD/ppd/${NB_USER}}
@@ -55,6 +58,8 @@ if [ $(id -u) == 0 ]; then
   # the environment preserved
   echo "Executing the command: $cmd"
   exec sudo -E -H -u ${NB_USER} PATH=${PATH} ${cmd}
+
+# Check special flags if we're not root
 else
   if [[ ! -z "${NB_UID}" && "${NB_UID}" != "$(id -u)" ]]; then
     echo 'Container must be run as root to set ${NB_UID}'

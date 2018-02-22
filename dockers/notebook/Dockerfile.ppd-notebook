@@ -21,6 +21,10 @@ ENV BASE_URL=${notebook_base_url}
 # Install jupyter notebook
 RUN pip install --no-cache-dir jupyter
 
+# Install requirements
+ADD ./requirements_train.txt ${PROJECT_HOME}/requirements_train.txt
+RUN pip install -r ${PROJECT_HOME}/requirements_train.txt
+
 # Add Tini. Tini operates as a process subreaper for jupyter.
 # This prevents kernel crashes.
 # ENV TINI_VERSION v0.16.1
@@ -29,18 +33,15 @@ ADD ./dockers/notebook/tini /tini
 RUN chmod +x /tini
 ENTRYPOINT ["/tini", "--"]
 
-# Create ppd user with UID=1000 and in the 'users' group
-# and make sure these dirs are writable by the `users` group.
+# Create NB_USER with specified UID and GID,and append it to "root" group.
 RUN useradd -m -s /bin/bash -N -u ${NB_UID} ${NB_USER} \
     && usermod -a -G root ${NB_USER} \
     && chown -R ${NB_USER}:${NB_GID} ${HOME}
+# Add cuda to PATH of NB_USER
+RUN echo "PATH=${PATH}:/usr/local/cuda-8.0:/usr/local/cuda-8.0/bin" > ${HOME}/.bashrc
 
 EXPOSE 8888
 WORKDIR ${HOME}
-
-# Install requirements
-ADD ./requirements_train.txt ${PROJECT_HOME}/requirements_train.txt
-RUN pip install -r ${PROJECT_HOME}/requirements_train.txt
 
 # Assemble project
 COPY ./scripts/start.sh /usr/local/bin/
