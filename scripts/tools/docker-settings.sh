@@ -54,21 +54,37 @@ RUNNING_OPTIONS="${RUNNING_OPTIONS} -v ${LOG_DIR}:${DOCKER_LOG_DIR}"
 RUNNING_OPTIONS="${RUNNING_OPTIONS} -v ${MODEL_DIR}:${DOCKER_MODEL_DIR}"
 
 
-delete_docker_container() {
-  if [ $# != 1 ]; then
-    echo "Illegal arguments: delete_docker_container project_name"
-    return 64
-  fi
-  ${DOCKER} ps -a | grep $1 && ${DOCKER} stop $1 && ${DOCKER} rm -v $1
-  return 0
-}
-
-
 delete_docker_image() {
   if [ $# != 1 ]; then
     echo "Illegal arguments: delete_docker_image image_tag"
     return 64
   fi
-  ${DOCKER} image inspect $1 &> /dev/null && ${DOCKER} rmi $1
+  ${DOCKER} image inspect $1 &> /dev/null \
+    && ${DOCKER} rmi $1 &> /dev/null
+  return 0
+}
+
+
+delete_docker_container() {
+  if [ $# != 1 ]; then
+    echo "Illegal arguments: delete_docker_container project_name"
+    return 64
+  fi
+  ${DOCKER} ps -a | grep $1 &> /dev/null \
+    && ${DOCKER} stop $1 &> /dev/null \
+    && ${DOCKER} rm -v $1 &> /dev/null
+  return 0
+}
+
+
+check_application_status() {
+  if [ $# != 1 ]; then
+    echo "Illegal arguments: check_application_status project_name"
+    return 64
+  fi
+  sleep 5s # ensure check status after initialization completed
+  if ${DOCKER} ps -a | grep $1 | grep "Exited" &> /dev/null ; then
+    return 64
+  fi
   return 0
 }
