@@ -2,13 +2,13 @@
 # Script to help build and run docker images
 . "${BASH_SOURCE%/*}/../common-settings.sh"
 
-IDC_NAME=$1 # e.g. "prod"
+IDC_NAME=$1 # e.g. "ppd"
 DEVICE_TYPE=$2  # e.g. "gpu"
 PROJECT_NAME=$3 # e.g. "ocr-service"
 PROJECT_VERSION=$4 # e.g. "0.1"
 
 DOCKER=docker
-if [ ${IDC_NAME} == "prod" ]; then
+if [ ${IDC_NAME} == "ppd" ]; then
   DOCKER_REGISTRY="dock.cbd.com:80"
   ${DOCKER} login -u admin -p admin123 ${DOCKER_REGISTRY}
 elif [ ${IDC_NAME} == "aws" ] ; then

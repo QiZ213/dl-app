@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ $# -lt 6 ]; then
   echo "Illegal arguments: ./run-service.sh idc_name device_type service_name version image_existed debug_mode"
-  echo "e.g. $ /bin/bash run-service.sh prod cpu captcha-service 0.1 no yes"
+  echo "e.g. $ /bin/bash run-service.sh ppd|aws cpu|gpu ocr-service 0.1 yes|no yes|no"
   exit 128
 fi
 
@@ -48,7 +48,7 @@ else
     CMD="/bin/bash ${DOCKER_HOME}/bin/start-service.sh"
     RUNNING_OPTIONS="${RUNNING_OPTIONS} --net=bridge -p ${SERVING_PORT}:8080"
     RUNNING_CMD="${DOCKER_ENGINE} run -d --name ${PROJECT_NAME} ${RUNNING_OPTIONS} ${DOCKER_TAG} ${CMD}"
-    echo ${BUILDING_CMD}
+    echo ${RUNNING_CMD}
 
     eval ${RUNNING_CMD} || {
       echo "fail to start ${DOCKER_TAG} by ${CMD}" \

@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ $# -lt 6 ]; then
   echo "Illegal arguments: ./run-train.sh idc_name device_type task_name version image_existed debug_mode [notebook_enabled]"
-  echo "e.g. $ /bin/bash run-train.sh prod cpu captcha-train 0.1 no yes [yes]"
+  echo "e.g. $ /bin/bash run-train.sh ppd|aws cpu|gpu ocr-train 0.1 no|yes no|yes [yes]"
   exit 128
 fi
 

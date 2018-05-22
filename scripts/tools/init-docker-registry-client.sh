@@ -28,7 +28,7 @@ if [ ! -z "${REMOTE_CERTS_DIR}" ]; then
       ${DOCKER_IP} \
       ${DOCKER_REGISTRY} \
       ${OS} \
-      "$(whoami)@${DOCKER_HOST}:${REMOTE_CERTS_DIR}"
+      "$(whoami)@${DOCKER_IP}:${REMOTE_CERTS_DIR}"
 else
    . ${curr_dir}/init-docker-registry-client-by-insecure.sh \
       ${DOCKER_IP} \
@@ -36,6 +36,6 @@ else
       ${OS}
 fi
 
-# add to /etc/hosts
-sudo grep "${DOCKER_HOST} ${DOCKER_REGISTRY%%:*}" /etc/hosts &> /dev/null \
-  || echo "please add \"${DOCKER_HOST} ${DOCKER_REGISTRY%%*.}\" to /etc/hosts manually"
+# add dns to /etc/hosts
+sudo grep "${DOCKER_IP} ${DOCKER_REGISTRY%%:*}" /etc/hosts &> /dev/null \
+  || echo "${DOCKER_IP} ${DOCKER_REGISTRY%%:*}" | sudo tee -a /etc/hosts
