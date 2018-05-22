@@ -9,22 +9,33 @@ from importlib import import_module
 from flask import Flask
 from flask import request
 
-from codes import logging
-
-logger = logging.getLogger(__name__)
+from codes import dump_json, logger
+from codes.inferencer import Inferencer
 
 app = Flask(__name__)
 
 
 @app.route("/")
 def hello():
-    return 'hello_world!'
+    return 'Hello! Service is running'
 
 
 @app.route("/service", methods=['POST'])
 def do_service():
-    result = app.my_model.execute(request.stream)
-    return result
+    request.get_data()
+    mark = request.form.get('mark').strip()
+    if not Inferencer.validate_mark(mark):
+        return 'notassigned'
+    series_num = request.form.get('serieNo', u'0')
+    img = request.files.get('img_data')
+    result = app.my_model.execute(img, mark, series_num)
+    response_status = 200
+
+    return app.response_class(
+        response=dump_json(result),
+        status=response_status,
+        mimetype='application/json'
+    )
 
 
 def parse_cmd():
@@ -49,6 +60,8 @@ def parse_cmd():
         parsed_conf["main_class"] = main_class
         if "gunicorn" in http_server_config:
             parsed_conf.update(http_server_config["gunicorn"])
+        if "service" in http_server_config:
+            parsed_conf.update(http_server_config["service"])
     except Exception as e:
         logger.error("Fail to parse cmd")
         return

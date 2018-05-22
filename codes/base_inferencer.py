@@ -12,5 +12,9 @@ class BaseInferencer:
         pass
 
     # method to execute inference
-    def execute(self, data):
+    def execute(self, data, mark, unique_id):
         raise NotImplementedError
+
+    # method to validate mark of request
+    def validate_mark(self, mark):
+        pass
