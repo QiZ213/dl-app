@@ -1,0 +1,52 @@
+FROM ppd-cpu-py3-base:0.1
+
+# Docker script to append jupyter notebook. Please refer to:
+#   https://github.com/jupyter/docker-stacks/blob/master/base-notebook/Dockerfile
+LABEL maintainer="Yun Zhu(zhuyun@ppdai.com)"
+
+# Configure environment
+ENV NB_USER=ppd \
+    NB_UID=1000 \
+    NB_GID=100
+ENV HOME=/home/${NB_USER}
+
+ARG project_home_in_docker
+ENV PROJECT_HOME_IN_DOCKER=${project_home_in_docker}
+ARG notebook_password
+ENV PASSWORD=${notebook_password}
+ARG notebook_base_url
+ENV BASE_URL=${notebook_base_url}
+
+# Install jupyter notebook
+RUN pip install --no-cache-dir jupyter
+RUN conda install -yq matplotlib \
+    && conda clean -yt
+
+# Add Tini. Tini operates as a process subreaper for jupyter.
+# This prevents kernel crashes.
+# ENV TINI_VERSION v0.16.1
+# ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+ADD ./dockers/notebook/tini /tini
+RUN chmod +x /tini
+ENTRYPOINT ["/tini", "--"]
+
+# Create ppd user with UID=1000 and in the 'users' group
+# and make sure these dirs are writable by the `users` group.
+RUN useradd -m -s /bin/bash -N -u ${NB_UID} ${NB_USER} \
+    && usermod -a -G root ${NB_USER} \
+    && chown -R ${NB_USER}:${NB_GID} ${HOME}
+
+EXPOSE 8888
+WORKDIR ${HOME}
+
+# Assemble project
+COPY ./scripts/start.sh /usr/local/bin/
+COPY ./scripts/start-notebook.sh /usr/local/bin
+COPY ./dockers/notebook/jupyter_notebook_config.py /etc/jupyter/
+
+# Switch back to ppd to avoid accidental container runs as root
+USER ${NB_USER}
+# Install python2 kernel
+RUN conda create -n ipykernel_py2 python=2 ipykernel \
+    && /bin/bash -c "source activate ipykernel_py2" \
+    && python -m ipykernel install
