@@ -8,6 +8,11 @@ PROJECT_NAME=$3 # e.g. "ocr-service"
 PROJECT_VERSION=$4 # e.g. "0.1"
 
 DOCKER=docker
+DOCKER_HOME="/opt/${PROJECT_NAME}"
+DOCKER_DATA_DIR="${DOCKER_HOME}/data"
+DOCKER_LOG_DIR="${DOCKER_HOME}/log"
+DOCKER_MODEL_DIR="${DOCKER_HOME}/models"
+
 if [ ${IDC_NAME} == "ppd" ]; then
   DOCKER_REGISTRY="dock.cbd.com:80"
   ${DOCKER} login -u admin -p admin123 ${DOCKER_REGISTRY}
@@ -20,51 +25,33 @@ fi
 
 if [ ${DEVICE_TYPE} == "cpu" ]; then
   DOCKER_ENGINE=docker
+  OS="cpu-ubuntu${UBUNTU_VERSION}"
 elif [ ${DEVICE_TYPE} == "gpu" ]; then
   DOCKER_ENGINE=nvidia-docker
+  OS="gpu-cuda${CUDA_VERSION}-cudnn${CUDNN_VERSION}-ubuntu${UBUNTU_VERSION}"
 else
   echo "invalid device_type, either cpu or gpu"
   exit 64
 fi
 
-if [ "${PYTHON##/*/}" == "python3" ]; then
-  DOCKER_BASE=
-elif [ "${PYTHON##/*/}" == "python" ]; then
-  DOCKER_BASE=${DOCKER_REGISTRY}/pytorch-py27-gpu-cuda8.0-cudnn5-ubuntu14.04:0.1
+if [ "${PYTHON_VERSION}" == "2" ]; then
+  PYTHON_ALIAS="27"
+elif [ "${PYTHON_VERSION}" == "3" ]; then
+  PYTHON_ALIAS="36"
 else
   echo "invalid python, either 2 or 3"
   exit 64
 fi
 
-DOCKER_HOME="/opt/${PROJECT_NAME}"
-DOCKER_DATA_DIR="${DOCKER_HOME}/data"
-DOCKER_LOG_DIR="${DOCKER_HOME}/log"
-DOCKER_MODEL_DIR="${DOCKER_HOME}/models"
-DOCKER_TAG="${PROJECT_NAME}:${PROJECT_VERSION}"
-
 # common docker-image building args
 BUILDING_ARGS="--build-arg project_home_in_docker=${DOCKER_HOME}"
+DOCKER_BASE="${DOCKER_REGISTRY}/${DEEP_LEARNING_FRAMEWORK}-py${PYTHON_ALIAS}-${OS}:${DEEP_LEARNING_DOCKER_VERSION}"
 BUILDING_ARGS="${BUILDING_ARGS} --build-arg base=${DOCKER_BASE}"
-BUILDING_ARGS="${BUILDING_ARGS} --build-arg data_dir_in_docker=${DOCKER_DATA_DIR}"
-BUILDING_ARGS="${BUILDING_ARGS} --build-arg log_dir_in_docker=${DOCKER_LOG_DIR}"
-BUILDING_ARGS="${BUILDING_ARGS} --build-arg model_dir_in_docker=${DOCKER_MODEL_DIR}"
 
 # common docker-image running options
 RUNNING_OPTIONS="-v ${PROJECT_HOME}/data:${DOCKER_DATA_DIR}"
 RUNNING_OPTIONS="${RUNNING_OPTIONS} -v ${PROJECT_HOME}/log:${DOCKER_LOG_DIR}"
 RUNNING_OPTIONS="${RUNNING_OPTIONS} -v ${PROJECT_HOME}/models:${DOCKER_MODEL_DIR}"
-
-
-delete_docker_image() {
-  if [ $# != 1 ]; then
-    echo "Illegal arguments: delete_docker_image image_tag"
-    return 64
-  fi
-  ${DOCKER} image inspect $1 &> /dev/null \
-      && ${DOCKER} rmi $1 &> /dev/null
-  return 0
-}
-
 
 delete_docker_container() {
   if [ $# != 1 ]; then
@@ -77,6 +64,15 @@ delete_docker_container() {
   return 0
 }
 
+delete_docker_image() {
+  if [ $# != 1 ]; then
+    echo "Illegal arguments: delete_docker_image image_tag"
+    return 64
+  fi
+  ${DOCKER} image inspect $1 &> /dev/null \
+      && ${DOCKER} rmi $1 &> /dev/null
+  return 0
+}
 
 check_application_status() {
   if [ $# != 1 ]; then
