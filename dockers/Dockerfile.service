@@ -1,27 +1,27 @@
 ARG base
 FROM ${base}
 
-# Configure environment
+# Docker script to set up serving docker image.
+LABEL maintainer="Yun Zhu(zhuyun@ppdai.com)"
+
 ARG project_home_in_docker
 ENV PROJECT_HOME=${project_home_in_docker}
-ARG data_dir_in_docker
-ENV DATA_DIR=${data_dir_in_docker}
-ARG log_dir_in_docker
-ENV LOG_DIR=${log_dir_in_docker}
-ARG model_dir_in_docker
-ENV MODEL_DIR=${model_dir_in_docker}
 
 # Install requirements
 ADD ./requirements_service.txt ${PROJECT_HOME}/requirements_service.txt
-RUN pip install -r ${PROJECT_HOME}/requirements_service.txt
+RUN pip install -i ${PYPI} -r ${PROJECT_HOME}/requirements_service.txt
+
+# fix keras dependencies, please refer: https://github.com/menpo/landmarkerio-server/issues/23
+RUN conda install libgfortran==1 \
+    && conda clean -tipsy
 
 # Assemble project
-ADD ./codes ${PROJECT_HOME}/codes
+ADD ./application ${PROJECT_HOME}/application
 ADD ./confs ${PROJECT_HOME}/confs
 ADD ./scripts ${PROJECT_HOME}/bin
+ADD ./resources ${PROJECT_HOME}/resources
 RUN chmod -R 750 ${PROJECT_HOME}/bin
 
 # setup python service env
 EXPOSE 8080
 WORKDIR ${PROJECT_HOME}
-ENV PYTHONPATH=${PYHTONPATH}:${PROJECT_HOME}

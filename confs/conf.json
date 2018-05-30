@@ -2,7 +2,7 @@
   "http_server": {
     "exec": {
       "main_class": "Inferencer",
-      "main_file": "codes.inferencer"
+      "main_file": "application.inferencer"
     },
     "gunicorn": {
       "worker": "4",
