@@ -14,7 +14,7 @@ IMAGE_EXISTED=$5
 if [ "${TASK_TYPE}" = "service" ]; then
   DOCKER_FILE="${PROJECT_HOME}/dockers/Dockerfile.service"
   CMD="/bin/bash ${DOCKER_HOME}/bin/start-service.sh"
-  RUNNING_MODE="-d --restart=always"
+  RUNNING_MODE="-d --restart=unless-stopped"
   RUNNING_OPTIONS="${RUNNING_OPTIONS} --net=bridge -p ${SERVING_PORT}:8080"
 elif  [ "${TASK_TYPE}" = "train" ]; then
   DOCKER_FILE="${PROJECT_HOME}/dockers/Dockerfile.train"
@@ -25,7 +25,7 @@ elif [ "${TASK_TYPE}" = "notebook" ]; then
   BUILDING_ARGS="${BUILDING_ARGS} --build-arg notebook_password=${NOTEBOOK_PASSWORD:=123456}"
   BUILDING_ARGS="${BUILDING_ARGS} --build-arg notebook_base_url=${PROJECT_NAME}"
   CMD="/bin/bash -c start-notebook.sh"
-  RUNNING_MODE="-d"
+  RUNNING_MODE="-d --restart=unless-stopped"
   RUNNING_OPTIONS="${RUNNING_OPTIONS} -v ${PROJECT_HOME}/notebooks:/home/cbd"
   RUNNING_OPTIONS="${RUNNING_OPTIONS} -p ${NOTEBOOK_PORT:=18888}:8888"
 elif [ "${TASK_TYPE}" = "debug" ]; then
@@ -48,7 +48,7 @@ if [ "${IMAGE_EXISTED}" == "yes" ]; then
   fi
   echo "use existed docker image ${DOCKER_TAG} successfully"
 else
-  echo "building training docker image ${DOCKER_TAG} by:"
+  echo "building ${TASK_TYPE} docker image ${DOCKER_TAG} by:"
   delete_docker_container ${DOCKER_TAG}
   delete_docker_image ${DOCKER_TAG}
   BUILDING_CMD="${DOCKER} build -t ${DOCKER_TAG} ${BUILDING_ARGS} -f ${DOCKER_FILE} ${PROJECT_HOME} "
@@ -61,7 +61,7 @@ else
   echo "build ${DOCKER_TAG} successfully"
 fi
 
-echo "running training docker image ${DOCKER_TAG} by:"
+echo "running ${TASK_TYPE} docker image ${DOCKER_TAG} by:"
 delete_docker_container ${PROJECT_NAME}
 RUNNING_CMD="${DOCKER_ENGINE} run ${RUNNING_MODE} --name ${PROJECT_NAME} ${RUNNING_OPTIONS} ${DOCKER_TAG} ${CMD}"
 echo "${RUNNING_CMD}"

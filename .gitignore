@@ -54,11 +54,14 @@ local.properties
 .worksheet
 
 ### Eclipse Patch ###
-# Eclipse Core		
+# Eclipse Core
 .project
 
-# JDT-specific (Eclipse Java Development Tools)		
+# JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+# Annotation Processing
+.apt_generated
 
 ### Emacs ###
 # -*- mode: gitignore; -*-
@@ -271,7 +274,6 @@ buildNumber.properties
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-
 *$py.class
 
 # C extensions
@@ -310,6 +312,7 @@ htmlcov/
 .coverage
 .coverage.*
 .cache
+.pytest_cache/
 nosetests.xml
 coverage.xml
 *.cover
@@ -318,9 +321,6 @@ coverage.xml
 # Translations
 *.mo
 *.pot
-
-# Django stuff:
-local_settings.py
 
 # Flask stuff:
 instance/
@@ -341,7 +341,7 @@ docs/_build/
 .python-version
 
 # celery beat schedule file
-celerybeat-schedule
+celerybeat-schedule.*
 
 # SageMath parsed files
 *.sage.py
@@ -375,10 +375,8 @@ venv.bak/
 
 ### Vim ###
 # swap
-[._]*.s[a-v][a-z]
-[._]*.sw[a-p]
-[._]s[a-v][a-z]
-[._]sw[a-p]
+.sw[a-p]
+.*.sw[a-p]
 # session
 Session.vim
 # temporary
@@ -406,5 +404,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
 
 # End of https://www.gitignore.io/api/vim,emacs,eclipse,intellij+iml,java,python,scala,linux,macos,windows,maven,svn
