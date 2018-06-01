@@ -17,7 +17,7 @@ RESOURCE_DIR = os.path.join(PROJECT_HOME, 'resources')
 
 DATA_DIR = os.getenv('DATA_DIR')
 if not DATA_DIR:
-    DATA_DIR = os.path.join(PROJECT_HOME, 'io')
+    DATA_DIR = os.path.join(PROJECT_HOME, 'data')
 
 LOG_DIR = os.getenv('LOG_DIR')
 if not LOG_DIR:

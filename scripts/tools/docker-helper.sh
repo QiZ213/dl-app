@@ -1,11 +1,14 @@
 #!/bin/bash
 # Script to help build and run docker images
 . "${BASH_SOURCE%/*}/../common-settings.sh"
+curr_dir=$(dirname $0)
 
 IDC_NAME=$1 # e.g. "ppd"
 DEVICE_TYPE=$2  # e.g. "gpu"
 PROJECT_NAME=$3 # e.g. "ocr-service"
 PROJECT_VERSION=$4 # e.g. "0.1"
+
+. ${curr_dir}/deploy.sh ${PROJECT_NAME}
 
 DOCKER=docker
 DOCKER_HOME="/opt/${PROJECT_NAME}"
@@ -25,10 +28,10 @@ fi
 
 if [ ${DEVICE_TYPE} == "cpu" ]; then
   DOCKER_ENGINE=docker
-  OS="cpu-ubuntu${UBUNTU_VERSION}"
+  OS="cpu-${OS_VERSION}"
 elif [ ${DEVICE_TYPE} == "gpu" ]; then
   DOCKER_ENGINE=nvidia-docker
-  OS="gpu-cuda${CUDA_VERSION}-cudnn${CUDNN_VERSION}-ubuntu${UBUNTU_VERSION}"
+  OS="gpu-cuda${CUDA_VERSION}-cudnn${CUDNN_VERSION}-${OS_VERSION}"
 else
   echo "invalid device_type, either cpu or gpu"
   exit 64
