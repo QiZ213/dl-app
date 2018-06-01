@@ -4,9 +4,8 @@ if [ $# -lt 2 ]; then
   echo "e.g. $ /bin/bash init-docker-registry-client.sh ppd|aws linux|mac [/opt/dl-dockers/certs]"
   exit 128
 fi
-
+. "${BASH_SOURCE%/*}/../common-settings.sh"
 curr_dir=$(dirname $0)
-. ${curr_dir}/../common-settings.sh
 
 IDC_NAME=$1
 OS=$2

@@ -4,9 +4,7 @@ if [ $# -lt 3 ]; then
   echo "e.g. $ /bin/bash init-docker-registry-client.sh 10.1.62.214 dock.cbd.com:80 linux"
   exit 128
 fi
-
 curr_dir=$(dirname $0)
-. ${curr_dir}/../common-settings.sh
 
 REGISTRY_IP=$1
 REGISTRY_NAME=$2
@@ -32,4 +30,3 @@ else
   echo "unsupported os: ${OS}"
   exit 64
 fi
-

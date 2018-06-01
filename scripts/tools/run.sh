@@ -72,5 +72,5 @@ eval ${RUNNING_CMD} || {
   }
 if [ "${TASK_TYPE}" != "debug" ]; then
   check_application_status ${PROJECT_NAME}
+  echo "start ${DOCKER_TAG} successfully"
 fi
-echo "start ${DOCKER_TAG} successfully"

@@ -4,9 +4,7 @@ if [ $# -lt 4 ]; then
   echo "e.g. $ /bin/bash init-docker-registry-client.sh 172.31.14.82 registry.ppdai.aws linux bird@172.31.14.82:/opt/dl-dockers/certs"
   exit 128
 fi
-
 curr_dir=$(dirname $0)
-. ${curr_dir}/../common-settings.sh
 
 REGISTRY_IP=$1
 REGISTRY_NAME=$2
@@ -14,9 +12,9 @@ OS=$3
 REMOTE_CERTS_DIR=$4
 
 if [ ${OS} == 'linux' ]; then
-  DOCKER_CERTS_DIR=/etc/docker/certs.d/${DOCKER_REGISTRY}
+  DOCKER_CERTS_DIR=/etc/docker/certs.d/${REGISTRY_NAME}
 elif [ ${OS} == 'mac' ]; then
-  DOCKER_CERTS_DIR=~/.docker/certs.d/${DOCKER_REGISTRY}
+  DOCKER_CERTS_DIR=~/.docker/certs.d/${REGISTRY_NAME}
 else
   echo "unsupported os: ${OS}"
   exit 64

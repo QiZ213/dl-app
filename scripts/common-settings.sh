@@ -4,13 +4,16 @@
 PROJECT_BIN=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
 PROJECT_HOME=${PROJECT_BIN}/..
 
-# system env
+# system
 export PYTHONPATH=${PROJECT_HOME}:${PYTHONPATH}
 
-# script settings
+# python
+PYTHONPATH=${PROJECT_HOME}:${PYTHONPATH}
 PYTHON=python
+
+# env settings
 PYTHON_VERSION=2
-UBUNTU_VERSION=14.04
+OS_VERSION=ubuntu14.04
 CUDA_VERSION=8.0
 CUDNN_VERSION=6
 DEEP_LEARNING_FRAMEWORK=tensorflow
