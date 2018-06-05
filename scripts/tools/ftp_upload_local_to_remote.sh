@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ $# -lt 2 ]; then
+if [[ $# -lt 2 ]]; then
   echo "Illegal arguments: ftp_upload_local_to_remote.sh local remote"
   echo "e.g. /bin/bash ftp_upload_local_to_remote.sh local_dir remote_dir"
   exit 128
