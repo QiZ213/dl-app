@@ -5,14 +5,14 @@
 set -e
 
 # Exec the specified command or fall back on bash
-if [ $# -eq 0 ]; then
+if [[ $# -eq 0 ]]; then
     cmd=bash
 else
-    cmd=$*
+    cmd=$@
 fi
 
 # Handle special flags if we're root
-if [ $(id -u) == 0 ]; then
+if [[ $(id -u) == 0 ]]; then
 
   # Handle username change. Since this is cheap, do this unconditionally
   echo "Set username to: ${NB_USER}"
@@ -37,13 +37,13 @@ if [ $(id -u) == 0 ]; then
   fi
 
   # Change UID of NB_USER to NB_UID if it does not match
-  if [ "${NB_UID}" != $(id -u ${NB_USER}) ]; then
+  if [[ "${NB_UID}" != $(id -u ${NB_USER}) ]]; then
     echo "Set ${NB_USER} UID to: ${NB_UID}"
     usermod -u ${NB_UID} ${NB_USER}
   fi
 
   # Change GID of NB_USER to NB_GID if it does not match
-  if [ "${NB_GID}" != $(id -g ${NB_USER}) ]; then
+  if [[ "${NB_GID}" != $(id -g ${NB_USER}) ]]; then
     echo "Set ${NB_USER} GID to: ${NB_GID}"
     groupmod -g ${NB_GID} -o $(id -g -n ${NB_USER})
   fi
