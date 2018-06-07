@@ -6,9 +6,12 @@ FROM ${base}
 LABEL maintainer="Yun Zhu(zhuyun@cbdai.com)"
 
 # Configure environment
-ENV NB_USER=cbd \
-    NB_UID=1000 \
-    NB_GID=100
+ARG nb_user=cbd
+ARG nb_uid=1000
+ARG nb_gid=100
+ENV NB_USER=${nb_user} \
+    NB_UID=${nb_uid} \
+    NB_GID=${nb_gid}
 ENV HOME=/home/${NB_USER}
 
 ARG project_home_in_docker
@@ -18,17 +21,8 @@ ENV PASSWORD=${notebook_password}
 ARG notebook_base_url
 ENV BASE_URL=${notebook_base_url}
 
-RUN apt-get update \
-    && apt-get install -yq --no-install-recommends gcc \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
 # Install jupyter notebook
-RUN pip install --no-cache-dir jupyter
-
-# Install requirements
-ADD ./requirements_train.txt ${PROJECT_HOME}/requirements_train.txt
-RUN pip install -i ${PYPI} -r ${PROJECT_HOME}/requirements_train.txt
+RUN pip install -i ${PYPI} --no-cache-dir jupyter
 
 # Add Tini. Tini operates as a process subreaper for jupyter.
 # This prevents kernel crashes.
@@ -39,14 +33,19 @@ RUN chmod +x /tini
 ENTRYPOINT ["/tini", "--"]
 
 # Create NB_USER with specified UID and GID,and append it to "root" group.
+RUN test -d ${HOME} && rm -r -f ${HOME}
 RUN useradd -m -s /bin/bash -N -u ${NB_UID} ${NB_USER} \
-    && usermod -a -G root ${NB_USER} \
-    && chown -R ${NB_USER}:${NB_GID} ${HOME}
+    && chown -R ${NB_USER}:${NB_GID} ${HOME} \
+    && usermod -a -G root ${NB_USER}
 # Add cuda to PATH of NB_USER
 RUN echo "PATH=${PATH}:/usr/local/cuda-8.0:/usr/local/cuda-8.0/bin" > ${HOME}/.bashrc
 
 EXPOSE 8888
 WORKDIR ${HOME}
+
+# Install requirements
+ADD ./requirements_train.txt ${PROJECT_HOME}/requirements_train.txt
+RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_train.txt
 
 # Assemble project
 COPY ./scripts/start.sh /usr/local/bin/

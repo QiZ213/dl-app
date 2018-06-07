@@ -9,7 +9,7 @@ ENV PROJECT_HOME=${project_home_in_docker}
 
 # Install requirements
 ADD ./requirements_train.txt ${PROJECT_HOME}/requirements_train.txt
-RUN pip install -i ${PYPI} -r ${PROJECT_HOME}/requirements_train.txt
+RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_train.txt
 
 # Assemble project
 ADD ./codes ${PROJECT_HOME}/codes

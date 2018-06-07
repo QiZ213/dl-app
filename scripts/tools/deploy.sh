@@ -26,12 +26,13 @@ link_dir_for_docker(){
     SOURCE_DIR=$2
     if [[ ! -d ${SOURCE_DIR} ]]; then
       echo "WARNING: ${SOURCE_DIR} not existed"
-      sudo mkdir -p ${SOURCE_DIR} \
-        && sudo chown $(whoami) ${SOURCE_DIR}
+      mkdir -p ${SOURCE_DIR} \
+        || echo "fail to create ${SOURCE_DIR}, please make it manually"
     fi
   fi
   if [[ "${SOURCE_DIR}" != "${TARGET_DIR}" ]]; then
-    ln -s ${SOURCE_DIR} ${TARGET_DIR}
+    test -d ${TARGET_DIR} \
+      || ln -s ${SOURCE_DIR} ${TARGET_DIR}
   fi
 }
 
