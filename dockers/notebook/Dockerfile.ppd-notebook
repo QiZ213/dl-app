@@ -33,8 +33,7 @@ RUN chmod +x /tini
 ENTRYPOINT ["/tini", "--"]
 
 # Create NB_USER with specified UID and GID,and append it to "root" group.
-ADD ./dockers/notebook/fix_permissions.sh fix_permissions.sh
-RUN chmod +x fix_permissions.sh
+RUN test -d ${HOME} && rm -r -f ${HOME}
 RUN useradd -m -s /bin/bash -N -u ${NB_UID} ${NB_USER} \
     && chown -R ${NB_USER}:${USER_GID} ${HOME} \
     && usermod -a -G root ${NB_USER}
