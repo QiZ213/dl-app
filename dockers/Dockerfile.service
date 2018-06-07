@@ -9,11 +9,7 @@ ENV PROJECT_HOME=${project_home_in_docker}
 
 # Install requirements
 ADD ./requirements_service.txt ${PROJECT_HOME}/requirements_service.txt
-RUN pip install -i ${PYPI} -r ${PROJECT_HOME}/requirements_service.txt
-
-# fix keras dependencies, please refer: https://github.com/menpo/landmarkerio-server/issues/23
-RUN conda install -yq libgfortran==1 \
-    && conda clean -tipsy
+RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_service.txt
 
 # Assemble project
 ADD ./application ${PROJECT_HOME}/application
