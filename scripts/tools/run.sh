@@ -6,7 +6,7 @@ if [[ $# -lt 5 ]]; then
 fi
 
 curr_dir=$(dirname $0)
-. ${curr_dir}/docker_helper.sh $@
+. ${curr_dir}/docker_helpers.sh $@
 TASK_TYPE=$5
 shift
 IMAGE_EXISTED=$5
@@ -35,6 +35,7 @@ elif [[ "${TASK_TYPE}" = "debug" ]]; then
   IMAGE_EXISTED="yes"
   CMD="/bin/bash"
   RUNNING_MODE="-it"
+  RUNNING_OPTIONS="${RUNNING_OPTIONS} --net=bridge -p ${SERVING_PORT}:8080"
 else
   echo "unsupported task type: ${TASK_TYPE}"
   exit 64

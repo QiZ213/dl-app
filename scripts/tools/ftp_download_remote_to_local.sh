@@ -9,7 +9,7 @@ REMOTE_DIR=$1
 LOCAL_DIR=$2
 
 curr_dir=$(dirname $0)
-. ${curr_dir}/ftp_helper.sh
+. ${curr_dir}/ftp_helpers.sh
 
 REMOTE_SUCCESS_TAG=${REMOTE_DIR}/_SUCESS
 SUCCESS_COND="$(${FTP} -e "ls ${REMOTE_DIR}/_SUCCESS; exit")"
