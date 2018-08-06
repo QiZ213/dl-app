@@ -24,7 +24,7 @@ def do_service():
     if not Inferencer.validate_mark(mark):
         return 'not assigned'
     data = request.files.get('data')
-    series_num = request.form.get('serieNo', u'0')
+    series_num = request.form.get('uid', u'0')
     params = request.form.to_dict()
     result = app.my_model.execute(data, mark, series_num, params)
 

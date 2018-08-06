@@ -48,7 +48,8 @@ fi
 
 # common docker-image building args
 BUILDING_ARGS="--build-arg project_home_in_docker=${DOCKER_HOME}"
-DOCKER_BASE="${DOCKER_REGISTRY}/${DEEP_LEARNING_FRAMEWORK}-py${PYTHON_ALIAS}-${OS}:${DEEP_LEARNING_DOCKER_VERSION}"
+DOCKER_BASE="${DOCKER_REGISTRY}/${DEEP_LEARNING_FRAMEWORK}:${DEEP_LEARNING_VERSION}"
+DOCKER_BASE="${DOCKER_BASE}-py${PYTHON_ALIAS}-${OS}"
 BUILDING_ARGS="${BUILDING_ARGS} --build-arg base=${DOCKER_BASE}"
 
 # common docker-image running options

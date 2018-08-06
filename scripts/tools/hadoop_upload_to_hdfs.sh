@@ -9,7 +9,7 @@ LOCAL_DIR=$1
 HADOOP_DIR=$2
 
 curr_dir=$(dirname $0)
-. ${curr_dir}/hadoop_helper.sh
+. ${curr_dir}/hadoop_helpers.sh
 
 HADOOP_PATH="${HADOOP_HOME}/${HADOOP_DIR}"
 if check_and_remove_hadoop_output ${HADOOP_PATH}; then

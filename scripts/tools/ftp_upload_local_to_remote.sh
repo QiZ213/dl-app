@@ -9,7 +9,7 @@ LOCAL_DIR=$1
 REMOTE_DIR=$2
 
 curr_dir=$(dirname $0)
-. ${curr_dir}/ftp_helper.sh
+. ${curr_dir}/ftp_helpers.sh
 
 LOCAL_SUCCESS_TAG=${LOCAL_DIR}/_SUCCESS
 test -e ${LOCAL_SUCCESS_TAG} \

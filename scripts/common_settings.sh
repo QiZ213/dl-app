@@ -14,7 +14,7 @@ OS_VERSION=ubuntu14.04
 CUDA_VERSION=8.0
 CUDNN_VERSION=6
 DEEP_LEARNING_FRAMEWORK=tensorflow
-DEEP_LEARNING_DOCKER_VERSION=0.1
+DEEP_LEARNING_VERSION=1.4.0
 
 # deployment settings
 # specify data dir to store raw data or persisted intermediate variables
@@ -26,7 +26,7 @@ LOG_DIR=${PROJECT_HOME}/log
 # specify model dir to store models
 MODEL_DIR=${PROJECT_HOME}/models
 
-# specify notebook dir to store .ipynb codes,
+# specify notebook dir to store .ipynb application,
 NOTEBOOK_DIR=${PROJECT_HOME}/notebooks
 
 # notebook settings
@@ -38,4 +38,4 @@ NOTEBOOK_PASSWORD=123456
 
 # application settings
 # define port for application service, by default, it's "18080"
-SERVING_PORT=18080
+SERVING_PORT=18081
