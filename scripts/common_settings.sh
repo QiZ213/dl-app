@@ -2,7 +2,9 @@
 
 # project settings
 PROJECT_BIN=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
-PROJECT_HOME=${PROJECT_BIN}/..
+PROJECT_HOME=$(cd $(dirname ${PROJECT_BIN}); pwd)
+
+source ${PROJECT_BIN}/common_utils.sh
 
 # system
 export PYTHONPATH=${PROJECT_HOME}:${PYTHONPATH}
