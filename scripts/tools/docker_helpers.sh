@@ -7,9 +7,6 @@ DEVICE_TYPE=$2  # e.g. "gpu"
 PROJECT_NAME=$3 # e.g. "ocr-service"
 PROJECT_VERSION=$4 # e.g. "0.1"
 
-curr_dir=$(dirname $0)
-. ${curr_dir}/deploy.sh ${PROJECT_NAME}
-
 DOCKER=docker
 DOCKER_HOME="/opt/${PROJECT_NAME}"
 DOCKER_DATA_DIR="${DOCKER_HOME}/data"

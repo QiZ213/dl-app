@@ -1,13 +1,23 @@
 #!/bin/bash
-# Scripts to deploy project.
-if [[ $# -ne 1 ]]; then
-  echo "Illegal arguments: ./deploy.sh project_name"
-  echo "e.g. $ /bin/bash ./deploy.sh service_name"
+# Scripts to deploy project at local.
+if [[ $# -ne 2 ]]; then
+  echo "Illegal arguments: ./local_deploy.sh project_name task_type"
+  echo "e.g. $ /bin/bash ./local_deploy.sh service_name task_type"
   exit 128
 fi
 . "${BASH_SOURCE%/*}/../common_settings.sh"
 
+
 PROJECT_NAME=$1
+TASK_TYPE=$2
+
+check_port_listen() {
+  port=$1
+  if [ -n ${port} ]; then
+    port_pattern=":${port} "
+  fi
+  netstat -ln | grep ${port_pattern}
+}
 
 link_dir_for_docker(){
   if [[ $# -gt 2 ]]; then
@@ -35,6 +45,24 @@ link_dir_for_docker(){
       || ln -s ${SOURCE_DIR} ${TARGET_DIR}
   fi
 }
+
+case ${TASK_TYPE} in
+  notebook)
+    check_port_listen ${NOTEBOOK_PORT} && {
+      red_echo "Error: remote port for notebook: ${NOTEBOOK_PORT} is listened" \
+      && red_echo "  Please check it and replace another one in scripts/common_setting.sh" \
+      && exit 128
+    } ;;
+  service)
+    check_port_listen ${SERVING_PORT} && {
+      red_echo "Error: remote port for service: ${SERVING_PORT} is listened" \
+      && red_echo "  Please check it and replace another one in scripts/common_setting.sh" \
+      && exit 128
+    } ;;
+  *)
+    :
+    ;;
+esac
 
 link_dir_for_docker data ${DATA_DIR}
 link_dir_for_docker log ${LOG_DIR}
