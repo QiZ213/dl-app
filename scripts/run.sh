@@ -10,7 +10,7 @@ usage() {
   e.g 1: /bin/bash run.sh ppd gpu awesome_name 0.1 notebook
   e.g 2: /bin/bash run.sh ppd gpu awesome_name 0.2 service --exist
   e.g 3: /bin/bash run.sh ppd gpu awesome_name 0.1 service 172.1.3.0
-  e.g 4: /bin/bash run.sh ---------> Enter Interactive Mode.
+  e.g 4: /bin/bash run.sh ---------> Enter, and Type "y" to Interactive Mode.
   ARGUMENTS      OPTION                         DESCRIPTION
   idc_name       ppd | aws                      Where is the project code
   device_type    cpu | gpu                      Which device_type you choose
@@ -25,10 +25,10 @@ USAGE
 }
 
 
-if [[ $# -gt 0 && $# -lt 5 ]]; then
+if [[ $# -lt 5 ]]; then
   usage
-  yellow_echo "Want to enter Interactive Mode? (y as enter, n as exit)"
-  read -p "Interactive Mode? [y|n] " interactive_mode
+  yellow_echo "Want to enter Interactive Mode? (y as enter, others as exit)"
+  read -p "Interactive Mode (y/n)? " interactive_mode
   if ! is_yes "${interactive_mode}"; then
     exit 128
   else
