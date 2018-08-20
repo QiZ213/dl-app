@@ -32,7 +32,7 @@ elif [[ "${TASK_TYPE}" = "notebook" ]]; then
   BUILDING_ARGS="${BUILDING_ARGS} --build-arg nb_gid=$(id -g)"
   CMD="/bin/bash -c start_notebook.sh"
   RUNNING_MODE="-d --restart=unless-stopped"
-  RUNNING_OPTIONS="${RUNNING_OPTIONS} -v ${PROJECT_HOME}/notebooks:/home/cbd"
+  RUNNING_OPTIONS="${RUNNING_OPTIONS} -v ${PROJECT_HOME}/notebooks:/home/$(whoami)"
   RUNNING_OPTIONS="${RUNNING_OPTIONS} -p ${NOTEBOOK_PORT:=18888}:8888"
 elif [[ "${TASK_TYPE}" = "debug" ]]; then
   IMAGE_EXISTED="yes"
