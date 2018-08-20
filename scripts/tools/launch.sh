@@ -27,7 +27,7 @@ elif [[ "${TASK_TYPE}" = "notebook" ]]; then
   DOCKER_FILE="${PROJECT_HOME}/dockers/notebook/Dockerfile.ppd-notebook"
   BUILDING_ARGS="${BUILDING_ARGS} --build-arg notebook_password=${NOTEBOOK_PASSWORD:=123456}"
   BUILDING_ARGS="${BUILDING_ARGS} --build-arg notebook_base_url=${PROJECT_NAME}"
-  BUILDING_ARGS="${BUILDING_ARGS} --build-arg nb_name=$(whoami)"
+  BUILDING_ARGS="${BUILDING_ARGS} --build-arg nb_user=$(whoami)"
   BUILDING_ARGS="${BUILDING_ARGS} --build-arg nb_uid=$(id -u)"
   BUILDING_ARGS="${BUILDING_ARGS} --build-arg nb_gid=$(id -g)"
   CMD="/bin/bash -c start_notebook.sh"

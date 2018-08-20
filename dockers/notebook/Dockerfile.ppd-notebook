@@ -32,6 +32,10 @@ ADD ./dockers/notebook/tini /tini
 RUN chmod +x /tini
 ENTRYPOINT ["/tini", "--"]
 
+# Make /bin/sh symlink to bash instead of dash
+RUN echo "dash dash/sh boolean false" | debconf-set-selections
+RUN DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash
+
 # Create NB_USER with specified UID and GID,and append it to "root" group.
 RUN test -d ${HOME} && rm -r -f ${HOME}
 RUN useradd -m -s /bin/bash -N -u ${NB_UID} ${NB_USER} \
