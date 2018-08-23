@@ -6,6 +6,8 @@ LABEL maintainer="Yun Zhu(zhuyun@ppdai.com)"
 
 ARG project_home_in_docker
 ENV PROJECT_HOME=${project_home_in_docker}
+ARG project_name
+ENV PROJECT_NAME=${project_name}
 
 # Install requirements
 ADD ./requirements_service.txt ${PROJECT_HOME}/requirements_service.txt
@@ -13,6 +15,7 @@ RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_servic
 
 # Assemble project
 ADD ./application ${PROJECT_HOME}/application
+ADD ./${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
 ADD ./confs ${PROJECT_HOME}/confs
 ADD ./scripts ${PROJECT_HOME}/bin
 ADD ./resources ${PROJECT_HOME}/resources

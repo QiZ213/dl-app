@@ -81,7 +81,7 @@ case ${TASK_TYPE} in
     } ;;
   service)
     check_port_listen ${SERVING_PORT} is_remote && {
-      read_echo "Error: remote port for service: ${SERVING_PORT} is listened" \
+      red_echo "Error: remote port for service: ${SERVING_PORT} is listened" \
       && red_echo "  Please check it and replace another one in scripts/common_setting.sh" \
       && exit 128
     } ;;

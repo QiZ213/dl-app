@@ -2,21 +2,34 @@
 
 import logging
 import os
+import time
 from logging.handlers import TimedRotatingFileHandler
 
-import time
+from .conf_settings import LOG_DIR
+from .conf_settings import PROJECT_NAME
 
-from conf_settings import LOG_DIR
-from conf_settings import PROJECT_NAME
+__all__ = [
+    'logging'
+    , 'cost_time'
+]
 
 # logging setting
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                    datefmt='%m-%d %H:%M')
 
-fh = TimedRotatingFileHandler(os.path.join(LOG_DIR, PROJECT_NAME), when='midnight')
-fh.suffix = '%Y_%m_%d.log'
-logger = logging.getLogger(PROJECT_NAME)
-logger.addHandler(fh)
+logging.basicConfig(level=logging.INFO
+                    , format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+                    , datefmt='%m-%d %H:%M:%S')
+formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+                              , '%m-%d %H:%M:%S')
+root = logging.getLogger()
+if os.path.isdir(LOG_DIR):
+    fh = TimedRotatingFileHandler(os.path.join(LOG_DIR, PROJECT_NAME)
+                                  , when='midnight'
+                                  , interval=1
+                                  , backupCount=10)
+    fh.setLevel(logging.ERROR)
+    fh.setFormatter(formatter)
+    fh.suffix = '%Y_%m_%d.log'
+    root.addHandler(fh)
 
 
 def cost_time(logger):

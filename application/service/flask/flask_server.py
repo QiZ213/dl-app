@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 import argparse
 import json
-import os
 from importlib import import_module
+from inspect import isclass
 
-from application import dump_json, logger
-from application.inferencer import Inferencer
 from flask import Flask
 from flask import request
+
+from application import logging
+from application.handlers.infer_handler import InferHandler
+from application.utils import dump_json
 
 app = Flask(__name__)
 
@@ -18,18 +20,17 @@ def hello():
 
 
 @app.route("/service", methods=['POST'])
-def do_service():
+def serve():
     request.get_data()
-    mark = request.form.get('mark', u'empty')
-    if not Inferencer.validate_mark(mark):
-        return 'not assigned'
+    mark = request.form.get('mark')
     data = request.files.get('data')
-    series_num = request.form.get('uid', u'0')
+    if not data:
+        data = request.form.get('data')
+    req_id = request.form.get('req_id')
     params = request.form.to_dict()
-    result = app.my_model.execute(data, mark, series_num, params)
+    result = app.handler.handle(req_id, data, mark, params)
 
     # always return success status,
-    # and return error message out
     return app.response_class(
         response=dump_json(result),
         status=200,
@@ -38,45 +39,56 @@ def do_service():
 
 
 def parse_cmd():
-    """
-    Parse command line options to start server
-    """
     parser = argparse.ArgumentParser(description='service configuration parser')
     parser.add_argument("--json_conf", default="json.conf", dest="json_conf", help="json configure file")
     parser.add_argument("--port", default="8080", dest="port", help="http server port")
     args = parser.parse_args()
 
-    if os.path.isfile(args.json_conf):
-        with open(args.json_conf) as data_file:
-            data = json.load(data_file)
+    config = {"port": args.port}
 
-    parsed_conf = {"port": args.port}
     try:
-        http_server_config = data["http_server"]
-        main_file = http_server_config["exec"]["main_file"]
-        parsed_conf["main_file"] = main_file
-        main_class = http_server_config["exec"]["main_class"]
-        parsed_conf["main_class"] = main_class
-        if "gunicorn" in http_server_config:
-            parsed_conf.update(http_server_config["gunicorn"])
-        if "service" in http_server_config:
-            parsed_conf.update(http_server_config["service"])
-    except Exception as e:
-        logger.error("Fail to parse cmd")
-        return
-    return parsed_conf
+        with open(args.json_conf) as f:
+            dict_conf = json.load(f)
+    except Exception:
+        logging.error("Fail to parse json conf: {}".format(args.json_conf))
+        raise
+
+    if "exec" not in dict_conf:
+        logging.error("Fail to find exec conf")
+
+    for key, val in dict_conf.items():
+        if not isinstance(val, dict):
+            raise TypeError("{} conf should be a dict".format(key))
+        config.update(val)
+    return config
 
 
-def setup_app(app, config):
-    """
-    Add main file and main class to app from external configuration
-    """
-    file_obj = import_module(config.get("main_file"))
-    app.my_model = getattr(file_obj, config.get("main_class"))()
-    return app
+def setup_app(flask_app, config):
+    main_file = config.get("main_file")
+    main_class = config.get("main_class")
+    infer_method = config.get("infer_method")
+
+    try:
+        file_obj = import_module(main_file)
+        if main_class:
+            main_class = getattr(file_obj, main_class)
+            if not isclass(main_class):
+                logging.warn("main class should be python class")
+            inferencer = main_class()
+        else:
+            inferencer = file_obj
+        infer_method = getattr(inferencer, infer_method)
+        flask_app.handler = InferHandler(inferencer, infer_method=infer_method)
+    except ImportError:
+        logging.error("Fail to import {}".format(main_file))
+    except Exception:
+        logging.error("Fail to init inferencer")
+        raise
+
+    return flask_app
 
 
 if __name__ == "__main__":
-    config = parse_cmd()
-    app = setup_app(app, config)
-    app.run(host='0.0.0.0', port=config.get("port"), threaded=True)
+    parsed_config = parse_cmd()
+    app = setup_app(app, parsed_config)
+    app.run(host='0.0.0.0', port=parsed_config.get("port"), threaded=True)
