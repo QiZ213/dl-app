@@ -43,25 +43,26 @@ if [[ $# -lt 5 ]]; then
     read -p "6.Image existed? default no. [$(colorful yes no)] " IMAGE_EXISTED
     read -p "7.Remote Run? INPUT remote ip, or ENTER to run at local. " REMOTE_IP
   fi
+else
+  IDC_NAME=$1
+  DEVICE_TYPE=$2
+  PROJECT_NAME=$3
+  PROJECT_VERSION=$4
+  TASK_TYPE=$5
 fi
 
 
-IDC_NAME=$1
-DEVICE_TYPE=$2
-PROJECT_NAME=$3
-PROJECT_VERSION=$4
-TASK_TYPE=$5
 
 
 while [ $# -gt 5 ]; do
   case "$6" in
     --exist)
       IMAGE_EXISTED="yes"
-      shfit 1
+      shift 1
       ;;
     -h)
       REMOTE_IP=$7
-      shfit 2
+      shift 2
       ;;
     --help)
       usage
