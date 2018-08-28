@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask_server import app
-from flask_server import parse_cmd
-from flask_server import setup_app
+from application.service.flask.flask_server import app, parse_cmd, setup_app
 from gunicorn.app.base import Application
 from gunicorn.six import iteritems
 
@@ -21,10 +19,14 @@ class ConfiguredApplication(Application):
                 self.cfg.set(key.lower(), value)
 
     def load(self):
-        self.application = setup_app(app, config)
+        self.application = setup_app(app, self.config)
         return self.application
 
 
+def main():
+    parsed_config = parse_cmd()
+    ConfiguredApplication(app, config=parsed_config).run()
+
+
 if __name__ == "__main__":
-    config = parse_cmd()
-    ConfiguredApplication(app, config=config).run()
+    main()
