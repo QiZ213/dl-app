@@ -46,23 +46,23 @@ link_dir_for_docker(){
   fi
 }
 
-case ${TASK_TYPE} in
-  notebook)
-    check_port_listen ${NOTEBOOK_PORT} && {
-      red_echo "Error: remote port for notebook: ${NOTEBOOK_PORT} is listened" \
-      && red_echo "  Please check it and replace another one in scripts/common_setting.sh" \
-      && exit 128
-    } ;;
-  service)
-    check_port_listen ${SERVING_PORT} && {
-      red_echo "Error: remote port for service: ${SERVING_PORT} is listened" \
-      && red_echo "  Please check it and replace another one in scripts/common_setting.sh" \
-      && exit 128
-    } ;;
-  *)
-    :
-    ;;
-esac
+#case ${TASK_TYPE} in
+#  notebook)
+#    check_port_listen ${NOTEBOOK_PORT} && {
+#      red_echo "Error: remote port for notebook: ${NOTEBOOK_PORT} is listened" \
+#      && red_echo "  Please check it and replace another one in scripts/common_setting.sh" \
+#      && exit 128
+#    } ;;
+#  service)
+#    check_port_listen ${SERVING_PORT} && {
+#      red_echo "Error: remote port for service: ${SERVING_PORT} is listened" \
+#      && red_echo "  Please check it and replace another one in scripts/common_setting.sh" \
+#      && exit 128
+#    } ;;
+#  *)
+#    :
+#    ;;
+#esac
 
 link_dir_for_docker data ${DATA_DIR}
 link_dir_for_docker log ${LOG_DIR}

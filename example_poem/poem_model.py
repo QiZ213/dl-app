@@ -12,6 +12,7 @@ from keras.models import Sequential, load_model
 from keras.optimizers import RMSprop
 
 from application import RESOURCE_DIR
+from application.utils import load_json
 
 # init model for once
 maxlen = 32
@@ -51,7 +52,11 @@ model = load_model(os.path.join(RESOURCE_DIR, 'my_model_peom_best.h5'))
 model.predict(np.zeros((1, maxlen, charslen)))
 
 
-def write_poem(strPrefix):
+def write_poem(data, mark=None, params=None, metas=None):
+
+    data = load_json(data)
+    strPrefix = data.get('word')
+
     def sample(preds, temperature=1.0):
         # helper function to sample an index from a probability array
         preds = np.asarray(preds).astype('float64')

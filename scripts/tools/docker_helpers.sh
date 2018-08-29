@@ -48,6 +48,7 @@ BUILDING_ARGS="--build-arg project_home_in_docker=${DOCKER_HOME}"
 DOCKER_BASE="${DOCKER_REGISTRY}/${DEEP_LEARNING_FRAMEWORK}:${DEEP_LEARNING_VERSION}"
 DOCKER_BASE="${DOCKER_BASE}-py${PYTHON_ALIAS}-${OS}"
 BUILDING_ARGS="${BUILDING_ARGS} --build-arg base=${DOCKER_BASE}"
+BUILDING_ARGS="${BUILDING_ARGS} --build-arg project_name=${PROJECT_NAME}"
 
 # common docker-image running options
 RUNNING_OPTIONS="-v ${PROJECT_HOME}/data:${DOCKER_DATA_DIR}"

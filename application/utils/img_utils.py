@@ -2,6 +2,11 @@
 import os
 import ssl
 
+__all__ = [
+    'read_img_by_cv2'
+    , 'write_img_by_cv2'
+]
+
 try:
     from urllib.request import urlopen
 except ImportError:
