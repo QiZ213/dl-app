@@ -45,54 +45,32 @@ if [[ $# -lt 5 ]]; then
   fi
 else
   IDC_NAME=$1
-  DEVICE_TYPE=$2
-  PROJECT_NAME=$3
-  PROJECT_VERSION=$4
-  TASK_TYPE=$5
+  PROJECT_NAME=$2
+  TASK_TYPE=$3
+  shift 3
+  while [[ -n "$1" ]]; do
+    case "$1" in
+      -v) PROJECT_VERSION=$2;;
+      -h) HOST=$2;;
+      --cpu) DEVICE_TYPE="cpu";;
+      --existed) IMAGE_EXISTED="yes";;
+      --dry_run) DRY_RUN="yes";;
+      --help) usage; exit 128;;
+      *) die "unsupported arguments $1"
+    esac
+    [[ "$1" =~ ^--.* ]] || shift 1
+    shift 1
+  done
 fi
 
+# required parameters
+: ${IDC_NAME?"IDC_NAME is required, but get null"}
+: ${PROJECT_NAME?"PROJECT_NAME is required, but get null"}
+: ${TASK_TYPE?"TASK_TYPE is required, but get null"}
 
-while [ $# -gt 5 ]; do
-  case "$6" in
-    --exist)
-      IMAGE_EXISTED="yes"
-      shift 1
-      ;;
-    -h)
-      REMOTE_IP=$7
-      shift 2
-      ;;
-    --help)
-      usage
-      exit 1
-      ;;
-    *)
-      red_echo "Illegal arguments: $6"
-      usage
-      exit 1
-      ;;
-  esac
-done
+# overwritten parameters
+: ${DEVICE_TYPE:=gpu}
+: ${PROJECT_VERSION:=0.1}
 
-
-# arguments validate
-if [ -z "${PROJECT_NAME}" ]; then
-  red_echo "PROJECT_NAME is necessary, but get null"
-  exit 128
-fi
-
-PROJECT_VERSION=${PROJECT_VERSION:=0.1}
-
-# deploy. if not remote_ip, build soft link at local; else rsync files to remote.
-if [ -z "${REMOTE_IP}" ]; then
-  . "${CURR_DIR}/tools/local_deploy.sh" ${PROJECT_NAME} ${TASK_TYPE}
-  EXEC="."
-else
-  . "${CURR_DIR}/tools/remote_deploy.sh" ${REMOTE_IP} ${TASK_TYPE}
-  EXEC="ssh_exec /bin/bash"
-fi
-
-
-# run the task.
-echo "${EXEC} ${PROJECT_HOME}/scripts/tools/launch.sh ${IDC_NAME} ${DEVICE_TYPE} ${PROJECT_NAME} ${PROJECT_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED}"
-eval "${EXEC} ${PROJECT_HOME}/scripts/tools/launch.sh ${IDC_NAME} ${DEVICE_TYPE} ${PROJECT_NAME} ${PROJECT_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED}"
+. "${CURR_DIR}/tools/assemble.sh" ${PROJECT_NAME}
+. "${CURR_DIR}/tools/deploy.sh" ${IDC_NAME} ${DEVICE_TYPE} ${PROJECT_NAME} ${PROJECT_VERSION} ${TASK_TYPE}

@@ -1,4 +1,1 @@
-flask
-gunicorn
-gevent
 keras==2.1.2

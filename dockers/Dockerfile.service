@@ -9,12 +9,18 @@ ENV PROJECT_HOME=${project_home_in_docker}
 ARG project_name
 ENV PROJECT_NAME=${project_name}
 
+# Install application
+ADD ./application /opt/dl-application/application
+ADD ./setup.py /opt/dl-application/setup.py
+RUN cd /opt/dl-application \
+    && python setup.py install \
+    && rm -rf /opt/dl-application
+
 # Install requirements
 ADD ./requirements_service.txt ${PROJECT_HOME}/requirements_service.txt
 RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_service.txt
 
 # Assemble project
-ADD ./application ${PROJECT_HOME}/application
 ADD ./${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
 ADD ./confs ${PROJECT_HOME}/confs
 ADD ./scripts ${PROJECT_HOME}/bin
@@ -24,3 +30,4 @@ RUN chmod -R 750 ${PROJECT_HOME}/bin
 # setup python service env
 EXPOSE 8080
 WORKDIR ${PROJECT_HOME}
+ENTRYPOINT bin/start_service.sh
