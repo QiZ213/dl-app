@@ -6,6 +6,8 @@ DEVICE_TYPE=$2  # e.g. "gpu"
 PROJECT_NAME=$3 # e.g. "ocr-service"
 PROJECT_VERSION=$4 # e.g. "0.1"
 TASK_TYPE=$5 # e.g. "debug"
+shift
+IMAGE_EXISTED=$5
 
 DOCKER=docker
 CHECK_MSG="please check ${PROJECT_BIN}/common_settings.sh"
@@ -102,8 +104,10 @@ is_image_existed() {
 }
 
 delete_image() {
-  is_image_existed "$1" && mute ${DOCKER} rmi "$1" || :
-  die_if_err "fail to delete image $1"
+  if is_image_existed "$1"; then
+    mute ${DOCKER} rmi -f "$1"
+    die_if_err "fail to delete image $1"
+  fi
 }
 
 is_container_existed() {
@@ -111,8 +115,10 @@ is_container_existed() {
 }
 
 delete_container() {
-  is_container_existed "$1" && mute ${DOCKER} stop "$1" && mute ${DOCKER} rm -v "$1" || :
-  die_if_err "fail to delete container $1"
+  if is_container_existed "$1"; then
+    mute ${DOCKER} stop "$1" && mute ${DOCKER} rm -v -f "$1"
+    die_if_err "fail to delete container $1"
+  fi
 }
 
 is_container_running(){
@@ -135,6 +141,10 @@ use_existed() {
 
 build() {
   echo "building image ${DOCKER_TAG} by:"
+  if is_yes "${IMAGE_EXiSTED}"; then
+    use_existed "$1"
+    return 0
+  fi
   blue_echo "${BUILD_CMD}"
   if not_yes "$1"; then
     delete_image ${DOCKER_TAG}

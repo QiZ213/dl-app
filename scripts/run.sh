@@ -25,7 +25,7 @@ USAGE
 }
 
 
-if [[ $# -lt 5 ]]; then
+if [[ $# -lt 3 ]]; then
   usage
   yellow_echo "Want to enter Interactive Mode? (y as enter, others as exit)"
   read -p "Interactive Mode (y/n)? " interactive_mode
@@ -45,17 +45,21 @@ if [[ $# -lt 5 ]]; then
   fi
 else
   IDC_NAME=$1
-  PROJECT_NAME=$2
+  TASK_HOME=$2
   TASK_TYPE=$3
   shift 3
   while [[ -n "$1" ]]; do
     case "$1" in
-      -v) PROJECT_VERSION=$2;;
-      -h) HOST=$2;;
-      --cpu) DEVICE_TYPE="cpu";;
-      --existed) IMAGE_EXISTED="yes";;
-      --dry_run) DRY_RUN="yes";;
-      --help) usage; exit 128;;
+      -v) PROJECT_VERSION=$2 ;;
+      -h) HOST=$2 ;;
+      -g) GIT_BASE=$2 ;;
+      -s) SOURCE_PATH=$2 ;;
+      -n) TASK_NAME=$2 ;;
+      -t) USER_PROJECT_HOME=$2 ;;
+      --cpu) DEVICE_TYPE="cpu" ;;
+      --existed) IMAGE_EXISTED="yes" ;;
+      --dry_run) DRY_RUN="yes" ;;
+      --help) usage; exit 128 ;;
       *) die "unsupported arguments $1"
     esac
     [[ "$1" =~ ^--.* ]] || shift 1
@@ -63,14 +67,31 @@ else
   done
 fi
 
-# required parameters
+current_bin=${PROJECT_BIN}
+current_home=${PROJECT_HOME}
+current_user=$(whoami)
+
 : ${IDC_NAME?"IDC_NAME is required, but get null"}
-: ${PROJECT_NAME?"PROJECT_NAME is required, but get null"}
+: ${TASK_HOME?"TASK_HOME is required, but get null"}
 : ${TASK_TYPE?"TASK_TYPE is required, but get null"}
 
-# overwritten parameters
 : ${DEVICE_TYPE:=gpu}
-: ${PROJECT_VERSION:=0.1}
+: ${PROJECT_VERSION:=0.1-$(whoami)}
 
-. "${CURR_DIR}/tools/assemble.sh" ${PROJECT_NAME}
-. "${CURR_DIR}/tools/deploy.sh" ${IDC_NAME} ${DEVICE_TYPE} ${PROJECT_NAME} ${PROJECT_VERSION} ${TASK_TYPE}
+: ${TASK_NAME:=$(path_name ${TASK_HOME})}
+: ${SOURCE_PATH:=${TASK_NAME}}
+
+clean_cmd="rm -rf ${TASK_HOME}"
+assemble_cmd=". ${current_bin}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH}"
+deploy_cmd=". ${current_bin}/tools/deploy.sh ${TASK_HOME} ${IDC_NAME} ${DEVICE_TYPE} ${TASK_NAME} ${PROJECT_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED}"
+
+if [[ -z ${HOST} ]]; then
+  ${clean_cmd}
+  ${assemble_cmd}
+  ${deploy_cmd}
+else
+  rsync -avz --progress ${current_home}/. ${current_user}@${HOST}:${current_home}
+  ssh ${current_user}@${HOST} ${clean_cmd}
+  ssh ${current_user}@${HOST} ${assemble_cmd}
+  ssh ${current_user}@${HOST} ${deploy_cmd}
+fi

@@ -85,24 +85,33 @@ die_if_err() {
   fi
 }
 
-copy_not_existed(){
+absolute_path() {
+  echo $(cd $1 && pwd)
+}
+
+path_name() {
+  echo ${1##*\/}
+}
+
+copy() {
+  local tgt="${@: -1}"
+  par_dir=$(dirname ${tgt})
+  [[ -d ${par_dir} ]] || mkdir -p ${par_dir}
+  cp $@
+}
+
+copy_missing(){
   src=$1
   tgt=$2
   shift 2
-  [[ -z "$1" ]] && mkdir -p ${tgt} && cp -nr ${src}/* ${tgt} || {
+  if [[ -z "$1" ]]; then
+    copy -nr ${src}/. ${tgt}/
+    die_if_err "fail to copy all contents from ${src} to ${tgt}"
+  else
     for i in $@; do
-      src_path=${src}/${i}
-      tgt_path=${tgt}/${i}
-      par_dir=${tgt_path%\/*}
-      [[ -d ${par_dir} ]] || mkdir -p ${par_dir}
-      cp -nr ${src_path} ${tgt_path}
-      die_if_err "fail to copy ${src_path} to ${tgt_path}"
+      copy -nr ${src}/${i} ${tgt}/
+      die_if_err "fail to copy ${i} from ${src} to ${tgt}"
     done;
-  }
+  fi
 }
 
-link_dir() {
-  [[ -d $1 ]] || mkdir -p $1
-  [[ -d $2 ]] || ln -s $1 $2
-  die_if_err "fail to link $1 to $2, please check"
-}
