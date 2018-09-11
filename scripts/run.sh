@@ -25,7 +25,7 @@ USAGE
 }
 
 
-if [[ $# -lt 5 ]]; then
+if [[ $# -lt 3 ]]; then
   usage
   yellow_echo "Want to enter Interactive Mode? (y as enter, others as exit)"
   read -p "Interactive Mode (y/n)? " interactive_mode
@@ -45,54 +45,70 @@ if [[ $# -lt 5 ]]; then
   fi
 else
   IDC_NAME=$1
-  DEVICE_TYPE=$2
-  PROJECT_NAME=$3
-  PROJECT_VERSION=$4
-  TASK_TYPE=$5
+  TASK_HOME=$2
+  TASK_TYPE=$3
+  shift 3
+  while [[ -n "$1" ]]; do
+    case "$1" in
+      -v) PROJECT_VERSION=$2 ;;
+      -h) HOST=$2 ;;
+      -g) GIT_PATH=$2 ;;
+      -b) GIT_BRANCH=$2 ;;
+      -s) SOURCE_PATH=$2 ;;
+      -n) TASK_NAME=$2 ;;
+      -t) USER_PROJECT_HOME=$2 ;;
+      --cpu) DEVICE_TYPE="cpu" ;;
+      --existed) IMAGE_EXISTED="yes" ;;
+      --dry_run) DRY_RUN="yes" ;;
+      --overwrite) OVERWRITE="yes";;
+      --help) usage; exit 128 ;;
+      *) die "unsupported arguments $1"
+    esac
+    [[ "$1" =~ ^--.* ]] || shift 1
+    shift 1
+  done
 fi
 
+current_bin=${PROJECT_BIN}
+current_home=${PROJECT_HOME}
+current_user=$(whoami)
 
-while [ $# -gt 5 ]; do
-  case "$6" in
-    --exist)
-      IMAGE_EXISTED="yes"
-      shift 1
-      ;;
-    -h)
-      REMOTE_IP=$7
-      shift 2
-      ;;
-    --help)
-      usage
-      exit 1
-      ;;
-    *)
-      red_echo "Illegal arguments: $6"
-      usage
-      exit 1
-      ;;
-  esac
-done
+: ${IDC_NAME?"IDC_NAME is required, but get null"}
+: ${TASK_HOME?"TASK_HOME is required, but get null"}
+: ${TASK_TYPE?"TASK_TYPE is required, but get null"}
 
+: ${DEVICE_TYPE:=gpu}
+: ${DRY_RUN:=no}
+: ${IMAGE_EXISTED:=no}
+: ${OVERWRITE:=no}
+: ${TASK_NAME:=$(basename ${TASK_HOME})}
+: ${TASK_VERSION:=0.1-$(whoami)}
 
-# arguments validate
-if [ -z "${PROJECT_NAME}" ]; then
-  red_echo "PROJECT_NAME is necessary, but get null"
-  exit 128
-fi
+[[ ${GIT_PATH} =~ git@.* ]] || GIT_PATH="git@git.ppdaicorp.com:$(whoami)/${GIT_PATH}"
+[[ -z ${GIT_PATH} ]] || GIT_BRANCH=${GIT_BRANCH:=master}
+SOURCE_PATH=${SOURCE_PATH:=${GIT_PATH}}
 
-PROJECT_VERSION=${PROJECT_VERSION:=0.1}
+clean_cmd="rm -rf ${TASK_HOME}"
+assemble_cmd=". ${current_bin}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BRANCH}"
+deploy_cmd=". ${current_bin}/tools/deploy.sh \
+  ${TASK_HOME} ${IDC_NAME} ${DEVICE_TYPE} ${TASK_NAME} ${TASK_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED} ${DRY_RUN}"
 
-# deploy. if not remote_ip, build soft link at local; else rsync files to remote.
-if [ -z "${REMOTE_IP}" ]; then
-  . "${CURR_DIR}/tools/local_deploy.sh" ${PROJECT_NAME} ${TASK_TYPE}
-  EXEC="."
+# assemble
+is_yes "${IMAGE_EXISTED}" || ${clean_cmd}
+${assemble_cmd}
+
+# deploy
+if [[ -z ${HOST} ]]; then
+  ${deploy_cmd}
 else
-  . "${CURR_DIR}/tools/remote_deploy.sh" ${REMOTE_IP} ${TASK_TYPE}
-  EXEC="ssh_exec /bin/bash"
+  if is_yes "${OVERWRITE}"; then
+    TASK_HOME=$(absolute_path ${TASK_HOME})
+    rsync -avz --progress ${TASK_HOME}/. ${current_user}@${HOST}:${TASK_HOME}
+    rsync -avz --progress ${current_home}/. ${current_user}@${HOST}:${current_home}
+  else
+    blue_echo "Please check ${current_home} on ${HOST}"
+    blue_echo "Add --overwrite in your run cmd to overwrite it directly"
+    exit 0
+  fi
+  ssh ${current_user}@${HOST} ${deploy_cmd}
 fi
-
-
-# run the task.
-echo "${EXEC} ${PROJECT_HOME}/scripts/tools/launch.sh ${IDC_NAME} ${DEVICE_TYPE} ${PROJECT_NAME} ${PROJECT_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED}"
-eval "${EXEC} ${PROJECT_HOME}/scripts/tools/launch.sh ${IDC_NAME} ${DEVICE_TYPE} ${PROJECT_NAME} ${PROJECT_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED}"

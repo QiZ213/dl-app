@@ -1,8 +1,8 @@
 {
   "exec": {
     "main_class": "",
-    "main_file": "example_poem.poem_model",
-    "infer_method": "write_poem"
+    "main_file": "",
+    "infer_method": ""
   },
   "gunicorn": {
     "worker": "4",

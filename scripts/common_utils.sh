@@ -46,13 +46,62 @@ colorful() {
 }
 
 is_yes() {
-  # check the string is yes
-  s=$1
-  [ -n "${s}" ] && echo "${s}" | grep -q "[Yy]\([Ee][Ss]\)*$"
+  [[ -n "$1" ]] && [[ "$1" =~ [Yy]([Ee][Ss])*$ ]]
+}
+
+not_yes() {
+  ! is_yes "$1"
 }
 
 is_no() {
-  s=$1
-  [ -n "${s}" ] && echo "${s}" | grep -q "[Nn]\([Oo]\)*$"
+  [[ -n "$1" ]] && [[ "$1" =~ [Nn]([Oo])*$ ]]
+}
+
+not_no() {
+  ! is_no "$1"
+}
+
+mute() {
+  "$@" &> /dev/null
+}
+
+die() {
+  # simple stack trace in bash shell
+  # please refer:
+  #   http://wiki.bash-hackers.org/commands/builtin/caller
+  local err_code=$(( $? ? $? : 65 )) frame=0
+  echo "die with stack:"
+  while caller ${frame}; do
+    ((frame++))
+  done
+  red_echo "ERROR ($err_code): $*"
+  exit ${err_code}
+}
+
+die_if_err() {
+  local err_code=$?
+  if (( err_code )); then
+    die "$@"
+  fi
+}
+
+absolute_path() {
+  echo $(cd $1 && pwd)
+}
+
+copy_missing(){
+  src=$1
+  tgt=$2
+  shift 2
+  [[ -d ${tgt} ]] || mkdir -p ${tgt}
+  if [[ -z "$1" ]]; then
+    cp -nr ${src} ${tgt}
+    die_if_err "fail to copy all contents from ${src} to ${tgt}"
+  else
+    for i in $@; do
+      cp -nr ${src}/${i} ${tgt}/
+      die_if_err "fail to copy ${i} from ${src} to ${tgt}"
+    done;
+  fi
 }
 
