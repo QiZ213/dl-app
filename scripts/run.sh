@@ -53,6 +53,7 @@ else
       -v) PROJECT_VERSION=$2 ;;
       -h) HOST=$2 ;;
       -g) GIT_BASE=$2 ;;
+      -b) GIT_BRANCH=$2 ;;
       -s) SOURCE_PATH=$2 ;;
       -n) TASK_NAME=$2 ;;
       -t) USER_PROJECT_HOME=$2 ;;
@@ -77,21 +78,25 @@ current_user=$(whoami)
 
 : ${DEVICE_TYPE:=gpu}
 : ${PROJECT_VERSION:=0.1-$(whoami)}
+: ${IMAGE_EXISTED:=no}
 
-: ${TASK_NAME:=$(path_name ${TASK_HOME})}
+: ${GIT_BASE:=git@git.ppdaicorp.com:$(whoami)}
+: ${GIT_BRANCH:=master}
+
+: ${TASK_NAME:=$(basename ${TASK_HOME})}
 : ${SOURCE_PATH:=${TASK_NAME}}
 
 clean_cmd="rm -rf ${TASK_HOME}"
-assemble_cmd=". ${current_bin}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH}"
-deploy_cmd=". ${current_bin}/tools/deploy.sh ${TASK_HOME} ${IDC_NAME} ${DEVICE_TYPE} ${TASK_NAME} ${PROJECT_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED}"
+assemble_cmd="/bin/bash ${current_bin}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BASE} ${GIT_BRANCH}"
+deploy_cmd="/bin/bash ${current_bin}/tools/deploy.sh ${TASK_HOME} ${IDC_NAME} ${DEVICE_TYPE} ${TASK_NAME} ${PROJECT_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED}"
 
 if [[ -z ${HOST} ]]; then
-  ${clean_cmd}
+  is_yes "${IMAGE_EXISTED}" || ${clean_cmd}
   ${assemble_cmd}
   ${deploy_cmd}
 else
   rsync -avz --progress ${current_home}/. ${current_user}@${HOST}:${current_home}
-  ssh ${current_user}@${HOST} ${clean_cmd}
+  is_yes "${IMAGE_EXISTED}" || ssh ${current_user}@${HOST} ${clean_cmd}
   ssh ${current_user}@${HOST} ${assemble_cmd}
   ssh ${current_user}@${HOST} ${deploy_cmd}
 fi

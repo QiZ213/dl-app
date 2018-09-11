@@ -3,14 +3,13 @@
 # project settings
 PROJECT_BIN=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
 PROJECT_HOME=$(cd $(dirname ${PROJECT_BIN}); pwd)
-source ${PROJECT_BIN}/common_utils.sh
+. ${PROJECT_BIN}/common_utils.sh
 
-# system settings
-PYTHONPATH=${PROJECT_HOME}:${PYTHONPATH}
-GIT_BASE=git@git.ppdaicorp.com:$(whoami)
-
-# project settings
+# python settings
 PYTHON=python
+PYTHONPATH=${PROJECT_HOME}:${PYTHONPATH}
+
+# application settings
 PYTHON_VERSION=2
 OS_VERSION=ubuntu14.04
 CUDA_VERSION=8.0
@@ -40,4 +39,4 @@ NOTEBOOK_PASSWORD=123456
 
 # application settings
 # define port for application service, by default, it's "18080"
-SERVING_PORT=18081
+SERVING_PORT=18080

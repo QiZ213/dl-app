@@ -42,7 +42,7 @@ link_dir ${NOTEBOOK_DIR} ${USER_PROJECT_HOME}/notebooks
 
 # add application to user project
 trap "rm -rf ${USER_PROJECT_HOME}/application ${USER_PROJECT_HOME}/setup.py" EXIT
-copy_missing ${current_home}/application ${USER_PROJECT_HOME}/application
+copy_missing ${current_home}/application ${USER_PROJECT_HOME}
 copy_missing ${current_home} ${USER_PROJECT_HOME} setup.py
 
 # start docker task

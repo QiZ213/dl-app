@@ -89,27 +89,17 @@ absolute_path() {
   echo $(cd $1 && pwd)
 }
 
-path_name() {
-  echo ${1##*\/}
-}
-
-copy() {
-  local tgt="${@: -1}"
-  par_dir=$(dirname ${tgt})
-  [[ -d ${par_dir} ]] || mkdir -p ${par_dir}
-  cp $@
-}
-
 copy_missing(){
   src=$1
   tgt=$2
   shift 2
+  [[ -d ${tgt} ]] || mkdir -p ${tgt}
   if [[ -z "$1" ]]; then
-    copy -nr ${src}/. ${tgt}/
+    cp -nr ${src} ${tgt}
     die_if_err "fail to copy all contents from ${src} to ${tgt}"
   else
     for i in $@; do
-      copy -nr ${src}/${i} ${tgt}/
+      cp -nr ${src}/${i} ${tgt}/
       die_if_err "fail to copy ${i} from ${src} to ${tgt}"
     done;
   fi
