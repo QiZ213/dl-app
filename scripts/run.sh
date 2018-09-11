@@ -52,7 +52,7 @@ else
     case "$1" in
       -v) PROJECT_VERSION=$2 ;;
       -h) HOST=$2 ;;
-      -g) GIT_BASE=$2 ;;
+      -g) GIT_PATH=$2 ;;
       -b) GIT_BRANCH=$2 ;;
       -s) SOURCE_PATH=$2 ;;
       -n) TASK_NAME=$2 ;;
@@ -60,6 +60,7 @@ else
       --cpu) DEVICE_TYPE="cpu" ;;
       --existed) IMAGE_EXISTED="yes" ;;
       --dry_run) DRY_RUN="yes" ;;
+      --overwrite) OVERWRITE="yes";;
       --help) usage; exit 128 ;;
       *) die "unsupported arguments $1"
     esac
@@ -77,26 +78,37 @@ current_user=$(whoami)
 : ${TASK_TYPE?"TASK_TYPE is required, but get null"}
 
 : ${DEVICE_TYPE:=gpu}
-: ${PROJECT_VERSION:=0.1-$(whoami)}
+: ${DRY_RUN:=no}
 : ${IMAGE_EXISTED:=no}
-
-: ${GIT_BASE:=git@git.ppdaicorp.com:$(whoami)}
-: ${GIT_BRANCH:=master}
-
+: ${OVERWRITE:=no}
 : ${TASK_NAME:=$(basename ${TASK_HOME})}
-: ${SOURCE_PATH:=${TASK_NAME}}
+: ${TASK_VERSION:=0.1-$(whoami)}
+
+[[ ${GIT_PATH} =~ git@.* ]] || GIT_PATH="git@git.ppdaicorp.com:$(whoami)/${GIT_PATH}"
+[[ -z ${GIT_PATH} ]] || GIT_BRANCH=${GIT_BRANCH:=master}
+SOURCE_PATH=${SOURCE_PATH:=${GIT_PATH}}
 
 clean_cmd="rm -rf ${TASK_HOME}"
-assemble_cmd="/bin/bash ${current_bin}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BASE} ${GIT_BRANCH}"
-deploy_cmd="/bin/bash ${current_bin}/tools/deploy.sh ${TASK_HOME} ${IDC_NAME} ${DEVICE_TYPE} ${TASK_NAME} ${PROJECT_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED}"
+assemble_cmd=". ${current_bin}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BRANCH}"
+deploy_cmd=". ${current_bin}/tools/deploy.sh \
+  ${TASK_HOME} ${IDC_NAME} ${DEVICE_TYPE} ${TASK_NAME} ${TASK_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED} ${DRY_RUN}"
 
+# assemble
+is_yes "${IMAGE_EXISTED}" || ${clean_cmd}
+${assemble_cmd}
+
+# deploy
 if [[ -z ${HOST} ]]; then
-  is_yes "${IMAGE_EXISTED}" || ${clean_cmd}
-  ${assemble_cmd}
   ${deploy_cmd}
 else
-  rsync -avz --progress ${current_home}/. ${current_user}@${HOST}:${current_home}
-  is_yes "${IMAGE_EXISTED}" || ssh ${current_user}@${HOST} ${clean_cmd}
-  ssh ${current_user}@${HOST} ${assemble_cmd}
+  if is_yes "${OVERWRITE}"; then
+    TASK_HOME=$(absolute_path ${TASK_HOME})
+    rsync -avz --progress ${TASK_HOME}/. ${current_user}@${HOST}:${TASK_HOME}
+    rsync -avz --progress ${current_home}/. ${current_user}@${HOST}:${current_home}
+  else
+    blue_echo "Please check ${current_home} on ${HOST}"
+    blue_echo "Add --overwrite in your run cmd to overwrite it directly"
+    exit 0
+  fi
   ssh ${current_user}@${HOST} ${deploy_cmd}
 fi

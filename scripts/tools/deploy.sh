@@ -1,8 +1,8 @@
 #!/bin/bash
 # script to assemble user project
-if [[ $# -lt 1 ]]; then
-  red_echo "Illegal arguments: ./deploy.sh user_project_home idc_name device_type task_name version task_type [image_existed]"
-  echo "e.g. $ /bin/bash deploy.sh ~/poem ppd|aws cpu|gpu poem 0.1 service|train|notebook|debug [no]"
+if [[ $# -lt 8 ]]; then
+  red_echo "Illegal arguments: ./deploy.sh user_project_home idc_name device_type task_name task_version task_type image_existed dry_run"
+  echo "e.g. $ /bin/bash deploy.sh ~/poem ppd|aws cpu|gpu poem 0.1 service|train|notebook|debug no yes"
   exit 128
 fi
 CURR_DIR=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
@@ -12,10 +12,14 @@ current_bin=${PROJECT_BIN}
 current_home=${PROJECT_HOME}
 
 USER_PROJECT_HOME="$1"
-. ${USER_PROJECT_HOME}/scripts/common_settings.sh
-
 shift
+
+. ${USER_PROJECT_HOME}/scripts/common_settings.sh
 . ${current_bin}/tools/docker_helpers.sh $@
+shift 5
+
+IMAGE_EXISTED=$1
+DRY_RUN=$2
 
 # link external dir to user project
 link_dir() {
@@ -35,6 +39,7 @@ default_base_dir=/opt
 : ${MODEL_DIR:=${default_base_dir}/models/${PROJECT_NAME}}
 : ${NOTEBOOK_DIR:=${default_base_dir}/notebooks/${PROJECT_NAME}}
 
+# link external dir
 link_dir ${DATA_DIR} ${USER_PROJECT_HOME}/data
 link_dir ${LOG_DIR} ${USER_PROJECT_HOME}/log
 link_dir ${MODEL_DIR} ${USER_PROJECT_HOME}/models
@@ -46,6 +51,9 @@ copy_missing ${current_home}/application ${USER_PROJECT_HOME}
 copy_missing ${current_home} ${USER_PROJECT_HOME} setup.py
 
 # start docker task
-: ${DRY_RUN:="no"}
-build "${DRY_RUN}"
+if is_yes "${IMAGE_EXiSTED}"; then
+  use_existed "${DRY_RUN}"
+else
+  build "${DRY_RUN}"
+fi
 run "${DRY_RUN}"
