@@ -1,74 +1,77 @@
 #!/bin/bash
-# Scripts to start cmd from user defined in NB_USER.
-# Please refer to: https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
+# Scripts to start cmd from user defined in USER.
+# It's inspired by : https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
 
 set -e
+: ${DEFAULT_USER:=cbd}
+
+curr_dir=$(dirname $0)
+. ${curr_dir}/common_settings.sh
 
 # Exec the specified command or fall back on bash
 if [[ $# -eq 0 ]]; then
-    cmd=bash
+  cmd=bash
 else
-    cmd=$@
+  cmd=$@
 fi
 
 # Handle special flags if we're root
 if [[ $(id -u) == 0 ]]; then
 
-  # Handle username change. Since this is cheap, do this unconditionally
-  echo "Set username to: ${NB_USER}"
-  usermod -d /home/${NB_USER} -l ${NB_USER} cbd
+  # changing user if USER is set and it's not DEFAULT_USER
+  if [[ ! -z "${USER}" && "${USER}" != "${DEFAULT_USER}" ]]; then
 
-  # Handle home and working directory if the username changed
-  if [[ "${NB_USER}" != "cbd" ]]; then
+    # Only attempt to change the default username if it exists
+    if id ${DEFAULT_USER} &> /dev/null; then
+      echo "set user to: ${USER}"
+      usermod -d /home/${USER} -l ${USER} ${DEFAULT_USER}
+    else
+      useradd -d /home/${USER} -M ${USER}
+    fi
 
     # changing username, make sure home_dir exists
     # (it could be mounted, and we shouldn't create it if it already exists)
-    if [[ ! -e "/home/$NB_USER" ]]; then
-      echo "Relocating home dir to /home/${NB_USER}"
-      mv /home/cbd "/home/${NB_USER}"
+    if [[ ! -e "/home/${USER}" ]]; then
+      echo "relocate home dir to /home/${USER}"
+      test -d /home/${DEFAULT_USER}  && mv /home/${DEFAULT_USER} "/home/${USER}" \
+        || mkdir /home/${DEFAULT_USER}
     fi
 
-    # if work_dir is in /home/cbd, cd to /home/$NB_USER
-    if [[ "${PWD}/" == "/home/cbd/"* ]]; then
-      new_cwd=${PWD/cbd/${NB_USER}}
-      echo "Setting CWD to ${new_cwd}"
-      cd "$new_cwd"
+    # changing working directory
+    if [[ "${PWD}/" == "/home/${DEFAULT_USER}/"* ]]; then
+      new_cwd=${PWD/${DEFAULT_USER}/${USER}}
+      echo "set CWD to ${new_cwd}"
+      cd "${new_cwd}"
     fi
+
+    # changing uid of USER to UID if it does not match
+    if [[ ! -z "${UID}" && "${UID}" != $(id -u ${USER}) ]]; then
+      echo "set uid of ${USER} to: ${UID}"
+      usermod -u ${UID} ${USER}
+    fi
+
+    # changing gid of USER to GID if it does not match
+    if [[ ! -z "${GID}" && "${GID}" != $(id -g ${USER}) ]]; then
+      echo "set gid of ${USER} to: ${GID}"
+      groupmod -g ${GID} -o $(id -g -n ${USER})
+    fi
+
+    chown -R ${USER} /home/${USER}
+
+    echo "${USER} ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers.d/${USER} &> /dev/null
   fi
 
-  # Change UID of NB_USER to NB_UID if it does not match
-  if [[ "${NB_UID}" != $(id -u ${NB_USER}) ]]; then
-    echo "Set ${NB_USER} UID to: ${NB_UID}"
-    usermod -u ${NB_UID} ${NB_USER}
-  fi
-
-  # Change GID of NB_USER to NB_GID if it does not match
-  if [[ "${NB_GID}" != $(id -g ${NB_USER}) ]]; then
-    echo "Set ${NB_USER} GID to: ${NB_GID}"
-    groupmod -g ${NB_GID} -o $(id -g -n ${NB_USER})
-  fi
-
-  # Enable sudo if requested
-  if [[ "${GRANT_SUDO}" == "1" || "${GRANT_SUDO}" == 'yes' ]]; then
-    echo "Granting ${NB_USER} sudo access and appending ${CONDA_DIR}/bin to sudo PATH"
-    echo "${NB_USER} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/notebook
-  fi
-
-  # Exec the command as NB_USER with the PATH and the rest of
-  # the environment preserved
-  echo "Executing the command: $cmd"
-  exec sudo -E -H -u ${NB_USER} PATH=${PATH} ${cmd}
+  # Exec the command as USER with the PATH and the rest of the environment preserved
+  echo "Executing the command: ${cmd}"
+  exec sudo -E -H -u ${USER} PATH=${PATH} ${cmd}
 
 # Check special flags if we're not root
 else
-  if [[ ! -z "${NB_UID}" && "${NB_UID}" != "$(id -u)" ]]; then
-    echo 'Container must be run as root to set ${NB_UID}'
+  if [[ ! -z "${UID}" && "${UID}" != "$(id -u)" ]]; then
+    echo 'Container must be run as root to set ${UID}'
   fi
-  if [[ ! -z "${NB_GID}" && "${NB_GID}" != "$(id -g)" ]]; then
-    echo 'Container must be run as root to set ${NB_GID}'
-  fi
-  if [[ "${GRANT_SUDO}" == "1" || "${GRANT_SUDO}" == 'yes' ]]; then
-    echo 'Container must be run as root to grant sudo permissions'
+  if [[ ! -z "${GID}" && "${GID}" != "$(id -g)" ]]; then
+    echo 'Container must be run as root to set ${GID}'
   fi
 
   # Execute the command

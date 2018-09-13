@@ -23,11 +23,11 @@ RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_servic
 # Assemble project
 ADD ./${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
 ADD ./confs ${PROJECT_HOME}/confs
-ADD ./scripts ${PROJECT_HOME}/bin
 ADD ./resources ${PROJECT_HOME}/resources
+ADD ./scripts ${PROJECT_HOME}/bin
 RUN chmod -R 750 ${PROJECT_HOME}/bin
 
 # setup python service env
 EXPOSE 8080
 WORKDIR ${PROJECT_HOME}
-ENTRYPOINT bin/start_service.sh
+ENTRYPOINT ["bin/start_service.sh"]

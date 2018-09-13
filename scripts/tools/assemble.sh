@@ -36,14 +36,15 @@ else
   # copy missing components to user project
   copy_missing ${current_home}/confs ${TARGET}
   copy_missing ${current_home}/dockers ${TARGET}
-  copy_missing ${current_home} ${TARGET} requirements_*
-
+  copy_missing ${current_home} ${TARGET} requirements*
+  copy_missing ${current_home}/scripts ${TARGET}/scripts start*.sh
   if [[ ! -f ${TARGET}/scripts/common_settings.sh ]]; then
-    copy_missing ${current_home}/scripts ${TARGET}/scripts \
-      common_settings.sh common_utils.sh start_service.sh
+    copy_missing ${current_home}/scripts ${TARGET}/scripts common*.sh
     blue_echo "Please edit ${TARGET}/scripts/common_setting.sh"
-    blue_echo "Please also edit ${TARGET}/confs/conf.json if you want to start a service"
-  exit 0
+    blue_echo "For notebook or train task, "
+    blue_echo "  please edit ${TARGET}/requirements_train.txt ."
+    blue_echo "For service task, "
+    blue_ehco "  please edit ${TARGET}/requirements_service.txt and ${TARGET}/confs/conf.json ."
+    exit 0
+  fi
 fi
-fi
-

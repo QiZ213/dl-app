@@ -6,6 +6,10 @@ DEVICE_TYPE=$2  # e.g. "gpu"
 TASK_NAME=$3 # e.g. "ocr-service"
 TASK_VERSION=$4 # e.g. "0.1"
 TASK_TYPE=$5 # e.g. "debug"
+IMAGE_EXISTED=$6 # e.g. "yes"
+shift 6
+CMD="$@"
+
 
 DOCKER=docker
 CHECK_MSG="please check ${PROJECT_BIN}/common_settings.sh"
@@ -40,29 +44,37 @@ esac
 
 case "${TASK_TYPE}" in
   "service")
-    DOCKER_FILE="${PROJECT_HOME}/dockers/Dockerfile.service"
+    DOCKER_FILE="./dockers/Dockerfile.service"
+    CMD=""
     RUNNING_MODE="-d --restart=unless-stopped"
-    RUNNING_OPTIONS="--net=bridge -p ${SERVING_PORT:=18080}:8080"
+    RUNNING_OPTIONS="--net=bridge -p ${SERVING_PORT:=18080}:8080 ${RUNNING_OPTION}"
+    ;;
+  "train")
+    DOCKER_FILE="./dockers/Dockerfile.train"
+    BUILDING_ARGS="--build-arg train_user=$(whoami) ${BUILDING_ARGS}"
+    BUILDING_ARGS="--build-arg train_uid=$(id -u) ${BUILDING_ARGS}"
+    BUILDING_ARGS="--build-arg train_gid=$(id -g) ${BUILDING_ARGS}"
+    RUNNING_MODE="-it"
     ;;
   "develop")
-    DOCKER_FILE="${PROJECT_HOME}/dockers/notebook/Dockerfile.ppd-notebook"
-    BUILDING_ARGS="--build-arg notebook_password=${NOTEBOOK_PASSWORD:=123456}"
+    DOCKER_FILE="./dockers/notebook/Dockerfile.ppd-notebook"
+    BUILDING_ARGS="--build-arg notebook_password=${NOTEBOOK_PASSWORD:=123456} ${BUILDING_ARGS}"
     BUILDING_ARGS="--build-arg notebook_base_url=${TASK_NAME} ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg nb_user=$(whoami) ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg nb_uid=$(id -u) ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg nb_gid=$(id -g) ${BUILDING_ARGS}"
+    BUILDING_ARGS="--build-arg notebook_user=$(whoami) ${BUILDING_ARGS}"
+    BUILDING_ARGS="--build-arg notebook_uid=$(id -u) ${BUILDING_ARGS}"
+    BUILDING_ARGS="--build-arg notebook_gid=$(id -g) ${BUILDING_ARGS}"
     CMD="/bin/bash -c start_notebook.sh"
     RUNNING_MODE="-d --restart=unless-stopped"
     RUNNING_OPTIONS="-v ${PROJECT_HOME}:/home/$(whoami)"
     RUNNING_OPTIONS="-p ${NOTEBOOK_PORT:=18888}:8888 ${RUNNING_OPTIONS}"
     ;;
   "notebook")
-    DOCKER_FILE="${PROJECT_HOME}/dockers/notebook/Dockerfile.ppd-notebook"
-    BUILDING_ARGS="--build-arg notebook_password=${NOTEBOOK_PASSWORD:=123456}"
+    DOCKER_FILE="./dockers/notebook/Dockerfile.ppd-notebook"
+    BUILDING_ARGS="--build-arg notebook_password=${NOTEBOOK_PASSWORD:=123456} ${BUILDING_ARGS}"
     BUILDING_ARGS="--build-arg notebook_base_url=${TASK_NAME} ${BUILDING_ARGS} "
-    BUILDING_ARGS="--build-arg nb_user=$(whoami) ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg nb_uid=$(id -u) ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg nb_gid=$(id -g) ${BUILDING_ARGS}"
+    BUILDING_ARGS="--build-arg notebook_user=$(whoami) ${BUILDING_ARGS}"
+    BUILDING_ARGS="--build-arg notebook_uid=$(id -u) ${BUILDING_ARGS}"
+    BUILDING_ARGS="--build-arg notebook_gid=$(id -g) ${BUILDING_ARGS}"
     CMD="/bin/bash -c start_notebook.sh"
     RUNNING_MODE="-d --restart=unless-stopped"
     RUNNING_OPTIONS="-v ${PROJECT_HOME}/notebooks:/home/$(whoami)"
@@ -140,14 +152,18 @@ use_existed() {
 }
 
 build() {
-  echo "building image ${DOCKER_TAG} by:"
-  blue_echo "${BUILD_CMD}"
-  if not_yes "$1"; then
-    delete_image ${DOCKER_TAG}
-    eval ${BUILD_CMD}
-    die_if_err "fail to build image ${DOCKER_TAG}"
+  if is_yes "${IMAGE_EXISTED}"; then
+    use_existed "$1"
+  else
+    echo "building image ${DOCKER_TAG} by:"
+    blue_echo "${BUILD_CMD}"
+    if not_yes "$1"; then
+      delete_image ${DOCKER_TAG}
+      eval ${BUILD_CMD}
+      die_if_err "fail to build image ${DOCKER_TAG}"
+    fi
+    echo "build ${DOCKER_TAG} successfully"
   fi
-  echo "build ${DOCKER_TAG} successfully"
 }
 
 run() {
@@ -157,10 +173,13 @@ run() {
     delete_container ${TASK_NAME}
     eval ${RUN_CMD}
     die_if_err "failed to run container ${DOCKER_TAG}"
-    [[ "${TASK_TYPE}" != "debug" ]] && is_container_running ${TASK_NAME} || {
-      delete_container ${TASK_NAME};
-      die "container ${DOCKER_TAG} not running";
-    }
+    echo ${TASK_TYPE}
+    if [[ "${TASK_TYPE}" != "debug" && "${TASK_TYPE}" != "train" ]]; then
+      is_container_running ${TASK_NAME} || {
+        delete_container ${TASK_NAME};
+        die "container ${DOCKER_TAG} not running";
+      }
+    fi
   fi
   echo "start ${DOCKER_TAG} successfully"
 }
