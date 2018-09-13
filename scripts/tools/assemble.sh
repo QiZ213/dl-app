@@ -24,8 +24,8 @@ else
   if [[ -n "${SOURCE}" ]]; then
     if [[ -d ${SOURCE} ]]; then
       # fetch from source
-      [[ -d ${SOURCE}/scripts ]] && cp ${SOURCE}/* ${TARGET} \
-        || cp ${SOURCE} ${TARGET}
+      [[ -d ${SOURCE}/scripts ]] && cp -r ${SOURCE}/* ${TARGET} \
+        || cp -r ${SOURCE} ${TARGET}
     else
       # fetch from git
       git clone ${SOURCE} -b ${GIT_BRANCH} ${TARGET}
@@ -48,3 +48,4 @@ else
     exit 0
   fi
 fi
+
