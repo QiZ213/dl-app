@@ -43,7 +43,20 @@ SERVING_PORT=18080
 
 # application settings
 # define log level to write on the file. if ignore, by default, it's "logging.ERROR"
-# please choose one of "debug | info | warning | error | critical | fatal". support case-insensitive.
+# please choose one of "debug | info | warning | error | critical | fatal". support UPPER and lower case
 LOGGING_LEVEL=
+
+
+case "${LOGGING_LEVEL}" in
+  "") : ;;
+  DEBUG|debug) : ;;
+  INFO|info) : ;;
+  WARN|warn) : ;;
+  WARNING|warning) : ;;
+  ERROR|error) : ;;
+  CRITICAL|critical) : ;;
+  FATAL|fatal) : ;;
+  *) die "Invalid setting LOGGING_LEVEL, got \"${LOGGING_LEVEL}\"" ;;
+esac
 
 export LOGGING_LEVEL=${LOGGING_LEVEL}

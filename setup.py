@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
+from application import logging
 
-print(find_packages())
+logging.info(find_packages())
 setup(
     name='dl_application'
     , version='1.0.0'
