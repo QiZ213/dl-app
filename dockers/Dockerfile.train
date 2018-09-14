@@ -6,16 +6,24 @@ LABEL maintainer="Yun Zhu(zhuyun@ppdai.com)"
 
 ARG project_home_in_docker
 ENV PROJECT_HOME=${project_home_in_docker}
+ARG project_name
+ENV PROJECT_NAME=${project_name}
+
+ARG train_user=cbd
+ARG train_uid=1000
+ARG train_gid=100
+ENV USER=${train_user} \
+    UID=${train_uid} \
+    GID=${train_gid}
+ENV HOME=/home/${USER}
 
 # Install requirements
 ADD ./requirements_train.txt ${PROJECT_HOME}/requirements_train.txt
 RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_train.txt
 
 # Assemble project
-ADD ./codes ${PROJECT_HOME}/codes
-ADD ./confs ${PROJECT_HOME}/confs
 ADD ./scripts ${PROJECT_HOME}/bin
-ADD ./resources ${PROJECT_HOME}/resources
 RUN chmod -R 750 ${PROJECT_HOME}/bin
 
 WORKDIR ${PROJECT_HOME}
+ENTRYPOINT ["bin/start.sh"]

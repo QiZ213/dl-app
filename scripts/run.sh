@@ -91,7 +91,7 @@ SOURCE_PATH=${SOURCE_PATH:=${GIT_PATH}}
 clean_cmd="rm -rf ${TASK_HOME}"
 assemble_cmd=". ${current_bin}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BRANCH}"
 deploy_cmd=". ${current_bin}/tools/deploy.sh \
-  ${TASK_HOME} ${IDC_NAME} ${DEVICE_TYPE} ${TASK_NAME} ${TASK_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED} ${DRY_RUN}"
+  ${TASK_HOME} ${DRY_RUN} ${IDC_NAME} ${DEVICE_TYPE} ${TASK_NAME} ${TASK_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED}"
 
 # assemble
 is_yes "${IMAGE_EXISTED}" || ${clean_cmd}

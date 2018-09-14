@@ -6,13 +6,13 @@ FROM ${base}
 LABEL maintainer="Yun Zhu(zhuyun@cbdai.com)"
 
 # Configure environment
-ARG nb_user=cbd
-ARG nb_uid=1000
-ARG nb_gid=100
-ENV NB_USER=${nb_user} \
-    NB_UID=${nb_uid} \
-    NB_GID=${nb_gid}
-ENV HOME=/home/${NB_USER}
+ARG notebook_user=cbd
+ARG notebook_uid=1000
+ARG notebook_gid=100
+ENV USER=${notebook_user} \
+    UID=${notebook_uid} \
+    GID=${notebook_gid}
+ENV HOME=/home/${USER}
 
 ARG project_home_in_docker
 ENV PROJECT_HOME=${project_home_in_docker}
@@ -36,25 +36,33 @@ ENTRYPOINT ["/tini", "--"]
 RUN echo "dash dash/sh boolean false" | debconf-set-selections
 RUN DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash
 
-# Create NB_USER with specified UID and GID,and append it to "root" group.
+# Create USER with specified UID and GID,and append it to "root" group.
 RUN test -d ${HOME} && rm -r -f ${HOME}
-RUN useradd -m -s /bin/bash -N -u ${NB_UID} ${NB_USER} \
-    && chown -R ${NB_USER}:${NB_GID} ${HOME} \
-    && usermod -a -G root ${NB_USER}
-# Add cuda to PATH of NB_USER
-RUN echo "PATH=${PATH}:/usr/local/cuda-8.0:/usr/local/cuda-8.0/bin" > ${HOME}/.bashrc
+RUN useradd -m -s /bin/bash -N -u ${UID} ${USER} \
+    && chown -R ${USER}:${GID} ${HOME} \
+    && usermod -a -G root ${USER} \
+    && echo "PATH=${PATH}:/usr/local/cuda-8.0:/usr/local/cuda-8.0/bin" | tee -a ${HOME}/.bashrc
 
 EXPOSE 8888
 WORKDIR ${HOME}
 
+# Install application
+ADD ./application /opt/dl-application/application
+ADD ./setup.py /opt/dl-application/setup.py
+RUN cd /opt/dl-application \
+    && python setup.py install \
+    && rm -rf /opt/dl-application
+
 # Install requirements
-ADD ./requirements_train.txt ${PROJECT_HOME}/requirements_train.txt
-RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_train.txt
+ADD ./requirements_* ${PROJECT_HOME}/
+RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_train.txt \
+    && pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_service.txt
 
 # Assemble project
 COPY ./scripts/start.sh /usr/local/bin/
 COPY ./scripts/start_notebook.sh /usr/local/bin
+COPY ./scripts/common* /usr/local/bin
 COPY ./dockers/notebook/jupyter_notebook_config.py /etc/jupyter/
 
 # Switch back to cbd to avoid accidental container runs as root
-USER ${NB_USER}
+USER ${USER}

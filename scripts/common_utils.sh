@@ -96,11 +96,9 @@ copy_missing(){
   [[ -d ${tgt} ]] || mkdir -p ${tgt}
   if [[ -z "$1" ]]; then
     cp -nr ${src} ${tgt}
-    die_if_err "fail to copy all contents from ${src} to ${tgt}"
   else
     for i in $@; do
       cp -nr ${src}/${i} ${tgt}/
-      die_if_err "fail to copy ${i} from ${src} to ${tgt}"
     done;
   fi
 }

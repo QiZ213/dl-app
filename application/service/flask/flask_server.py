@@ -4,12 +4,11 @@ import json
 from importlib import import_module
 from inspect import isclass
 
-from flask import Flask
-from flask import request
-
 from application import logging
 from application.handlers.infer_handler import InferHandler
 from application.utils import dump_json
+from flask import Flask
+from flask import request
 
 app = Flask(__name__)
 
@@ -49,9 +48,9 @@ def parse_cmd():
     try:
         with open(args.json_conf) as f:
             dict_conf = json.load(f)
-    except Exception:
+    except Exception as e:
         logging.error("Fail to parse json conf: {}".format(args.json_conf))
-        raise
+        raise e
 
     if "exec" not in dict_conf:
         logging.error("Fail to find exec conf")
@@ -79,11 +78,12 @@ def setup_app(flask_app, config):
             inferencer = file_obj
         infer_method = getattr(inferencer, infer_method)
         flask_app.handler = InferHandler(inferencer, infer_method=infer_method)
-    except ImportError:
+    except ImportError as e:
         logging.error("Fail to import {}".format(main_file))
-    except Exception:
+        raise e
+    except Exception as e:
         logging.error("Fail to init inferencer")
-        raise
+        raise e
 
     return flask_app
 
