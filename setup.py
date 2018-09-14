@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-print find_packages()
+print(find_packages())
 setup(
     name='dl_application'
     , version='1.0.0'

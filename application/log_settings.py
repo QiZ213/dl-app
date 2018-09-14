@@ -6,12 +6,38 @@ import time
 from logging.handlers import TimedRotatingFileHandler
 
 from .conf_settings import LOG_DIR
-from .conf_settings import PROJECT_NAME
+from .conf_settings import PROJECT_NAME, PROJECT_HOME
 
 __all__ = [
     'logging'
     , 'cost_time'
 ]
+
+
+def get_level():
+    DEFAULT_LEVEL = logging.ERROR
+    MAPPING = {
+        'DEBUG': logging.DEBUG,
+        'INFO': logging.INFO,
+        'WARN': logging.WARNING,
+        'WARNING': logging.WARNING,
+        'ERROR': logging.ERROR,
+        'CRITICAL': logging.CRITICAL,
+        'FATAL': logging.FATAL,
+    }
+
+    user_defined_level = os.getenv('LOGGING_LEVEL')
+    if not user_defined_level:
+        level = DEFAULT_LEVEL
+    else:
+        try:
+            level = MAPPING[user_defined_level.upper()]
+        except KeyError:
+            raise IOError('Invalid setting `LOGGING_LEVEL`, got `%s`,' \
+                          '\n  Please check it from %s/scripts/common_setting.sh' \
+                          % (user_defined_level, PROJECT_HOME))
+    return level
+
 
 # logging setting
 
@@ -26,7 +52,7 @@ if os.path.isdir(LOG_DIR):
                                   , when='midnight'
                                   , interval=1
                                   , backupCount=10)
-    fh.setLevel(logging.ERROR)
+    fh.setLevel(get_level())
     fh.setFormatter(formatter)
     fh.suffix = '%Y_%m_%d.log'
     root.addHandler(fh)
