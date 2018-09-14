@@ -9,7 +9,7 @@ source ${PROJECT_BIN}/common_utils.sh
 PYTHON=python
 export PYTHONPATH=${PROJECT_HOME}:${PYTHONPATH}
 
-# env settings
+# build settings
 PYTHON_VERSION=2
 OS_VERSION=ubuntu14.04
 CUDA_VERSION=8.0
