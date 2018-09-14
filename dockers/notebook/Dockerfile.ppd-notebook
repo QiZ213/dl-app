@@ -37,14 +37,13 @@ RUN echo "dash dash/sh boolean false" | debconf-set-selections
 RUN DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash
 
 # Create USER with specified UID and GID,and append it to "root" group.
-RUN test -d ${HOME} && rm -r -f ${HOME}
-RUN useradd -m -s /bin/bash -N -u ${UID} ${USER} \
+RUN test -d ${HOME} && rm -r -f ${HOME} || :
+RUN groupadd -f -g ${GID} ${USER} \
+    && useradd -m -s /bin/bash -N -u ${UID} -g ${GID} ${USER} \
     && chown -R ${USER}:${GID} ${HOME} \
     && usermod -a -G root ${USER} \
+    && echo "${USER} ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers.d/notebook \
     && echo "PATH=${PATH}:/usr/local/cuda-8.0:/usr/local/cuda-8.0/bin" | tee -a ${HOME}/.bashrc
-
-EXPOSE 8888
-WORKDIR ${HOME}
 
 # Install application
 ADD ./application /opt/dl-application/application
@@ -64,5 +63,6 @@ COPY ./scripts/start_notebook.sh /usr/local/bin
 COPY ./scripts/common* /usr/local/bin
 COPY ./dockers/notebook/jupyter_notebook_config.py /etc/jupyter/
 
-# Switch back to cbd to avoid accidental container runs as root
+EXPOSE 8888
+WORKDIR ${HOME}
 USER ${USER}

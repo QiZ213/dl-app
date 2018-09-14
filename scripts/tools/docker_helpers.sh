@@ -174,7 +174,6 @@ run() {
     delete_container ${TASK_NAME}
     eval ${RUN_CMD}
     die_if_err "failed to run container ${DOCKER_TAG}"
-    echo ${TASK_TYPE}
     if [[ "${TASK_TYPE}" != "debug" && "${TASK_TYPE}" != "train" ]]; then
       is_container_running ${TASK_NAME} || {
         delete_container ${TASK_NAME};
