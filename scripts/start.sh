@@ -68,10 +68,10 @@ if [[ $(id -u) == 0 ]]; then
 # Check special flags if we're not root
 else
   if [[ ! -z "${UID}" && "${UID}" != "$(id -u)" ]]; then
-    echo 'Container must be run as root to set ${UID}'
+    echo "Container must be run as root to set ${UID}"
   fi
   if [[ ! -z "${GID}" && "${GID}" != "$(id -g)" ]]; then
-    echo 'Container must be run as root to set ${GID}'
+    echo "Container must be run as root to set ${GID}"
   fi
 
   # Execute the command
