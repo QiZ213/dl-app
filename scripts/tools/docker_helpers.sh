@@ -47,7 +47,7 @@ case "${TASK_TYPE}" in
     DOCKER_FILE="./dockers/Dockerfile.service"
     CMD=""
     RUNNING_MODE="-d --restart=unless-stopped"
-    RUNNING_OPTIONS="--net=bridge -p ${SERVING_PORT:=18080}:8080 ${RUNNING_OPTION}"
+    RUNNING_OPTIONS="--net=bridge -p ${SERVING_PORT:=18080}:8080"
     ;;
   "train")
     DOCKER_FILE="./dockers/Dockerfile.train"
@@ -55,6 +55,7 @@ case "${TASK_TYPE}" in
     BUILDING_ARGS="--build-arg train_uid=$(id -u) ${BUILDING_ARGS}"
     BUILDING_ARGS="--build-arg train_gid=$(id -g) ${BUILDING_ARGS}"
     RUNNING_MODE="-it"
+    RUNNING_OPTIONS="-v ${PROJECT_HOME}:/home/$(whoami)"
     ;;
   "develop")
     DOCKER_FILE="./dockers/notebook/Dockerfile.ppd-notebook"
