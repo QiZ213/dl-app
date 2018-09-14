@@ -3,5 +3,4 @@
 
 set -e
 
-curr_dir=$(dirname $0)
-. ${curr_dir}/start.sh jupyter notebook $@
+start.sh jupyter notebook $@
