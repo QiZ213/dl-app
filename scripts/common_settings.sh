@@ -3,19 +3,20 @@
 # project settings
 PROJECT_BIN=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
 PROJECT_HOME=$(cd $(dirname ${PROJECT_BIN}); pwd)
-. ${PROJECT_BIN}/common_utils.sh
+source ${PROJECT_BIN}/common_utils.sh
 
 # python settings
 PYTHON=python
 export PYTHONPATH=${PROJECT_HOME}:${PYTHONPATH}
 
-# application settings
+# env settings
 PYTHON_VERSION=2
 OS_VERSION=ubuntu14.04
 CUDA_VERSION=8.0
 CUDNN_VERSION=6
 DEEP_LEARNING_FRAMEWORK=tensorflow
 DEEP_LEARNING_VERSION=1.4.0
+GIT_BASE=git@git.ppdaicorp.com:$(whoami)
 
 # deployment settings
 # specify data dir to store raw data or persisted intermediate variables
