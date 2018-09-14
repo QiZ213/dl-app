@@ -34,7 +34,7 @@ if [[ $(id -u) == 0 ]]; then
     if [[ ! -e "/home/${USER}" ]]; then
       echo "relocate home dir to /home/${USER}"
       test -d /home/${DEFAULT_USER}  && mv /home/${DEFAULT_USER} "/home/${USER}" \
-        || mkdir /home/${DEFAULT_USER}
+        || mkdir /home/${USER}
     fi
 
     # changing working directory
