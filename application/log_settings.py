@@ -13,6 +13,10 @@ __all__ = [
     , 'cost_time'
 ]
 
+
+_level = os.getenv('LOGGING_LEVEL') or 'ERROR'
+LEVEL = logging.getLevelName(_level)
+
 # logging setting
 
 logging.basicConfig(level=logging.INFO
@@ -26,7 +30,7 @@ if os.path.isdir(LOG_DIR):
                                   , when='midnight'
                                   , interval=1
                                   , backupCount=10)
-    fh.setLevel(logging.ERROR)
+    fh.setLevel(LEVEL)
     fh.setFormatter(formatter)
     fh.suffix = '%Y_%m_%d.log'
     root.addHandler(fh)

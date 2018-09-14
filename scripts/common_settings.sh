@@ -7,7 +7,7 @@ PROJECT_HOME=$(cd $(dirname ${PROJECT_BIN}); pwd)
 
 # python settings
 PYTHON=python
-PYTHONPATH=${PROJECT_HOME}:${PYTHONPATH}
+export PYTHONPATH=${PROJECT_HOME}:${PYTHONPATH}
 
 # application settings
 PYTHON_VERSION=2
@@ -40,3 +40,23 @@ NOTEBOOK_PASSWORD=123456
 # application settings
 # define port for application service, by default, it's "18080"
 SERVING_PORT=18080
+
+# application settings
+# define log level to write on the file. if ignore, by default, it's "logging.ERROR"
+# please choose one of "debug | info | warning | error | critical | fatal". support UPPER and lower case
+LOGGING_LEVEL=
+
+
+case "${LOGGING_LEVEL}" in
+  "") : ;;
+  DEBUG|debug) : ;;
+  INFO|info) : ;;
+  WARN|warn) : ;;
+  WARNING|warning) : ;;
+  ERROR|error) : ;;
+  CRITICAL|critical) : ;;
+  FATAL|fatal) : ;;
+  *) die "Invalid setting LOGGING_LEVEL, got \"${LOGGING_LEVEL}\"" ;;
+esac
+
+export LOGGING_LEVEL=${LOGGING_LEVEL}
