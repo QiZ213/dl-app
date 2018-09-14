@@ -22,8 +22,6 @@ ADD ./requirements_train.txt ${PROJECT_HOME}/requirements_train.txt
 RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_train.txt
 
 # Assemble project
-ADD ./${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
-ADD ./resources ${PROJECT_HOME}/resources
 ADD ./scripts ${PROJECT_HOME}/bin
 RUN chmod -R 750 ${PROJECT_HOME}/bin
 
