@@ -13,7 +13,7 @@ USAGE:
   /bin/bash run.sh service ~/awesome_project --existed
 
 ARGUMENTS
-  TASK_TYPE          Which task to build and run
+  TASK_TYPE          Task type supported: service,train,notebook,develop,debug
   TASK_HOME          Project path? (if not exist currently, fill in your expected path),
                        support related path.
 [OPTIONS]
@@ -52,7 +52,7 @@ if [[ $# -lt 2 ]]; then
     # Interactive Mode
     green_echo "=========== Welcome to Interactive Mode ==========="
     green_echo "Please ANSWER 3 QUESTIONS and type one of the options in [ ], or CTRL + C to exit."
-    read -p "1.Which task do you want? [$(colorful service train notebook debug)] " TASK_TYPE
+    read -p "1.Which task do you want? [$(colorful service train notebook develop debug)] " TASK_TYPE
     read -p "2.Your project path? (if not exist currently, fill in your expected path): " TASK_HOME
     read -p "3.Which device_type do you choose? [$(colorful gpu cpu)] " DEVICE_TYPE
 
@@ -111,8 +111,10 @@ else
   IDC_NAME="ppd"
 fi
 
-[[ ${GIT_PATH} =~ [http]|[git@].* ]] || GIT_PATH="git@git.ppdaicorp.com:${GIT_PATH}"
-[[ -z ${GIT_PATH} ]] || GIT_BRANCH=${GIT_BRANCH:=master}
+if [[ -n ${GIT_PATH} ]]; then
+  [[ ${GIT_PATH} =~ (http|git@).* ]] || GIT_PATH="git@git.ppdaicorp.com:${GIT_PATH}"
+  GIT_BRANCH=${GIT_BRANCH:=master}
+fi
 SOURCE_PATH=${SOURCE_PATH:=${GIT_PATH}}
 
 clean_cmd="rm -rf ${TASK_HOME}"
@@ -121,7 +123,7 @@ deploy_cmd=". ${current_bin}/tools/deploy.sh \
   ${TASK_HOME} ${DRY_RUN} ${IDC_NAME} ${DEVICE_TYPE} ${TASK_NAME} ${TASK_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED} ${CMD}"
 
 # assemble
-is_yes "${CLEAN}" || ${clean_cmd}
+is_yes "${CLEAN}" && ${clean_cmd}
 ${assemble_cmd}
 
 # deploy

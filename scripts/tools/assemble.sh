@@ -44,7 +44,7 @@ else
     blue_echo "For notebook or train task, "
     blue_echo "  please edit ${TARGET}/requirements_train.txt ."
     blue_echo "For service task, "
-    blue_ehco "  please edit ${TARGET}/requirements_service.txt and ${TARGET}/confs/conf.json ."
+    blue_echo "  please edit ${TARGET}/requirements_service.txt and ${TARGET}/confs/conf.json ."
     exit 0
   fi
 fi
