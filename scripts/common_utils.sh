@@ -103,3 +103,12 @@ copy_missing(){
   fi
 }
 
+ip_address() {
+  if [[ $1 == public ]]; then
+    curl --silent http://ip.cn | awk '{print $2}' | sed 's/IP：//g'
+  else
+    ip addr | grep "inet\ " | grep -v docker0 | grep -v 127.0.0 | head -n 1 | awk '{print $2}' | sed 's/\/.*//'
+  fi
+}
+
+

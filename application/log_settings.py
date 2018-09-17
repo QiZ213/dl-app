@@ -15,7 +15,7 @@ __all__ = [
 
 
 _level = os.getenv('LOGGING_LEVEL') or 'ERROR'
-LEVEL = logging.getLevelName(_level)
+LEVEL = logging.getLevelName(_level.upper())
 
 # logging setting
 

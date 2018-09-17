@@ -15,6 +15,13 @@ USER_PROJECT_HOME="$1"
 DRY_RUN="$2"
 shift 2
 
+TASK_NAME=$3
+TASK_TYPE=$5
+if [[ "${TASK_TYPE}" == init ]]; then
+  blue_echo "init ${TASK_NAME} successfully"
+  exit 0
+fi
+
 . ${USER_PROJECT_HOME}/scripts/common_settings.sh
 . ${current_bin}/tools/docker_helpers.sh $@
 
@@ -32,7 +39,7 @@ link_dir() {
 }
 
 default_base_dir=/opt
-[[ -w ${default_base_dir}/ ]] || default_base_dir=~/
+[[ -w ${default_base_dir} ]] || default_base_dir=~
 
 : ${DATA_DIR:=${default_base_dir}/data/${PROJECT_NAME}}
 : ${LOG_DIR:=${default_base_dir}/log/${PROJECT_NAME}}

@@ -72,7 +72,7 @@ else
   while [[ -n "$1" && "$1" =~ ^-.* ]]; do
     echo $1
     case "$1" in
-      -v) PROJECT_VERSION=$2 ;;
+      -v) TASK_VERSION=$2 ;;
       -h) HOST=$2 ;;
       -g) GIT_PATH=$2 ;;
       -b) GIT_BRANCH=$2 ;;
