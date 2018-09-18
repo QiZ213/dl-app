@@ -8,8 +8,6 @@ ARG project_home_in_docker
 ENV PROJECT_HOME=${project_home_in_docker}
 ARG project_name
 ENV PROJECT_NAME=${project_name}
-ARG logging_level
-ENV LOGGING_LEVEL=${logging_level}
 
 # Install application
 ADD ./application /opt/dl-application/application

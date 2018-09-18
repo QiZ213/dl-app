@@ -20,8 +20,8 @@ if [[ -e ${TARGET} ]]; then
   blue_echo "${TARGET} already existed"
 else
   # setup user project
+  mkdir -p ${TARGET}
   if [[ -n "${SOURCE}" ]]; then
-    mkdir -p ${TARGET}
     trap "rm -rf ${TARGET}" ERR
     if [[ -d ${SOURCE} ]]; then
       # fetch from source

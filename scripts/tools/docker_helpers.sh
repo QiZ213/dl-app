@@ -105,7 +105,6 @@ DOCKER_BASE="${DOCKER_REGISTRY}/${DEEP_LEARNING_FRAMEWORK}:${DEEP_LEARNING_VERSI
 BUILDING_ARGS="--build-arg project_home_in_docker=${DOCKER_HOME} ${BUILDING_ARGS}"
 BUILDING_ARGS="--build-arg base=${DOCKER_BASE} ${BUILDING_ARGS}"
 BUILDING_ARGS="--build-arg project_name=${TASK_NAME} ${BUILDING_ARGS}"
-BUILDING_ARGS="--build-arg logging_level=${LOGGING_LEVEL} ${BUILDING_ARGS}"
 BUILD_CMD="${DOCKER} build -t ${DOCKER_TAG} ${BUILDING_ARGS} -f ${DOCKER_FILE} ${PROJECT_HOME}"
 
 RUNNING_OPTIONS="-v ${PROJECT_HOME}/data:${DOCKER_DATA_DIR} ${RUNNING_OPTIONS}"
@@ -168,31 +167,6 @@ build() {
   fi
 }
 
-access_tips() {
-  case "${IDC_NAME}" in
-    ppd) ip_addr=$(ip_address) ;;
-    aws) ip_addr=$(ip_address public) ;;
-    *) ip_addr='start_the_service_IP';;
-  esac
-
-  case "${TASK_TYPE}" in
-  notebook|develop)
-    TIPS="Access notebook from"
-    URL=$(blue_echo "http://${ip_addr}:${NOTEBOOK_PORT}/${TASK_NAME}")
-    echo "${TIPS} ${URL} Use default password"
-    ;;
-  service)
-    TIPS1="Could the service be launched? Call "
-    HELLO_URL=$(blue_echo "http://${ip_addr}:${SERVING_PORT}")
-    echo -e "${TIPS1} ${HELLO_URL} and get $(green_echo Hello! Service is running) ."
-
-    TIPS2="Call your application from"
-    API_URL=$(blue_echo "http://${ip_addr}:${SERVING_PORT}/service")
-    echo -e "${TIPS2} ${API_URL}"
-    ;;
-  esac
-}
-
 run() {
   echo "running image ${DOCKER_TAG} in ${TASK_TYPE} mode by:"
   blue_echo "${RUN_CMD}"
@@ -208,6 +182,5 @@ run() {
     fi
   fi
   echo "start ${DOCKER_TAG} successfully"
-  access_tips
 }
 

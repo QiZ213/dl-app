@@ -11,11 +11,8 @@ from .conf_settings import PROJECT_NAME
 __all__ = [
     'logging'
     , 'cost_time'
+    , 'set_level'
 ]
-
-
-_level = os.getenv('LOGGING_LEVEL') or 'ERROR'
-LEVEL = logging.getLevelName(_level.upper())
 
 # logging setting
 
@@ -24,16 +21,21 @@ logging.basicConfig(level=logging.INFO
                     , datefmt='%m-%d %H:%M:%S')
 formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
                               , '%m-%d %H:%M:%S')
-root = logging.getLogger()
+ROOT_LOGGER = logging.getLogger()
 if os.path.isdir(LOG_DIR):
-    fh = TimedRotatingFileHandler(os.path.join(LOG_DIR, PROJECT_NAME)
+    FH = TimedRotatingFileHandler(os.path.join(LOG_DIR, PROJECT_NAME)
                                   , when='midnight'
                                   , interval=1
                                   , backupCount=10)
-    fh.setLevel(LEVEL)
-    fh.setFormatter(formatter)
-    fh.suffix = '%Y_%m_%d.log'
-    root.addHandler(fh)
+    FH.setLevel(logging.ERROR)
+    FH.setFormatter(formatter)
+    FH.suffix = '%Y_%m_%d.log'
+    ROOT_LOGGER.addHandler(FH)
+
+
+def set_level(level):
+    if FH is not None:
+        FH.setLevel(level)
 
 
 def cost_time(logger):

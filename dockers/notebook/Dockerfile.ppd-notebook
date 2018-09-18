@@ -21,9 +21,6 @@ ENV PASSWORD=${notebook_password}
 ARG notebook_base_url
 ENV BASE_URL=${notebook_base_url}
 
-ARG logging_level
-ENV LOGGING_LEVEL=${logging_level}
-
 # Install jupyter notebook
 RUN pip install -i ${PYPI} --no-cache-dir jupyter
 

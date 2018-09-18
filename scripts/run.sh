@@ -38,6 +38,15 @@ on_aws() {
   curl --connect-timeout 0.1 169.254.169.254/latest/meta-data/instance-id/ &> /dev/null
 }
 
+ip_address() {
+  if [[ $1 == public ]]; then
+    curl --silent http://ip.cn | awk '{print $2}' | sed 's/IP：//g'
+  else
+    # Do not support run by ssh on remote.
+    ip addr | grep "inet\ " | grep -v docker0 | grep -v 127.0.0 | head -n 1 | awk '{print $2}' | sed 's/\/.*//'
+  fi
+}
+
 if [[ $# -lt 2 ]]; then
   if [[ -n "$1" && $1 == --help ]]; then
     usage
@@ -126,9 +135,40 @@ deploy_cmd=". ${current_bin}/tools/deploy.sh \
 is_yes "${CLEAN}" && ${clean_cmd}
 ${assemble_cmd}
 
+if [[ "${TASK_TYPE}" == init ]]; then
+  blue_echo "init ${TASK_NAME} successfully"
+  exit 0
+fi
+
 # deploy
+access_tips() {
+  case "${IDC_NAME}" in
+    ppd) ip_addr=$(ip_address) ;;
+    aws) ip_addr=$(ip_address public) ;;
+    *) ip_addr='start_the_service_IP';;
+  esac
+
+  case "${TASK_TYPE}" in
+  notebook|develop)
+    TIPS="Access notebook from"
+    # Because source deploy_cmd, NOTEBOOK_PORT of the task has been loaded.
+    URL=$(blue_echo "http://${ip_addr}:${NOTEBOOK_PORT}/${TASK_NAME}")
+    echo "${TIPS} ${URL} Use default password"
+    ;;
+  service)
+    TIPS1="Could the service be launched? Call"
+    HELLO_URL=$(blue_echo "http://${ip_addr}:${SERVING_PORT}")  # same as NOTEBOOK_PORT
+    echo -e "${TIPS1} ${HELLO_URL} and get $(green_echo Hello! Service is running)."
+
+    TIPS2="Call your application from"
+    API_URL=$(blue_echo "http://${ip_addr}:${SERVING_PORT}/service")
+    echo -e "${TIPS2} ${API_URL}"
+    ;;
+  esac
+}
+
 if [[ -z ${HOST} ]]; then
-  ${deploy_cmd}
+  ${deploy_cmd} && access_tips
 else
   if is_yes "${OVERWRITE}"; then
     TASK_HOME=$(absolute_path ${TASK_HOME})

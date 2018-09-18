@@ -17,10 +17,6 @@ shift 2
 
 TASK_NAME=$3
 TASK_TYPE=$5
-if [[ "${TASK_TYPE}" == init ]]; then
-  blue_echo "init ${TASK_NAME} successfully"
-  exit 0
-fi
 
 . ${USER_PROJECT_HOME}/scripts/common_settings.sh
 . ${current_bin}/tools/docker_helpers.sh $@
