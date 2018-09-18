@@ -16,13 +16,15 @@ SOURCE="$1"
 shift
 GIT_BRANCH="$1"
 
+: ${TARGET:? TARGET should not be empty}
+
 if [[ -e ${TARGET} ]]; then
   blue_echo "${TARGET} already existed"
 else
   # setup user project
+  trap "rm -rf ${TARGET}" ERR
   mkdir -p ${TARGET}
   if [[ -n "${SOURCE}" ]]; then
-    trap "rm -rf ${TARGET}" ERR
     if [[ -d ${SOURCE} ]]; then
       # fetch from source
       [[ -d ${SOURCE}/scripts ]] && cp -r ${SOURCE}/* ${TARGET} \
@@ -37,8 +39,10 @@ else
   # copy missing components to user project
   copy_missing ${current_home}/confs ${TARGET}
   copy_missing ${current_home}/dockers ${TARGET}
+  copy_missing ${current_home}/resources ${TARGET}
   copy_missing ${current_home} ${TARGET} requirements*
   copy_missing ${current_home}/scripts ${TARGET}/scripts start*.sh
+
   if [[ ! -f ${TARGET}/scripts/common_settings.sh ]]; then
     copy_missing ${current_home}/scripts ${TARGET}/scripts common*.sh
     blue_echo "1. Please edit ${TARGET}/scripts/common_settings.sh"

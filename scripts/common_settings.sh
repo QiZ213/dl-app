@@ -2,14 +2,13 @@
 # project settings
 PROJECT_BIN=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
 PROJECT_HOME=$(cd $(dirname ${PROJECT_BIN}); pwd)
-source ${PROJECT_BIN}/common_utils.sh
+. ${PROJECT_BIN}/common_utils.sh
 
-# system
-PYTHONPATH=${PROJECT_HOME}:${PYTHONPATH}
-GIT_BASE=git@git.ppdaicorp.com:$(whoami)
-
-# env settings
+# python settings
 PYTHON=python
+export PYTHONPATH=${PROJECT_HOME}:${PYTHONPATH}
+
+# application settings
 PYTHON_VERSION=2
 OS_VERSION=ubuntu14.04
 ## Setting the dependency of dl-framework, cuda, cudnn could refer to

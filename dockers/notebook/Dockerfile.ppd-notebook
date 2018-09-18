@@ -13,9 +13,8 @@ ENV USER=${notebook_user} \
     UID=${notebook_uid} \
     GID=${notebook_gid}
 ENV HOME=/home/${USER}
+ENV PROJECT_HOME=${HOME}
 
-ARG project_home_in_docker
-ENV PROJECT_HOME=${project_home_in_docker}
 ARG notebook_password
 ENV PASSWORD=${notebook_password}
 ARG notebook_base_url
@@ -53,9 +52,10 @@ RUN cd /opt/dl-application \
     && rm -rf /opt/dl-application
 
 # Install requirements
-ADD ./requirements_* ${PROJECT_HOME}/
-RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_train.txt \
-    && pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_service.txt
+ADD ./requirements_* /opt/
+RUN pip install -i ${PYPI} --no-cache-dir -r /opt/requirements_train.txt \
+    && pip install -i ${PYPI} --no-cache-dir -r /opt/requirements_service.txt \
+    && rm -rf /opt/requirements_*
 
 # Assemble project
 COPY ./scripts/start.sh /usr/local/bin/

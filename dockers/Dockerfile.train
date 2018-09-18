@@ -4,11 +4,6 @@ FROM ${base}
 # Docker script to set up training docker image.
 LABEL maintainer="Yun Zhu(zhuyun@ppdai.com)"
 
-ARG project_home_in_docker
-ENV PROJECT_HOME=${project_home_in_docker}
-ARG project_name
-ENV PROJECT_NAME=${project_name}
-
 ARG train_user=cbd
 ARG train_uid=1000
 ARG train_gid=100
@@ -16,6 +11,7 @@ ENV USER=${train_user} \
     UID=${train_uid} \
     GID=${train_gid}
 ENV HOME=/home/${USER}
+ENV PROJECT_HOME=${HOME}
 
 RUN test -d ${HOME} && rm -r -f ${HOME} || :
 RUN groupadd -f -g ${GID} ${USER} \
@@ -26,8 +22,9 @@ RUN groupadd -f -g ${GID} ${USER} \
     && echo "PATH=${PATH}:/usr/local/cuda-8.0:/usr/local/cuda-8.0/bin" | tee -a ${HOME}/.bashrc
 
 # Install requirements
-ADD ./requirements_train.txt ${PROJECT_HOME}/requirements_train.txt
-RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_train.txt
+ADD ./requirements_train.txt /opt/requirements_train.txt
+RUN pip install -i ${PYPI} --no-cache-dir -r /opt/requirements_train.txt \
+    && rm -rf /opt/requirements_train
 
 # Assemble project
 COPY ./scripts/start.sh /usr/local/bin/
