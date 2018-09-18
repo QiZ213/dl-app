@@ -165,6 +165,7 @@ access_tips() {
     echo -e "${TIPS2} ${API_URL}"
     ;;
   esac
+  echo -e "Check running log by: $(green_echo docker logs -f ${TASK_NAME})"
 }
 
 if [[ -z ${HOST} ]]; then
