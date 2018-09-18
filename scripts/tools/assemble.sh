@@ -22,6 +22,7 @@ else
   # setup user project
   mkdir -p ${TARGET}
   if [[ -n "${SOURCE}" ]]; then
+    trap "rm -rf ${TARGET}" ERR
     if [[ -d ${SOURCE} ]]; then
       # fetch from source
       [[ -d ${SOURCE}/scripts ]] && cp -r ${SOURCE}/* ${TARGET} \
@@ -40,10 +41,10 @@ else
   copy_missing ${current_home}/scripts ${TARGET}/scripts start*.sh
   if [[ ! -f ${TARGET}/scripts/common_settings.sh ]]; then
     copy_missing ${current_home}/scripts ${TARGET}/scripts common*.sh
-    blue_echo "Please edit ${TARGET}/scripts/common_setting.sh"
-    blue_echo "For notebook or train task, "
+    blue_echo "1. Please edit ${TARGET}/scripts/common_settings.sh"
+    blue_echo "2. For notebook or train task, "
     blue_echo "  please edit ${TARGET}/requirements_train.txt ."
-    blue_echo "For service task, "
+    blue_echo "   Or, for service task, "
     blue_echo "  please edit ${TARGET}/requirements_service.txt and ${TARGET}/confs/conf.json ."
     exit 0
   fi
