@@ -65,10 +65,12 @@ case "${TASK_TYPE}" in
     ;;
   "train")
     DOCKER_FILE="${PROJECT_HOME}/dockers/Dockerfile.train"
+    BUILDING_ARGS+=" --build-arg project_home_in_docker=${DOCKER_HOME}"
+    BUILDING_ARGS+=" --build-arg project_name=${TASK_NAME}"
     BUILDING_ARGS+=" --build-arg train_user=$(whoami) "
     BUILDING_ARGS+=" --build-arg train_uid=$(id -u)"
     BUILDING_ARGS+=" --build-arg train_gid=$(id -g)"
-    RUNNING_MODE="-it"
+    RUNNING_MODE="-d"
     RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/data:${DOCKER_DATA_DIR}"
     RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/log:${DOCKER_LOG_DIR}"
     RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/models:${DOCKER_MODEL_DIR}"
