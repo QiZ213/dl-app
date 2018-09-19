@@ -1,8 +1,8 @@
 #!/bin/bash
 # script to assemble user project
-if [[ $# -lt 8 ]]; then
-  red_echo "Illegal arguments: ./deploy.sh user_project_home dry_run idc_name device_type task_name task_version task_type image_existed [cmd]"
-  echo "e.g. $ /bin/bash deploy.sh ~/poem no ppd|aws cpu|gpu poem 0.1 service|train|notebook|debug no [cmd]"
+if [[ $# -lt 7 ]]; then
+  red_echo "Illegal arguments: ./deploy.sh user_project_home dry_run device_type task_name task_version task_type image_existed [cmd]"
+  echo "e.g. $ /bin/bash deploy.sh ~/poem no cpu|gpu poem 0.1 service|train|notebook|debug no [cmd]"
   exit 128
 fi
 CURR_DIR=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
@@ -15,11 +15,23 @@ USER_PROJECT_HOME="$1"
 DRY_RUN="$2"
 shift 2
 
-TASK_NAME=$3
-TASK_TYPE=$5
+# select available docker registry
+docker_registries=
+docker_registries+=" dock.cbd.com:80"
+docker_registries+=" registry.ppdai.aws"
 
+for registry in ${docker_registries}; do
+  if mute curl --connect-timeout 1 --silent --insecure "${registry}/v2/_catalog"; then
+    DOCKER_REGISTRY=${registry#*://}  # maybe registry starts with http:// or https://, if so, clean.
+    break
+  fi
+done
+
+[[ -n ${DOCKER_REGISTRY} ]] || die "Invalid DOCKER_REGISTRY. only support dock.cbd.com:80 or registry.ppdai.aws"
+
+# source docker command
 . ${USER_PROJECT_HOME}/scripts/common_settings.sh
-. ${current_bin}/tools/docker_helpers.sh $@
+. ${current_bin}/tools/docker_helpers.sh ${DOCKER_REGISTRY} $@
 
 # link external dir to user project
 link_dir() {
