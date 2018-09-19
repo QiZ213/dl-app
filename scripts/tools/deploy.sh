@@ -27,6 +27,8 @@ for registry in ${docker_registries}; do
   fi
 done
 
+[[ -n ${DOCKER_REGISTRY} ]] || die "Invalid DOCKER_REGISTRY. only support dock.cbd.com:80 or registry.ppdai.aws"
+
 # source docker command
 . ${USER_PROJECT_HOME}/scripts/common_settings.sh
 . ${current_bin}/tools/docker_helpers.sh ${DOCKER_REGISTRY} $@

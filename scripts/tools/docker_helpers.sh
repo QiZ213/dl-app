@@ -20,12 +20,10 @@ DOCKER_DATA_DIR="${DOCKER_HOME}/data"
 DOCKER_LOG_DIR="${DOCKER_HOME}/log"
 DOCKER_MODEL_DIR="${DOCKER_HOME}/models"
 
-# Login docker registry
-case "${DOCKER_REGISTRY}" in
-  "dock.cbd.com:80") mute ${DOCKER} login -u admin -p admin123 ${DOCKER_REGISTRY} ;;
-  "registry.ppdai.aws") : ;;  # Login via certificate
-  *) die "unsupported DOCKER_REGISTRY: ${DOCKER_REGISTRY}. only support dock.cbd.com:80 or registry.ppdai.aws" ;;
-esac
+# Login docker registry. (on aws, login via certificate)
+if [[ "${DOCKER_REGISTRY}" == dock.cbd.com:80 ]]; then
+  mute ${DOCKER} login -u admin -p admin123 ${DOCKER_REGISTRY}
+fi
 
 case "${DEVICE_TYPE}" in
   "cpu")
