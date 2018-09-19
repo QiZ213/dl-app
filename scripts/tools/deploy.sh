@@ -1,8 +1,8 @@
 #!/bin/bash
 # script to assemble user project
-if [[ $# -lt 8 ]]; then
-  red_echo "Illegal arguments: ./deploy.sh user_project_home dry_run idc_name device_type task_name task_version task_type image_existed [cmd]"
-  echo "e.g. $ /bin/bash deploy.sh ~/poem no ppd|aws cpu|gpu poem 0.1 service|train|notebook|debug no [cmd]"
+if [[ $# -lt 7 ]]; then
+  red_echo "Illegal arguments: ./deploy.sh user_project_home dry_run device_type task_name task_version task_type image_existed [cmd]"
+  echo "e.g. $ /bin/bash deploy.sh ~/poem no cpu|gpu poem 0.1 service|train|notebook|debug no [cmd]"
   exit 128
 fi
 CURR_DIR=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
