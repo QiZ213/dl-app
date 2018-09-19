@@ -15,11 +15,19 @@ USER_PROJECT_HOME="$1"
 DRY_RUN="$2"
 shift 2
 
-TASK_NAME=$3
-TASK_TYPE=$5
+on_aws() {
+  # if runned on aws, the command as follows would execute successfully and echo instance id of EC2.
+  curl --connect-timeout 0.1 169.254.169.254/latest/meta-data/instance-id/ &> /dev/null
+}
+
+if on_aws; then
+  IDC_NAME="aws"
+else
+  IDC_NAME="ppd"
+fi
 
 . ${USER_PROJECT_HOME}/scripts/common_settings.sh
-. ${current_bin}/tools/docker_helpers.sh $@
+. ${current_bin}/tools/docker_helpers.sh ${IDC_NAME} $@
 
 # link external dir to user project
 link_dir() {

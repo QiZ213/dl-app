@@ -42,9 +42,9 @@ else
   copy_missing ${current_home}/resources ${TARGET}
   copy_missing ${current_home} ${TARGET} requirements*
   copy_missing ${current_home}/scripts ${TARGET}/scripts start*.sh
-
+  copy_missing ${current_home}/scripts ${TARGET}/scripts common_utils.sh
   if [[ ! -f ${TARGET}/scripts/common_settings.sh ]]; then
-    copy_missing ${current_home}/scripts ${TARGET}/scripts common*.sh
+    copy_missing ${current_home}/scripts ${TARGET}/scripts common_settings.sh
     blue_echo "1. Please edit ${TARGET}/scripts/common_settings.sh"
     blue_echo "2. For notebook or train task, "
     blue_echo "  please edit ${TARGET}/requirements_train.txt ."

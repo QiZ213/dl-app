@@ -33,11 +33,6 @@ ARGUMENTS
 USAGE
 }
 
-on_aws() {
-  # if runned on aws, the command as follows would execute successfully and echo instance id of EC2.
-  curl --connect-timeout 0.1 169.254.169.254/latest/meta-data/instance-id/ &> /dev/null
-}
-
 ip_address() {
   if [[ $1 == public ]]; then
     curl --silent http://ip.cn | awk '{print $2}' | sed 's/IP：//g'
@@ -114,11 +109,6 @@ current_user=$(whoami)
 : ${TASK_NAME:=$(basename ${TASK_HOME})}
 : ${TASK_VERSION:=0.1-$(whoami)}
 
-if on_aws; then
-  IDC_NAME="aws"
-else
-  IDC_NAME="ppd"
-fi
 
 if [[ -n ${GIT_PATH} ]]; then
   [[ ${GIT_PATH} =~ (http|git@).* ]] || GIT_PATH="git@git.ppdaicorp.com:${GIT_PATH}"
@@ -129,7 +119,7 @@ SOURCE_PATH=${SOURCE_PATH:=${GIT_PATH}}
 clean_cmd="rm -rf ${TASK_HOME}"
 assemble_cmd=". ${current_bin}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BRANCH}"
 deploy_cmd=". ${current_bin}/tools/deploy.sh \
-  ${TASK_HOME} ${DRY_RUN} ${IDC_NAME} ${DEVICE_TYPE} ${TASK_NAME} ${TASK_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED} ${CMD}"
+  ${TASK_HOME} ${DRY_RUN} ${DEVICE_TYPE} ${TASK_NAME} ${TASK_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED} ${CMD}"
 
 # assemble
 is_yes "${CLEAN}" && ${clean_cmd}
