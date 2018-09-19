@@ -102,6 +102,3 @@ copy_missing(){
     done;
   fi
 }
-
-
-

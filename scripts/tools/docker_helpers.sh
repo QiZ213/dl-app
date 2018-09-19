@@ -15,6 +15,11 @@ DOCKER=docker
 CHECK_MSG="please check ${PROJECT_BIN}/common_settings.sh"
 EMPTY_ERR_MSG="should not be empty, ${CHECK_MSG}"
 
+DOCKER_HOME="/opt/${TASK_NAME}"
+DOCKER_DATA_DIR="${DOCKER_HOME}/data"
+DOCKER_LOG_DIR="${DOCKER_HOME}/log"
+DOCKER_MODEL_DIR="${DOCKER_HOME}/models"
+
 # check arguments
 case "${IDC_NAME}" in
   "ppd") DOCKER_REGISTRY="dock.cbd.com:80"; mute ${DOCKER} login -u admin -p admin123 ${DOCKER_REGISTRY} ;;
@@ -42,50 +47,68 @@ case "${PYTHON_VERSION}" in
   *) test -f test; die_if_err "invalid python version ${PYTHON_VERSION}, either 2 or 3, ${CHECK_MSG}" ;;
 esac
 
+DOCKER_FILE=
+BUILDING_ARGS=
+RUNNING_MODE=
+RUNNING_OPTIONS=
 case "${TASK_TYPE}" in
   "service")
-    DOCKER_FILE="./dockers/Dockerfile.service"
-    CMD=""
+    DOCKER_FILE="${PROJECT_HOME}/dockers/Dockerfile.service"
+    BUILDING_ARGS+=" --build-arg project_home_in_docker=${DOCKER_HOME}"
+    BUILDING_ARGS+=" --build-arg project_name=${TASK_NAME}"
+    CMD=
     RUNNING_MODE="-d --restart=unless-stopped"
-    RUNNING_OPTIONS="--net=bridge -p ${SERVING_PORT:=18080}:8080"
+    RUNNING_OPTIONS+=" --net=bridge -p ${SERVING_PORT:=18080}:8080"
+    RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/data:${DOCKER_DATA_DIR}"
+    RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/log:${DOCKER_LOG_DIR}"
+    RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/models:${DOCKER_MODEL_DIR}"
     ;;
   "train")
-    DOCKER_FILE="./dockers/Dockerfile.train"
-    BUILDING_ARGS="--build-arg train_user=$(whoami) ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg train_uid=$(id -u) ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg train_gid=$(id -g) ${BUILDING_ARGS}"
-    RUNNING_MODE="-it"
-    RUNNING_OPTIONS="-v ${PROJECT_HOME}:/home/$(whoami)"
+    DOCKER_FILE="${PROJECT_HOME}/dockers/Dockerfile.train"
+    BUILDING_ARGS+=" --build-arg project_home_in_docker=${DOCKER_HOME}"
+    BUILDING_ARGS+=" --build-arg project_name=${TASK_NAME}"
+    BUILDING_ARGS+=" --build-arg train_user=$(whoami) "
+    BUILDING_ARGS+=" --build-arg train_uid=$(id -u)"
+    BUILDING_ARGS+=" --build-arg train_gid=$(id -g)"
+    RUNNING_MODE="-d"
+    RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/data:${DOCKER_DATA_DIR}"
+    RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/log:${DOCKER_LOG_DIR}"
+    RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/models:${DOCKER_MODEL_DIR}"
     ;;
   "develop")
-    DOCKER_FILE="./dockers/notebook/Dockerfile.ppd-notebook"
-    BUILDING_ARGS="--build-arg notebook_password=${NOTEBOOK_PASSWORD:=123456} ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg notebook_base_url=${TASK_NAME} ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg notebook_user=$(whoami) ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg notebook_uid=$(id -u) ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg notebook_gid=$(id -g) ${BUILDING_ARGS}"
+    DOCKER_FILE="${PROJECT_HOME}/dockers/notebook/Dockerfile.ppd-notebook"
+    BUILDING_ARGS+=" --build-arg notebook_password=${NOTEBOOK_PASSWORD:=123456}"
+    BUILDING_ARGS+=" --build-arg notebook_base_url=${TASK_NAME}"
+    BUILDING_ARGS+=" --build-arg notebook_user=$(whoami)"
+    BUILDING_ARGS+=" --build-arg notebook_uid=$(id -u)"
+    BUILDING_ARGS+=" --build-arg notebook_gid=$(id -g)"
     CMD="start_notebook.sh"
     RUNNING_MODE="-d --restart=unless-stopped"
-    RUNNING_OPTIONS="-v ${PROJECT_HOME}:/home/$(whoami)"
-    RUNNING_OPTIONS="-p ${NOTEBOOK_PORT:=18888}:8888 ${RUNNING_OPTIONS}"
+    RUNNING_OPTIONS+=" -v ${PROJECT_HOME}:${PROJECT_HOME}"
+    RUNNING_OPTIONS+=" -w=\"${PROJECT_HOME}\""
+    RUNNING_OPTIONS+=" -p ${NOTEBOOK_PORT:=18888}:8888"
     ;;
   "notebook")
-    DOCKER_FILE="./dockers/notebook/Dockerfile.ppd-notebook"
-    BUILDING_ARGS="--build-arg notebook_password=${NOTEBOOK_PASSWORD:=123456} ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg notebook_base_url=${TASK_NAME} ${BUILDING_ARGS} "
-    BUILDING_ARGS="--build-arg notebook_user=$(whoami) ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg notebook_uid=$(id -u) ${BUILDING_ARGS}"
-    BUILDING_ARGS="--build-arg notebook_gid=$(id -g) ${BUILDING_ARGS}"
+    DOCKER_FILE="${PROJECT_HOME}/dockers/notebook/Dockerfile.ppd-notebook"
+    BUILDING_ARGS+=" --build-arg notebook_password=${NOTEBOOK_PASSWORD:=123456}"
+    BUILDING_ARGS+=" --build-arg notebook_base_url=${TASK_NAME}"
+    BUILDING_ARGS+=" --build-arg notebook_user=$(whoami)"
+    BUILDING_ARGS+=" --build-arg notebook_uid=$(id -u)"
+    BUILDING_ARGS+=" --build-arg notebook_gid=$(id -g)"
     CMD="start_notebook.sh"
     RUNNING_MODE="-d --restart=unless-stopped"
-    RUNNING_OPTIONS="-v ${PROJECT_HOME}/notebooks:/home/$(whoami)"
-    RUNNING_OPTIONS="-p ${NOTEBOOK_PORT:=18888}:8888 ${RUNNING_OPTIONS}"
+    RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/notebooks:/home/$(whoami)"
+    RUNNING_OPTIONS+=" -p ${NOTEBOOK_PORT:=18888}:8888"
     ;;
   "debug")
     IMAGE_EXISTED="yes"
-    CMD="/bin/bash"
+    CMD=
     RUNNING_MODE="-it"
-    RUNNING_OPTIONS="--net=bridge -p ${SERVING_PORT:=18080}:8080"
+    RUNNING_OPTIONS+=" --net=bridge -p ${SERVING_PORT:=18080}:8080"
+    RUNNING_OPTIONS+=" --entrypoint /bin/bash"
+    RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/data:${DOCKER_DATA_DIR}"
+    RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/log:${DOCKER_LOG_DIR}"
+    RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/models:${DOCKER_MODEL_DIR}"
     ;;
   *) die "unsupported task type: ${TASK_TYPE}" ;;
 esac
@@ -93,23 +116,11 @@ esac
 : ${OS_VERSION:?OS_VERSION ${EMPTY_ERR_MSG}}
 : ${DEEP_LEARNING_FRAMEWORK:?DEEP_LEARNING_FRAMEWORK ${EMPTY_ERR_MSG}}
 : ${DEEP_LEARNING_VERSION:?DEEP_LEARNING_VERSION ${EMPTY_ERR_MSG}}
-
-DOCKER_HOME="/opt/${TASK_NAME}"
-DOCKER_DATA_DIR="${DOCKER_HOME}/data"
-DOCKER_LOG_DIR="${DOCKER_HOME}/log"
-DOCKER_MODEL_DIR="${DOCKER_HOME}/models"
+DOCKER_BASE="${DOCKER_REGISTRY}/${DEEP_LEARNING_FRAMEWORK}:${DEEP_LEARNING_VERSION}-${PYTHON_ALIAS}-${SYSTEM}-${OS_VERSION}"
+BUILDING_ARGS="--build-arg base=${DOCKER_BASE} ${BUILDING_ARGS}"
 
 DOCKER_TAG="${TASK_NAME}:${TASK_VERSION}"
-DOCKER_BASE="${DOCKER_REGISTRY}/${DEEP_LEARNING_FRAMEWORK}:${DEEP_LEARNING_VERSION}-${PYTHON_ALIAS}-${SYSTEM}-${OS_VERSION}"
-
-BUILDING_ARGS="--build-arg project_home_in_docker=${DOCKER_HOME} ${BUILDING_ARGS}"
-BUILDING_ARGS="--build-arg base=${DOCKER_BASE} ${BUILDING_ARGS}"
-BUILDING_ARGS="--build-arg project_name=${TASK_NAME} ${BUILDING_ARGS}"
 BUILD_CMD="${DOCKER} build -t ${DOCKER_TAG} ${BUILDING_ARGS} -f ${DOCKER_FILE} ${PROJECT_HOME}"
-
-RUNNING_OPTIONS="-v ${PROJECT_HOME}/data:${DOCKER_DATA_DIR} ${RUNNING_OPTIONS}"
-RUNNING_OPTIONS="-v ${PROJECT_HOME}/log:${DOCKER_LOG_DIR} ${RUNNING_OPTIONS}"
-RUNNING_OPTIONS="-v ${PROJECT_HOME}/models:${DOCKER_MODEL_DIR} ${RUNNING_OPTIONS}"
 RUN_CMD="${DOCKER_ENGINE} run ${RUNNING_MODE} --name ${TASK_NAME} ${RUNNING_OPTIONS} ${DOCKER_TAG} ${CMD}"
 
 is_image_existed() {

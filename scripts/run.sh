@@ -26,7 +26,7 @@ ARGUMENTS
   --existed          Image Existed, run image without building image firstly. if ignore, no.
   --cpu              DEVICE_TYPE, if ignore, let DEVICE_TYPE be gpu.
   --overwrite        When remote run, would overwrite same files on remote host. if ignore, no.
-  --clean_task_home  Clean task home firstly and assemble again. if ignore, no.
+  --clean            Clean task home firstly and assemble again. if ignore, no.
   --dry_run          Do not build docker image or run, but show docker command that are to be executed. if ignore, no.
 
 [COMMAND]
@@ -90,7 +90,7 @@ else
       --cpu) DEVICE_TYPE="cpu" ;;
       --existed) IMAGE_EXISTED="yes" ;;
       --dry_run) DRY_RUN="yes" ;;
-      --clean_task_home) CLEAN="yes" ;;
+      --clean) CLEAN="yes" ;;
       --overwrite) OVERWRITE="yes";;
       *) die "unsupported arguments $1, check usage by \"/bin/bash $0 --help\""
     esac
@@ -165,6 +165,7 @@ access_tips() {
     echo -e "${TIPS2} ${API_URL}"
     ;;
   esac
+  echo -e "Check running log by: $(green_echo docker logs -f ${TASK_NAME})"
 }
 
 if [[ -z ${HOST} ]]; then
