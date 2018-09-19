@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to help build and run docker images
 
-IDC_NAME=$1 # e.g. "ppd"
+DOCKER_REGISTRY=$1 # e.g. "dock.cbd.com:80" or "registry.ppdai.aws"
 DEVICE_TYPE=$2  # e.g. "gpu"
 TASK_NAME=$3 # e.g. "ocr-service"
 TASK_VERSION=$4 # e.g. "0.1"
@@ -20,11 +20,11 @@ DOCKER_DATA_DIR="${DOCKER_HOME}/data"
 DOCKER_LOG_DIR="${DOCKER_HOME}/log"
 DOCKER_MODEL_DIR="${DOCKER_HOME}/models"
 
-# check arguments
-case "${IDC_NAME}" in
-  "ppd") DOCKER_REGISTRY="dock.cbd.com:80"; mute ${DOCKER} login -u admin -p admin123 ${DOCKER_REGISTRY} ;;
-  "aws") DOCKER_REGISTRY="registry.ppdai.aws" ;;
-  *) die "unsupported idc: ${IDC_NAME}" ;;
+# Login docker registry
+case "${DOCKER_REGISTRY}" in
+  "dock.cbd.com:80") mute ${DOCKER} login -u admin -p admin123 ${DOCKER_REGISTRY} ;;
+  "registry.ppdai.aws") : ;;  # Login via certificate
+  *) die "unsupported DOCKER_REGISTRY: ${DOCKER_REGISTRY}. only support dock.cbd.com:80 or registry.ppdai.aws" ;;
 esac
 
 case "${DEVICE_TYPE}" in

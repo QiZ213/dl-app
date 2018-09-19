@@ -132,9 +132,9 @@ fi
 
 # deploy
 access_tips() {
-  case "${IDC_NAME}" in
-    ppd) ip_addr=$(ip_address) ;;
-    aws) ip_addr=$(ip_address public) ;;
+  case "${DOCKER_REGISTRY}" in
+    dock\.cbd*) ip_addr=$(ip_address) ;;
+    registry\.ppdai\.aws*) ip_addr=$(ip_address public) ;;
     *) ip_addr='start_the_service_IP';;
   esac
 

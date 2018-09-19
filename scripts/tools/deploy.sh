@@ -15,19 +15,21 @@ USER_PROJECT_HOME="$1"
 DRY_RUN="$2"
 shift 2
 
-on_aws() {
-  # if runned on aws, the command as follows would execute successfully and echo instance id of EC2.
-  curl --connect-timeout 0.1 169.254.169.254/latest/meta-data/instance-id/ &> /dev/null
-}
+# select available docker registry
+docker_registries=
+docker_registries+=" dock.cbd.com:80"
+docker_registries+=" registry.ppdai.aws"
 
-if on_aws; then
-  IDC_NAME="aws"
-else
-  IDC_NAME="ppd"
-fi
+for registry in ${docker_registries}; do
+  if mute curl --connect-timeout 1 --silent --insecure "${registry}/v2/_catalog"; then
+    DOCKER_REGISTRY=${registry#*://}  # maybe registry starts with http:// or https://, if so, clean.
+    break
+  fi
+done
 
+# source docker command
 . ${USER_PROJECT_HOME}/scripts/common_settings.sh
-. ${current_bin}/tools/docker_helpers.sh ${IDC_NAME} $@
+. ${current_bin}/tools/docker_helpers.sh ${DOCKER_REGISTRY} $@
 
 # link external dir to user project
 link_dir() {
