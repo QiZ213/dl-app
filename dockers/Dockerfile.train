@@ -38,6 +38,6 @@ RUN chmod -R 770 ${PROJECT_HOME}/bin
 # Assemble project
 COPY ./scripts/start.sh /usr/local/bin/
 
-WORKDIR ${HOME}
+WORKDIR ${PROJECT_HOME}
 USER ${USER}
 ENTRYPOINT ["start.sh"]
