@@ -163,6 +163,7 @@ if [[ -z ${HOST} ]]; then
 else
   if is_yes "${OVERWRITE}"; then
     TASK_HOME=$(absolute_path ${TASK_HOME})
+    ssh ${current_user}@${hoset} "mkdir -p ${TASK_HOME}"
     rsync -avz --progress ${TASK_HOME}/. ${current_user}@${HOST}:${TASK_HOME}
     rsync -avz --progress ${current_home}/. ${current_user}@${HOST}:${current_home}
   else
