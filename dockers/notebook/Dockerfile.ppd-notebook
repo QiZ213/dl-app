@@ -13,7 +13,6 @@ ENV USER=${notebook_user} \
     UID=${notebook_uid} \
     GID=${notebook_gid}
 ENV HOME=/home/${USER}
-ENV PROJECT_HOME=${HOME}
 
 ARG notebook_password
 ENV PASSWORD=${notebook_password}

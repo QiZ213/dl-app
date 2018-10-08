@@ -85,6 +85,7 @@ case "${TASK_TYPE}" in
     RUNNING_OPTIONS+=" -v ${PROJECT_HOME}:${PROJECT_HOME}"
     RUNNING_OPTIONS+=" -w=\"${PROJECT_HOME}\""
     RUNNING_OPTIONS+=" -p ${NOTEBOOK_PORT:=18888}:8888"
+    RUNNING_OPTIONS+=" -p ${SERVING_PORT:=18080}:8080"
     ;;
   "notebook")
     DOCKER_FILE="${PROJECT_HOME}/dockers/notebook/Dockerfile.ppd-notebook"
