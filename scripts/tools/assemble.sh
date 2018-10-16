@@ -33,9 +33,9 @@ target_required+=" scripts/start_notebook.sh"
 target_required+=" scripts/start_service.sh"
 
 # user project required components
-source_required="requirements_service.txt"
-source_required+=" requirements_train.txt"
-source_required+=" scripts/common_settings.sh"
+source_required="scripts/common_settings.sh"
+#source_required+=" requirements_service.txt"
+#source_required+=" requirements_train.txt"
 
 rm_target_if_die() {
   err_code=$?
@@ -64,10 +64,11 @@ else
     if [[ -d ${SOURCE} ]]; then
       # fetch from source
       check_validation "source" "${SOURCE}"
-      cp -r ${SOURCE}/ ${TARGET}
+      cp -r ${SOURCE}/* ${TARGET}
+      [[ -e ${SOURCE}/.git ]] && cp -r ${SOURCE}/.git ${TARGET}
     else
       # fetch from git
-      git clone ${SOURCE} -b ${GIT_BRANCH} ${TARGET}
+      git clone --depth=1 ${SOURCE} -b ${GIT_BRANCH} ${TARGET}
       die_if_err "fail to fetch codes from ${SOURCE}"
       check_validation "source" "${TARGET}"
     fi
