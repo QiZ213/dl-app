@@ -98,7 +98,14 @@ copy_missing(){
     cp -nr ${src} ${tgt}
   else
     for i in $@; do
-      cp -nr ${src}/${i} ${tgt}/
+      if echo ${i%/} | grep -q "/"; then  # if exist multi_sub folder
+        parent_path=${i%/*}
+        last_path=${i##*/}
+        [[ -d ${tgt}/${parent_path} ]] || mkdir -p ${tgt}/${parent_path}
+        cp -nr ${src}/${parent_path}/${last_path} ${tgt}/${parent_path}
+      else
+        cp -nr ${src}/${i} ${tgt}
+      fi
     done;
   fi
 }
