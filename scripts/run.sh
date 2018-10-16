@@ -64,14 +64,14 @@ if [[ $# -lt 2 ]]; then
       CMD=\"${CMD}\"
     fi
 
-    if [[ "${DEVICE_TYPE}" != cpu ]]; then
-      DEVICE_TYPE="--cpu"
+    if [[ "${DEVICE_TYPE}" == cpu ]]; then
+      show_device_type="--cpu"
     else
-      DEVICE_TYPE=""
+      show_device_type=""
     fi
 
     echo "You could execute the command as follows instead of interactive mode."
-    blue_echo "/bin/bash $0 ${TASK_TYPE} -t ${TASK_HOME} ${DEVICE_TYPE} ${CMD}"
+    blue_echo "/bin/bash $0 ${TASK_TYPE} -t ${TASK_HOME} ${show_device_type} ${CMD}"
   fi
 else
   TASK_TYPE=$1
