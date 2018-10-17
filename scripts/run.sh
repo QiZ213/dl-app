@@ -8,18 +8,18 @@ usage() {
 USAGE:
   /bin/bash run.sh TASK_TYPE TASK_HOME [OPTIONS] [COMMAND]
   e.g
-  /bin/bash run.sh notebook ~/awesome_project
-  /bin/bash run.sh train ~/awesome_project "python main.py"
-  /bin/bash run.sh service ~/awesome_project --existed
+  /bin/bash run.sh notebook -s ~/awesome_project
+  /bin/bash run.sh train -s ~/awesome_project "python main.py"
+  /bin/bash run.sh service -s ~/awesome_project --existed
 
 ARGUMENTS
   TASK_TYPE          Task type supported: service,train,notebook,develop,debug
-  TASK_HOME          Project path? (if not exist currently, fill in your expected path),
-                       support related path.
 [OPTIONS]
+  -t                 fill in TASK_HOME (if not exists currently, fill in your expected path;
+                       if exists, structure of TASK_HOME must meet requirements of dl-application. See documents).
+  -s                 fill in SOURCE_PATH, user project home, "scripts/common-settings.sh" is required in SOURCE_PATH.
   -n                 fill in TASK_NAME, be used to Image Tag, Container Name, default basename of task_home.
   -v                 fill in TASK_VERSION, be used to Image Tag, default 0.1-whoami.
-  -s                 fill in SOURCE_PATH, some files need to copy to TASK_HOME.
   -g                 fill in GIT_PATH, if code from gitlab, support only project component like "bird/dl-application"
   -b                 fill in GIT_BRANCH, default master
   -h                 fill in REMOTE_HOST, default run on local, or run on REMOTE_HOST by ssh
@@ -57,25 +57,29 @@ if [[ $# -lt 2 ]]; then
     green_echo "=========== Welcome to Interactive Mode ==========="
     green_echo "Please ANSWER 3 QUESTIONS and type one of the options in [ ], or CTRL + C to exit."
     read -p "1.Which task do you want? [$(colorful service train notebook develop debug)] " TASK_TYPE
-    read -p "2.Your project path? (if not exist currently, fill in your expected path): " TASK_HOME
+    read -p "2.Your project path? need absolute path. (if not exist currently, fill in your expected path): " TASK_HOME
     read -p "3.Which device_type do you choose? [$(colorful gpu cpu)] " DEVICE_TYPE
+    if [[ ${TASK_TYPE} == train ]]; then
+      read -p "Input your command in line: " CMD
+      CMD=\"${CMD}\"
+    fi
 
     if [[ "${DEVICE_TYPE}" == cpu ]]; then
-      device_cmd="--cpu"
+      show_device_type="--cpu"
     else
-      device_cmd=""
+      show_device_type=""
     fi
 
     echo "You could execute the command as follows instead of interactive mode."
-    blue_echo "/bin/bash $0 ${TASK_TYPE} ${TASK_HOME} ${device_cmd}"
+    blue_echo "/bin/bash $0 ${TASK_TYPE} -t ${TASK_HOME} ${show_device_type} ${CMD}"
   fi
 else
   TASK_TYPE=$1
-  TASK_HOME=$2
-  shift 2
+  shift 1
   while [[ -n "$1" && "$1" =~ ^-.* ]]; do
     echo $1
     case "$1" in
+      -t) TASK_HOME=$2 ;;
       -v) TASK_VERSION=$2 ;;
       -h) HOST=$2 ;;
       -g) GIT_PATH=$2 ;;
@@ -99,22 +103,37 @@ current_bin=${PROJECT_BIN}
 current_home=${PROJECT_HOME}
 current_user=$(whoami)
 
-: ${TASK_HOME?"TASK_HOME is required, but get null"}
 : ${TASK_TYPE?"TASK_TYPE is required, but get null"}
 
 : ${DEVICE_TYPE:=gpu}
 : ${DRY_RUN:=no}
 : ${IMAGE_EXISTED:=no}
 : ${OVERWRITE:=no}
-: ${TASK_NAME:=$(basename ${TASK_HOME})}
 : ${TASK_VERSION:=0.1-$(whoami)}
 
 
 if [[ -n ${GIT_PATH} ]]; then
+  : ${TASK_HOME?"TASK_HOME is required when from git, but get null"}
+  : ${TASK_NAME:=$(basename ${TASK_HOME})}
   [[ ${GIT_PATH} =~ (http|git@).* ]] || GIT_PATH="git@git.ppdaicorp.com:${GIT_PATH}"
   GIT_BRANCH=${GIT_BRANCH:=master}
+  SOURCE_PATH=${GIT_PATH}
+
+elif [[ -n ${SOURCE_PATH} ]]; then
+  if [[ -n ${TASK_HOME} ]]; then
+    : ${TASK_NAME:=$(basename ${TASK_HOME})}
+  else
+    : ${TASK_NAME:=$(basename ${SOURCE_PATH})}
+    default_base_dir=/opt
+    [[ -w ${default_base_dir} ]] || default_base_dir=~
+    TASK_HOME=${default_base_dir}/dl-repo/${TASK_NAME}
+  fi
+
+else
+  : ${TASK_HOME?"TASK_HOME or SOURCE_PATH at least one is required , but get both null"}
+  : ${TASK_NAME:=$(basename ${TASK_HOME})}
 fi
-SOURCE_PATH=${SOURCE_PATH:=${GIT_PATH}}
+
 
 clean_cmd="rm -rf ${TASK_HOME}"
 assemble_cmd=". ${current_bin}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BRANCH}"
@@ -163,6 +182,7 @@ if [[ -z ${HOST} ]]; then
 else
   if is_yes "${OVERWRITE}"; then
     TASK_HOME=$(absolute_path ${TASK_HOME})
+    ssh ${current_user}@${HOST} "mkdir -p ${TASK_HOME}"
     rsync -avz --progress ${TASK_HOME}/. ${current_user}@${HOST}:${TASK_HOME}
     rsync -avz --progress ${current_home}/. ${current_user}@${HOST}:${current_home}
   else

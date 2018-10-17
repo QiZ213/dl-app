@@ -1,11 +1,13 @@
 #!/bin/bash
 # script to assemble user project
+
+CURR_DIR=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
+. "${CURR_DIR}/../common_settings.sh"
+
 if [[ $# -lt 1 ]]; then
   red_echo "Illegal arguments: ./assemble.sh target [source] [git_branch]"
   exit 128
 fi
-CURR_DIR=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
-. "${CURR_DIR}/../common_settings.sh"
 
 current_bin=${PROJECT_BIN}
 current_home=${PROJECT_HOME}
@@ -16,41 +18,49 @@ SOURCE="$1"
 shift
 GIT_BRANCH="$1"
 
-: ${TARGET:? TARGET should not be empty}
+: ${TARGET:? TARGET should not be null}
 
-if [[ -e ${TARGET} ]]; then
-  blue_echo "${TARGET} already existed"
-else
+# a normal dl-application project required components
+target_required="confs"
+target_required+=" dockers"
+target_required+=" resources"
+target_required+=" requirements_service.txt"
+target_required+=" requirements_train.txt"
+target_required+=" scripts/common_settings.sh"
+target_required+=" scripts/common_utils.sh"
+target_required+=" scripts/start.sh"
+target_required+=" scripts/start_notebook.sh"
+target_required+=" scripts/start_service.sh"
+
+# user project required components
+source_required="scripts/common_settings.sh"
+
+check_required() {
+  required=$(eval echo \$${1}_required)
+  src=$2
+  for sub_path in ${required}; do
+    [[ -e "${src}/${sub_path}" ]]
+    die_if_err "${1} missing required files: ${sub_path}. Read documents about \"${1} required\"."
+  done
+}
+
+if [[ ! -e ${TARGET} ]]; then
   # setup user project
-  trap "rm -rf ${TARGET}" ERR
   mkdir -p ${TARGET}
-  if [[ -n "${SOURCE}" ]]; then
-    if [[ -d ${SOURCE} ]]; then
-      # fetch from source
-      [[ -d ${SOURCE}/scripts ]] && cp -r ${SOURCE}/* ${TARGET} \
-        || cp -r ${SOURCE} ${TARGET}
-    else
-      # fetch from git
-      git clone ${SOURCE} -b ${GIT_BRANCH} ${TARGET}
-      die_if_err "fail to fetch codes from ${SOURCE}"
-    fi
+  if [[ -d ${SOURCE} ]]; then
+    # fetch from source
+    cp -r ${SOURCE}/* ${TARGET}
+    [[ -e ${SOURCE}/.git ]] && cp -r ${SOURCE}/.git ${TARGET}
+  else
+    # fetch from git
+    git clone --depth=1 ${SOURCE} -b ${GIT_BRANCH} ${TARGET}
+    die_if_err "fail to fetch codes from ${SOURCE}"
   fi
-
-  # copy missing components to user project
-  copy_missing ${current_home}/confs ${TARGET}
-  copy_missing ${current_home}/dockers ${TARGET}
-  copy_missing ${current_home}/resources ${TARGET}
-  copy_missing ${current_home} ${TARGET} requirements*
-  copy_missing ${current_home}/scripts ${TARGET}/scripts start*.sh
-  copy_missing ${current_home}/scripts ${TARGET}/scripts common_utils.sh
-  if [[ ! -f ${TARGET}/scripts/common_settings.sh ]]; then
-    copy_missing ${current_home}/scripts ${TARGET}/scripts common_settings.sh
-    blue_echo "1. Please edit ${TARGET}/scripts/common_settings.sh"
-    blue_echo "2. For notebook or train task, "
-    blue_echo "  please edit ${TARGET}/requirements_train.txt ."
-    blue_echo "   Or, for service task, "
-    blue_echo "  please edit ${TARGET}/requirements_service.txt and ${TARGET}/confs/conf.json ."
-    exit 0
-  fi
+  check_required "source" "${TARGET}"
+  # copy missing components to target folder
+  copy_missing ${current_home} ${TARGET} ${target_required}
+else
+  yellow_echo "${TARGET} already existed"
 fi
 
+check_required "target" "${TARGET}"

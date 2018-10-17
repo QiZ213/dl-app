@@ -2,7 +2,9 @@
 # project settings
 PROJECT_BIN=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
 PROJECT_HOME=$(cd $(dirname ${PROJECT_BIN}); pwd)
-. ${PROJECT_BIN}/common_utils.sh
+if [[ -e ${PROJECT_BIN}/common_utils.sh ]]; then
+  . ${PROJECT_BIN}/common_utils.sh
+fi
 
 # python settings
 PYTHON=python
@@ -20,19 +22,19 @@ DEEP_LEARNING_VERSION=1.4.0
 
 # deployment settings
 # specify data dir to store raw data or persisted intermediate variables, for example,
-# DATA_DIR=${PROJECT_HOME}/data
+# DATA_DIR=~/dl-data/$(basename ${PROJECT_HOME})
 DATA_DIR=
 
 # specify log dir to store log, for example,
-# LOG_DIR=${PROJECT_HOME}/log
+# LOG_DIR=~/dl-log/$(basename ${PROJECT_HOME})
 LOG_DIR=
 
 # specify model dir to store models, for example,
-# MODEL_DIR=${PROJECT_HOME}/models
+# MODEL_DIR=~/dl-models/$(basename ${PROJECT_HOME})
 MODEL_DIR=
 
 # specify notebook dir to store .ipynb application, for example,
-# NOTEBOOK_DIR=${PROJECT_HOME}/notebooks
+# NOTEBOOK_DIR=~/dl-notebooks/$(basename ${PROJECT_HOME})
 NOTEBOOK_DIR=
 
 # notebook settings

@@ -46,13 +46,14 @@ link_dir() {
   fi
 }
 
+# TODO if TASK_TYPE == notebook or develop, this symlink is not useful.
 default_base_dir=/opt
 [[ -w ${default_base_dir} ]] || default_base_dir=~
 
-: ${DATA_DIR:=${default_base_dir}/data/${PROJECT_NAME}}
-: ${LOG_DIR:=${default_base_dir}/log/${PROJECT_NAME}}
-: ${MODEL_DIR:=${default_base_dir}/models/${PROJECT_NAME}}
-: ${NOTEBOOK_DIR:=${default_base_dir}/notebooks/${PROJECT_NAME}}
+: ${DATA_DIR:=${default_base_dir}/dl-data/${TASK_NAME}}
+: ${LOG_DIR:=${default_base_dir}/dl-log/${TASK_NAME}}
+: ${MODEL_DIR:=${default_base_dir}/dl-models/${TASK_NAME}}
+: ${NOTEBOOK_DIR:=${default_base_dir}/dl-notebooks/${TASK_NAME}}
 
 # link external dir
 link_dir ${DATA_DIR} ${USER_PROJECT_HOME}/data ${DRY_RUN}

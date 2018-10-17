@@ -21,7 +21,12 @@ ARG notebook_base_url
 ENV BASE_URL=${notebook_base_url}
 
 # Install jupyter notebook
-RUN pip install -i ${PYPI} --no-cache-dir jupyter
+#RUN pip install -i ${PYPI} --no-cache-dir jupyter
+RUN pip install -i ${PYPI} --no-cache-dir ipython==5.0.0 \
+    ipykernel==4.8.0 \
+    notebook==5.6.0 \
+    jupyter-console==5.0.0 \
+    jupyter
 
 # Add Tini. Tini operates as a process subreaper for jupyter.
 # This prevents kernel crashes.

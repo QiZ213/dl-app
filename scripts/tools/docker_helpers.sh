@@ -85,6 +85,7 @@ case "${TASK_TYPE}" in
     RUNNING_OPTIONS+=" -v ${PROJECT_HOME}:${PROJECT_HOME}"
     RUNNING_OPTIONS+=" -w=\"${PROJECT_HOME}\""
     RUNNING_OPTIONS+=" -p ${NOTEBOOK_PORT:=18888}:8888"
+    RUNNING_OPTIONS+=" -p ${SERVING_PORT:=18080}:8080"
     ;;
   "notebook")
     DOCKER_FILE="${PROJECT_HOME}/dockers/notebook/Dockerfile.ppd-notebook"
@@ -133,7 +134,7 @@ delete_image() {
 }
 
 is_container_existed() {
-  ${DOCKER} ps -a | mute grep "$1"
+  mute ${DOCKER} container inspect "$1"
 }
 
 delete_container() {
@@ -144,7 +145,7 @@ delete_container() {
 }
 
 is_container_running(){
-  ${DOCKER} ps -a -f status=running | mute grep "$1"
+  ${DOCKER} container inspect "$1" | grep -q "\"Running\": true"
 }
 
 use_existed() {
