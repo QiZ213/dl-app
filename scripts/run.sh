@@ -13,7 +13,7 @@ USAGE:
   /bin/bash run.sh service -s ~/awesome_project --existed
 
 ARGUMENTS
-  TASK_TYPE          Task type supported: service,train,notebook,develop,debug
+  TASK_TYPE          Task type supported: service,train,notebook,develop,debug,init
 [OPTIONS]
   -t                 fill in TASK_HOME (if not exists currently, fill in your expected path;
                        if exists, structure of TASK_HOME must meet requirements of dl-application. See documents).
@@ -134,6 +134,9 @@ else
   : ${TASK_NAME:=$(basename ${TASK_HOME})}
 fi
 
+if [[ ${TASK_TYPE} == init ]]; then
+  . ${CURR_DIR}/init.sh ${SOURCE_PATH}
+fi
 
 clean_cmd="rm -rf ${TASK_HOME}"
 assemble_cmd=". ${current_bin}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BRANCH}"
@@ -143,11 +146,6 @@ deploy_cmd=". ${current_bin}/tools/deploy.sh \
 # assemble
 is_yes "${CLEAN}" && ${clean_cmd}
 ${assemble_cmd}
-
-if [[ "${TASK_TYPE}" == init ]]; then
-  blue_echo "init ${TASK_NAME} successfully"
-  exit 0
-fi
 
 # deploy
 access_tips() {
