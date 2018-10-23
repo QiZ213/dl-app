@@ -77,15 +77,15 @@ else
   TASK_TYPE=$1
   shift 1
   while [[ -n "$1" && "$1" =~ ^-.* ]]; do
-    echo $1
     case "$1" in
       -t) TASK_HOME=$2 ;;
       -v) TASK_VERSION=$2 ;;
-      -h) HOST=$2 ;;
+      -h) HOSTS=$2 ;;
       -g) GIT_PATH=$2 ;;
       -b) GIT_BRANCH=$2 ;;
       -s) SOURCE_PATH=$2 ;;
       -n) TASK_NAME=$2 ;;
+      -r) REGISTRY_IDC=$2;;
       --cpu) DEVICE_TYPE="cpu" ;;
       --existed) IMAGE_EXISTED="yes" ;;
       --dry_run) DRY_RUN="yes" ;;
@@ -99,18 +99,13 @@ else
   CMD=\"$@\"
 fi
 
-current_bin=${PROJECT_BIN}
-current_home=${PROJECT_HOME}
-current_user=$(whoami)
-
 : ${TASK_TYPE?"TASK_TYPE is required, but get null"}
-
 : ${DEVICE_TYPE:=gpu}
 : ${DRY_RUN:=no}
 : ${IMAGE_EXISTED:=no}
 : ${OVERWRITE:=no}
 : ${TASK_VERSION:=0.1-$(whoami)}
-
+: ${REGISTRY_IDC:=local}
 
 if [[ -n ${GIT_PATH} ]]; then
   : ${TASK_HOME?"TASK_HOME is required when from git, but get null"}
@@ -138,16 +133,6 @@ if [[ ${TASK_TYPE} == init ]]; then
   . ${CURR_DIR}/init.sh ${SOURCE_PATH}
 fi
 
-clean_cmd="rm -rf ${TASK_HOME}"
-assemble_cmd=". ${current_bin}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BRANCH}"
-deploy_cmd=". ${current_bin}/tools/deploy.sh \
-  ${TASK_HOME} ${DRY_RUN} ${DEVICE_TYPE} ${TASK_NAME} ${TASK_VERSION} ${TASK_TYPE} ${IMAGE_EXISTED} ${CMD}"
-
-# assemble
-is_yes "${CLEAN}" && ${clean_cmd}
-${assemble_cmd}
-
-# deploy
 access_tips() {
   case "${DOCKER_REGISTRY}" in
     dock\.cbd*) ip_addr=$(ip_address) ;;
@@ -175,18 +160,42 @@ access_tips() {
   echo -e "Check running log by: $(green_echo docker logs -f ${TASK_NAME})"
 }
 
-if [[ -z ${HOST} ]]; then
+TASK_HOME=$(absolute_path ${TASK_HOME})
+PROJECT_HOME=$(absolute_path ${PROJECT_HOME})
+
+clean_cmd="rm -rf ${TASK_HOME}"
+is_yes "${CLEAN}" && ${clean_cmd}
+
+assemble_cmd=". ${PROJECT_BIN}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BRANCH}"
+${assemble_cmd}
+
+deploy_cmd=". ${PROJECT_BIN}/tools/deploy.sh \
+  ${TASK_HOME} \
+  ${IMAGE_EXISTED} \
+  ${TASK_NAME} \
+  ${TASK_VERSION} \
+  ${TASK_TYPE} \
+  ${DEVICE_TYPE} \
+  ${REGISTRY_IDC} \
+  ${DRY_RUN} \
+  ${CMD}"
+
+if [[ -z ${HOSTS} ]]; then
+  # run locally
   ${deploy_cmd} && access_tips
 else
-  if is_yes "${OVERWRITE}"; then
-    TASK_HOME=$(absolute_path ${TASK_HOME})
-    ssh ${current_user}@${HOST} "mkdir -p ${TASK_HOME}"
-    rsync -avz --progress ${TASK_HOME}/. ${current_user}@${HOST}:${TASK_HOME}
-    rsync -avz --progress ${current_home}/. ${current_user}@${HOST}:${current_home}
-  else
-    blue_echo "Please check ${current_home} on ${HOST}"
-    blue_echo "Add --overwrite in your run cmd to overwrite it directly"
+  # run remotely
+  if not_yes "${OVERWRITE}"; then
+    blue_echo "PLease check ${TASK_HOME} and ${PROJECT_HOME} on ${HOSTS}"
+    blue_echo "Add --overwrite to overwrite them directly"
     exit 0
   fi
-  ssh ${current_user}@${HOST} ${deploy_cmd}
+  HOSTS=${HOSTS//,/ }
+  for host in ${HOSTS}; do
+    ssh $(whoami)@${host} "mkdir -p ${TASK_HOME}"
+    rsync -avz --progress -l ${TASK_HOME}/. $(whoami)@${host}:${TASK_HOME}
+    ssh $(whoami)@${host} "mkdir -p ${PROJECT_HOME}"
+    rsync -avz --progress -l ${PROJECT_HOME}/. $(whoami)@${host}:${PROJECT_HOME}
+    ssh $(whoami)@${host} ${deploy_cmd}
+  done
 fi
