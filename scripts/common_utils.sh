@@ -85,8 +85,15 @@ die_if_err() {
   fi
 }
 
-absolute_path() {
+abs_dir_path() {
+  local dir_existed=0
+  [[ -d $1 ]] && dir_existed=1
+  mkdir -p $1
   echo $(cd $1 && pwd)
+  if [[ dir_existed == 0 ]]; then
+   # remove dir if it is created
+   test -d $1 && rm -r $1
+  fi
 }
 
 copy_missing(){

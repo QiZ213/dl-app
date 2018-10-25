@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to launch the project by service|notebook|debug at local|remote
-CURR_DIR=$(dirname $0)
-. "${CURR_DIR}/common_settings.sh"  # import colors utils
+curr_dir=$(dirname $0)
+. "${curr_dir}/common_settings.sh"  # import colors utils
 
 usage() {
   cat << USAGE >&2
@@ -79,7 +79,6 @@ else
   while [[ -n "$1" && "$1" =~ ^-.* ]]; do
     case "$1" in
       -t) TASK_HOME=$2 ;;
-      -v) TASK_VERSION=$2 ;;
       -h) HOSTS=$2 ;;
       -g) GIT_PATH=$2 ;;
       -b) GIT_BRANCH=$2 ;;
@@ -99,39 +98,37 @@ else
   CMD=\"$@\"
 fi
 
-: ${TASK_TYPE?"TASK_TYPE is required, but get null"}
-: ${DEVICE_TYPE:=gpu}
-: ${DRY_RUN:=no}
-: ${IMAGE_EXISTED:=no}
-: ${OVERWRITE:=no}
-: ${TASK_VERSION:=0.1-$(whoami)}
-: ${REGISTRY_IDC:=local}
+DEFAULT_BASE_DIR=/opt
+[[ -w ${DEFAULT_BASE_DIR} ]] || DEFAULT_BASE_DIR=~/opt
 
 if [[ -n ${GIT_PATH} ]]; then
-  : ${TASK_HOME?"TASK_HOME is required when from git, but get null"}
-  : ${TASK_NAME:=$(basename ${TASK_HOME})}
   [[ ${GIT_PATH} =~ (http|git@).* ]] || GIT_PATH="git@git.ppdaicorp.com:${GIT_PATH}"
-  GIT_BRANCH=${GIT_BRANCH:=master}
-  SOURCE_PATH=${GIT_PATH}
+  : ${GIT_BRANCH:=master}
+  : ${TASK_VERSION:=${GIT_BRANCH}}
+fi
+[[ -n ${SOURCE_PATH} ]] || : ${SOURCE_PATH:=${GIT_PATH}}
 
-elif [[ -n ${SOURCE_PATH} ]]; then
-  if [[ -n ${TASK_HOME} ]]; then
-    : ${TASK_NAME:=$(basename ${TASK_HOME})}
-  else
-    : ${TASK_NAME:=$(basename ${SOURCE_PATH})}
-    default_base_dir=/opt
-    [[ -w ${default_base_dir} ]] || default_base_dir=~
-    TASK_HOME=${default_base_dir}/dl-repo/${TASK_NAME}
-  fi
-
+if [[ -z ${TASK_NAME} ]] ; then
+  [[ -z ${SOURCE_PATH} ]] || : ${TASK_NAME:=$(basename ${SOURCE_PATH})}
+  [[ -z ${TASK_HOME} ]] || : ${TASK_NAME:=$(basename ${TASK_HOME})}
+  [[ -z ${TASK_NAME} ]] \
+    && die "Cannot parse TASK_NAME, -t, -s, -g and -n must have one"
 else
-  : ${TASK_HOME?"TASK_HOME or SOURCE_PATH at least one is required , but get both null"}
-  : ${TASK_NAME:=$(basename ${TASK_HOME})}
+  [[ -z ${SOURCE_PATH} && -z ${TASK_HOME} ]] \
+    && . ${curr_dir}/init.sh ${DEFAULT_BASE_DIR}/${TASK_NAME}
 fi
 
-if [[ ${TASK_TYPE} == init ]]; then
-  . ${CURR_DIR}/init.sh ${SOURCE_PATH}
-fi
+: ${OVERWRITE:=no}
+: ${TASK_HOME:=${DEFAULT_BASE_DIR}/${TASK_NAME}}
+: ${IMAGE_EXISTED:=no}
+: ${TASK_TYPE?"TASK_TYPE is required, but get null"}
+: ${TASK_VERSION:=0.1-$(whoami)}
+: ${DEVICE_TYPE:=gpu}
+: ${REGISTRY_IDC:=local}
+: ${DRY_RUN:=no}
+
+TASK_HOME=$(abs_dir_path ${TASK_HOME})
+PROJECT_HOME=$(abs_dir_path ${PROJECT_HOME})
 
 access_tips() {
   case "${DOCKER_REGISTRY}" in
@@ -159,9 +156,6 @@ access_tips() {
   esac
   echo -e "Check running log by: $(green_echo docker logs -f ${TASK_NAME})"
 }
-
-TASK_HOME=$(absolute_path ${TASK_HOME})
-PROJECT_HOME=$(absolute_path ${PROJECT_HOME})
 
 clean_cmd="rm -rf ${TASK_HOME}"
 is_yes "${CLEAN}" && ${clean_cmd}

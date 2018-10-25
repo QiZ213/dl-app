@@ -6,7 +6,7 @@ TASK_VERSION=$2 # e.g. "0.1"
 TASK_TYPE=$3 # e.g. "debug"
 DEVICE_TYPE=$4  # e.g. "gpu" or "cpu"
 REGISTRY_IDC=$5 # e.g. "aws" or "ppd"
-TRY_RUN=$6 # e.g. "yes"
+DRY_RUN=$6 # e.g. "yes"
 shift 6
 CMD="$@"
 
@@ -45,7 +45,7 @@ login_registry() {
 
 is_registry_available() {
   [[ $# != 1 ]] && die "Usage, is_registry_available registry"
-  mute curl --connect-timeout 1 --silent --insecure $1/v2/_catalog && login_registry $1
+  mute curl --connect-timeout 1 --silent --insecure $1/v2/_catalog
 }
 
 is_image_existed() {
@@ -107,6 +107,7 @@ parse_source_registry() {
   for registry in ${DOCKER_REGISTRIES}; do
     if is_registry_available ${registry} ; then
       SOURCE_REGISTRY=${registry#*://}
+      login_registry ${SOURCE_REGISTRY}
       break
     fi
   done
@@ -118,14 +119,14 @@ parse_target_idc() {
   case "${REGISTRY_IDC}" in
     "aws")
       TARGET_REGISTRY=${AWS_REGISTRY}
-      is_registry_available ${TARGET_REGISTRY} || die "${TARGET_REGISTRY} not available"
       ;;
     "ppd")
       TARGET_REGISTRY=${PPD_REGISTRY}
-      is_registry_available ${TARGET_REGISTRY} || die "${TARGET_REGISTRY} not available"
       ;;
     *) echo "use no target idc"
   esac
+  is_registry_available ${TARGET_REGISTRY} || die "${TARGET_REGISTRY} not available"
+  login_registry ${TARGET_REGISTRY}
 }
 
 parse_task_type(){
