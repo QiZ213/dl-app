@@ -32,7 +32,7 @@ EMPTY_ERR_MSG="should not empty, please check common_settings.sh under target"
 lazy_run() {
   if not_yes "${DRY_RUN}"; then
     blue_echo "running: $@"
-    mute eval $@
+    eval $@
     die_if_err "fail to run: $@"
   fi
   blue_echo "done: $@"
@@ -117,13 +117,9 @@ parse_source_registry() {
 parse_target_idc() {
   TARGET_REGISTRY=
   case "${REGISTRY_IDC}" in
-    "aws")
-      TARGET_REGISTRY=${AWS_REGISTRY}
-      ;;
-    "ppd")
-      TARGET_REGISTRY=${PPD_REGISTRY}
-      ;;
-    *) echo "use no target idc"
+    "aws")  TARGET_REGISTRY=${AWS_REGISTRY} ;;
+    "ppd") TARGET_REGISTRY=${PPD_REGISTRY} ;;
+    *) echo "use no target idc"; return 0 ;;
   esac
   is_registry_available ${TARGET_REGISTRY} || die "${TARGET_REGISTRY} not available"
   login_registry ${TARGET_REGISTRY} || die "fail to login ${TARGET_REGISTRY}"
