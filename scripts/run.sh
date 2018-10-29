@@ -161,6 +161,10 @@ is_yes "${CLEAN}" && ${clean_cmd}
 assemble_cmd=". ${PROJECT_BIN}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BRANCH}"
 ${assemble_cmd}
 
+TASK_HOME=$(abs_dir_path ${TASK_HOME})
+PROJECT_HOME=$(abs_dir_path ${PROJECT_HOME})
+TASK_VERSION=${TASK_VERSION##*/}
+
 deploy_cmd=". ${PROJECT_BIN}/tools/deploy.sh \
   ${TASK_HOME} \
   ${IMAGE_EXISTED} \
@@ -171,9 +175,6 @@ deploy_cmd=". ${PROJECT_BIN}/tools/deploy.sh \
   ${REGISTRY_IDC} \
   ${DRY_RUN} \
   ${CMD}"
-
-TASK_HOME=$(abs_dir_path ${TASK_HOME})
-PROJECT_HOME=$(abs_dir_path ${PROJECT_HOME})
 if [[ -z ${HOSTS} ]]; then
   # run locally
   ${deploy_cmd} && access_tips
