@@ -103,10 +103,11 @@ DEFAULT_BASE_DIR=/opt
 
 if [[ -n ${GIT_PATH} ]]; then
   [[ ${GIT_PATH} =~ (http|git@).* ]] || GIT_PATH="git@git.ppdaicorp.com:${GIT_PATH}"
+  GIT_PATH=${GIT_PATH%.git}
   : ${GIT_BRANCH:=master}
   : ${TASK_VERSION:=${GIT_BRANCH}}
 fi
-[[ -n ${SOURCE_PATH} ]] || : ${SOURCE_PATH:=${GIT_PATH}}
+: ${SOURCE_PATH:=${GIT_PATH}}
 
 if [[ -z ${TASK_NAME} ]] ; then
   [[ -z ${SOURCE_PATH} ]] || : ${TASK_NAME:=$(basename ${SOURCE_PATH})}
@@ -126,9 +127,6 @@ fi
 : ${DEVICE_TYPE:=gpu}
 : ${REGISTRY_IDC:=local}
 : ${DRY_RUN:=no}
-
-TASK_HOME=$(abs_dir_path ${TASK_HOME})
-PROJECT_HOME=$(abs_dir_path ${PROJECT_HOME})
 
 access_tips() {
   case "${DOCKER_REGISTRY}" in
@@ -174,6 +172,8 @@ deploy_cmd=". ${PROJECT_BIN}/tools/deploy.sh \
   ${DRY_RUN} \
   ${CMD}"
 
+TASK_HOME=$(abs_dir_path ${TASK_HOME})
+PROJECT_HOME=$(abs_dir_path ${PROJECT_HOME})
 if [[ -z ${HOSTS} ]]; then
   # run locally
   ${deploy_cmd} && access_tips

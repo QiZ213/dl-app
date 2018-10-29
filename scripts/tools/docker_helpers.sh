@@ -126,7 +126,7 @@ parse_target_idc() {
     *) echo "use no target idc"
   esac
   is_registry_available ${TARGET_REGISTRY} || die "${TARGET_REGISTRY} not available"
-  login_registry ${TARGET_REGISTRY}
+  login_registry ${TARGET_REGISTRY} || die "fail to login ${TARGET_REGISTRY}"
 }
 
 parse_task_type(){
