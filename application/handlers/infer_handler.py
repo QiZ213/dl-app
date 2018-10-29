@@ -1,12 +1,31 @@
 # -*- coding: utf-8 -*-
 
 import time
+import os
 
 from . import BaseHandler
+from application.utils.alert_utils import alert_handler
 
 EMPTY_REQ_ID = u"0"
 SUCCESS_INFO = u'success'
 FAIL_INFO = u'fail'
+
+
+def build_context(req_id, data, mark, params):
+    app_name = os.getenv("PROJECT_NAME", "anonymous")
+
+    data = {
+        "extra": {
+            "req_id": req_id,
+            "data": data,
+            "mark": mark,
+            "params": params
+        },
+        "tags": {
+            "app_name": app_name
+        }
+    }
+    return data
 
 
 class InferHandler(BaseHandler):
@@ -30,6 +49,8 @@ class InferHandler(BaseHandler):
             model_log = ModelLog(result, req_id, metas=metas)
             return model_log
         except Exception:
+            ctx = build_context(req_id, data, mark, params)
+            alert_handler.captureException(**ctx)
             import traceback
             error_info = traceback.format_exc()
             model_log = ModelLog(None, req_id, info=error_info)

@@ -7,6 +7,7 @@ from inspect import isclass
 from application import logging
 from application.handlers.infer_handler import InferHandler
 from application.utils import dump_json
+from application.utils.alert_utils import alert_handler
 from flask import Flask
 from flask import request
 
@@ -40,7 +41,7 @@ def serve():
 def parse_cmd():
     parser = argparse.ArgumentParser(description='service configuration parser')
     parser.add_argument("--json_conf", default="json.conf", dest="json_conf", help="json configure file")
-    parser.add_argument("--port", default="8080", dest="port", help="http server port")
+    parser.add_argument("--port", default=8080, type=int, dest="port", help="http server port")
     args = parser.parse_args()
 
     config = {"port": args.port}
@@ -66,6 +67,7 @@ def setup_app(flask_app, config):
     main_file = config.get("main_file")
     main_class = config.get("main_class")
     infer_method = config.get("infer_method")
+    sentry_dsn = config.get("sentry_dsn")
 
     try:
         file_obj = import_module(main_file)
@@ -77,6 +79,10 @@ def setup_app(flask_app, config):
         else:
             inferencer = file_obj
         infer_method = getattr(inferencer, infer_method)
+
+        if sentry_dsn:
+            alert_handler.init(sentry_dsn)
+
         flask_app.handler = InferHandler(inferencer, infer_method=infer_method)
     except ImportError as e:
         logging.error("Fail to import {}".format(main_file))
