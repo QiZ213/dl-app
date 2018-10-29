@@ -21,7 +21,9 @@ GIT_BRANCH="$1"
 : ${TARGET:? TARGET should not be null}
 
 # a normal dl-application project required components
-target_required="confs"
+target_required="application"
+target_required+=" setup.py"
+target_required+=" confs"
 target_required+=" dockers"
 target_required+=" resources"
 target_required+=" requirements_service.txt"
@@ -53,7 +55,7 @@ if [[ ! -e ${TARGET} ]]; then
     [[ -e ${SOURCE}/.git ]] && cp -r ${SOURCE}/.git ${TARGET}
   else
     # fetch from git
-    git clone --depth=1 ${SOURCE} -b ${GIT_BRANCH} ${TARGET}
+    git clone --recursive --depth=1 ${SOURCE} -b ${GIT_BRANCH} ${TARGET}
     die_if_err "fail to fetch codes from ${SOURCE}"
   fi
   check_required "source" "${TARGET}"

@@ -85,7 +85,8 @@ die_if_err() {
   fi
 }
 
-absolute_path() {
+abs_dir_path() {
+  [[ -d $1 ]] || die "$1 should be existed dir"
   echo $(cd $1 && pwd)
 }
 
@@ -98,14 +99,10 @@ copy_missing(){
     cp -nr ${src} ${tgt}
   else
     for i in $@; do
-      if echo ${i%/} | grep -q "/"; then  # if exist multi_sub folder
-        parent_path=${i%/*}
-        last_path=${i##*/}
-        [[ -d ${tgt}/${parent_path} ]] || mkdir -p ${tgt}/${parent_path}
-        cp -nr ${src}/${parent_path}/${last_path} ${tgt}/${parent_path}
-      else
-        cp -nr ${src}/${i} ${tgt}
-      fi
+      parent_dir=${i%/*}
+      [[ "${parent_dir}" != "$i" ]] && mkdir -p ${tgt}/${parent_dir}
+      cp -nr ${src}/${i} ${tgt}/${parent_dir}
+      die_if_err "fail to copy ${src}/${i} to ${tgt}/${parent_dir}"
     done;
   fi
 }
