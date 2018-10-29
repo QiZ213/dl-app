@@ -99,8 +99,8 @@ copy_missing(){
     cp -nr ${src} ${tgt}
   else
     for i in $@; do
-      parent_dir=${i%/*}
-      [[ "${parent_dir}" != "$i" ]] && mkdir -p ${tgt}/${parent_dir}
+      parent_dir=$(dirname ${i})
+      [[ "${parent_dir}" != "." ]] && mkdir -p ${tgt}/${parent_dir}
       cp -nr ${src}/${i} ${tgt}/${parent_dir}
       die_if_err "fail to copy ${src}/${i} to ${tgt}/${parent_dir}"
     done;
