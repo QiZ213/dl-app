@@ -18,7 +18,7 @@ RUN cd /opt/dl-application \
 
 # Install requirements
 ADD ./requirements_service.txt ${PROJECT_HOME}/requirements_service.txt
-pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_service.txt
+RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_service.txt
 
 # Assemble project
 ADD ./${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
