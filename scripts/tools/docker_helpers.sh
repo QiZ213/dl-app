@@ -8,7 +8,7 @@ TASK_TYPE=$4 # e.g. "debug"
 DEVICE_TYPE=$5  # e.g. "gpu" or "cpu"
 REGISTRY_IDC=$6 # e.g. "aws" or "ppd"
 DRY_RUN=$7 # e.g. "yes"
-shift 6
+shift 7
 CMD="$@"
 
 DOCKER=docker
