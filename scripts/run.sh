@@ -19,8 +19,11 @@ ARGUMENTS
                        if exists, structure of TASK_HOME must meet requirements of dl-application. See documents).
   -s                 fill in SOURCE_PATH, user project home, "scripts/common-settings.sh" is required in SOURCE_PATH.
   -n                 fill in TASK_NAME, be used to Image Tag, Container Name, default basename of task_home.
+  -v                 fill in TASK_VERSION, default 0.1-whoami
   -g                 fill in GIT_PATH, if code from gitlab, support only project component like "bird/dl-application"
   -b                 fill in GIT_BRANCH, default master
+  -gt                fill in GIT_TAG
+  -dt                fill in DOCKER_TAG, docker image tag, default "TASK_NAME:TASK_VERSION"
   -h                 fill in REMOTE_HOST, default run on local, or run on REMOTE_HOST by ssh
   --existed          Image Existed, run image without building image firstly. if ignore, no.
   --cpu              DEVICE_TYPE, if ignore, let DEVICE_TYPE be gpu.
@@ -83,7 +86,10 @@ else
       -b) GIT_BRANCH=$2 ;;
       -s) SOURCE_PATH=$2 ;;
       -n) TASK_NAME=$2 ;;
+      -v) TASK_VERSION=$2 ;;
       -r) REGISTRY_IDC=$2;;
+      -gt) GIT_TAG=$2 ;;
+      -dt) DOCKER_TAG=$2 ;;
       --cpu) DEVICE_TYPE="cpu" ;;
       --existed) IMAGE_EXISTED="yes" ;;
       --dry_run) DRY_RUN="yes" ;;
@@ -104,6 +110,7 @@ if [[ -n ${GIT_PATH} ]]; then
   [[ ${GIT_PATH} =~ (http|git@).* ]] || GIT_PATH="git@git.ppdaicorp.com:${GIT_PATH}"
   GIT_PATH=${GIT_PATH%.git}
   : ${GIT_BRANCH:=master}
+  : ${TASK_VERSION:=${GIT_TAG}}
   : ${TASK_VERSION:=${GIT_BRANCH}}
 fi
 : ${SOURCE_PATH:=${GIT_PATH}}
@@ -118,6 +125,7 @@ else
     && . ${curr_dir}/init.sh ${DEFAULT_BASE_DIR}/${TASK_NAME}
 fi
 
+TASK_VERSION=${TASK_VERSION##*/}
 : ${OVERWRITE:=no}
 : ${TASK_HOME:=${DEFAULT_BASE_DIR}/${TASK_NAME}}
 : ${IMAGE_EXISTED:=no}
@@ -126,6 +134,7 @@ fi
 : ${DEVICE_TYPE:=gpu}
 : ${REGISTRY_IDC:=local}
 : ${DRY_RUN:=no}
+: ${DOCKER_TAG:="${TASK_NAME}:${TASK_VERSION}"}
 
 access_tips() {
   case "${SOURCE_REGISTRY}" in
@@ -157,18 +166,18 @@ access_tips() {
 clean_cmd="rm -rf ${TASK_HOME}"
 is_yes "${CLEAN}" && ${clean_cmd}
 
-assemble_cmd=". ${PROJECT_BIN}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BRANCH}"
+assemble_cmd=". ${PROJECT_BIN}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BRANCH} ${GIT_TAG}"
 ${assemble_cmd}
 
 TASK_HOME=$(abs_dir_path ${TASK_HOME})
 PROJECT_HOME=$(abs_dir_path ${PROJECT_HOME})
-TASK_VERSION=${TASK_VERSION##*/}
 
 deploy_cmd=". ${PROJECT_BIN}/tools/deploy.sh \
   ${TASK_HOME} \
   ${IMAGE_EXISTED} \
   ${TASK_NAME} \
   ${TASK_VERSION} \
+  ${DOCKER_TAG} \
   ${TASK_TYPE} \
   ${DEVICE_TYPE} \
   ${REGISTRY_IDC} \
