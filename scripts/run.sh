@@ -19,7 +19,6 @@ ARGUMENTS
                        if exists, structure of TASK_HOME must meet requirements of dl-application. See documents).
   -s                 fill in SOURCE_PATH, user project home, "scripts/common-settings.sh" is required in SOURCE_PATH.
   -n                 fill in TASK_NAME, be used to Image Tag, Container Name, default basename of task_home.
-  -v                 fill in TASK_VERSION, be used to Image Tag, default 0.1-whoami.
   -g                 fill in GIT_PATH, if code from gitlab, support only project component like "bird/dl-application"
   -b                 fill in GIT_BRANCH, default master
   -h                 fill in REMOTE_HOST, default run on local, or run on REMOTE_HOST by ssh
@@ -129,7 +128,7 @@ fi
 : ${DRY_RUN:=no}
 
 access_tips() {
-  case "${DOCKER_REGISTRY}" in
+  case "${SOURCE_REGISTRY}" in
     dock\.cbd*) ip_addr=$(ip_address) ;;
     registry\.ppdai\.aws*) ip_addr=$(ip_address public) ;;
     *) ip_addr='start_the_service_IP';;
