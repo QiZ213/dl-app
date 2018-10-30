@@ -67,7 +67,6 @@ def setup_app(flask_app, config):
     main_file = config.get("main_file")
     main_class = config.get("main_class")
     infer_method = config.get("infer_method")
-    sentry_dsn = config.get("sentry_dsn")
 
     try:
         file_obj = import_module(main_file)
@@ -80,8 +79,7 @@ def setup_app(flask_app, config):
             inferencer = file_obj
         infer_method = getattr(inferencer, infer_method)
 
-        if sentry_dsn:
-            alert_handler.init(sentry_dsn)
+        alert_handler.init(config)
 
         flask_app.handler = InferHandler(inferencer, infer_method=infer_method)
     except ImportError as e:

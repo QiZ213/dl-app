@@ -11,23 +11,6 @@ SUCCESS_INFO = u'success'
 FAIL_INFO = u'fail'
 
 
-def build_context(req_id, data, mark, params):
-    app_name = os.getenv("PROJECT_NAME", "anonymous")
-
-    data = {
-        "extra": {
-            "req_id": req_id,
-            "data": data,
-            "mark": mark,
-            "params": params
-        },
-        "tags": {
-            "app_name": app_name
-        }
-    }
-    return data
-
-
 class InferHandler(BaseHandler):
 
     def __init__(self, inferencer, infer_method=None):
@@ -49,8 +32,8 @@ class InferHandler(BaseHandler):
             model_log = ModelLog(result, req_id, metas=metas)
             return model_log
         except Exception:
-            ctx = build_context(req_id, data, mark, params)
-            alert_handler.captureException(**ctx)
+            ctx = RequestContext(req_id, data, mark, params)
+            alert_handler.captureException(**ctx.to_dict())
             import traceback
             error_info = traceback.format_exc()
             model_log = ModelLog(None, req_id, info=error_info)
@@ -73,3 +56,34 @@ class ModelLog(object):
 
     def validate(self):
         return self.info == SUCCESS_INFO
+
+
+class RequestContext(object):
+    def __init__(self, req_id, data, mark, params, **kw):
+        self.req_id = req_id
+        self.data = data
+        self.mark = mark
+        self.params = params
+        self.kwargs = kw or None
+
+    @property
+    def app_name(self):
+        return os.getenv("PROJECT_NAME", "anonymous")
+
+    def to_dict(self):
+        data = {
+            "extra": {
+                "req_id": self.req_id,
+                "data": self.data,
+                "mark": self.mark,
+                "params": self.params
+            },
+            "tags": {
+                "app_name": self.app_name
+            }
+        }
+
+        if self.kwargs:
+            data['extra'].update(self.kwargs)
+
+        return data

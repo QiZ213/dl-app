@@ -12,11 +12,23 @@ class BaseAlert(object):
     def __init__(self):
         self.client = None
 
-    def init(self, *args, **kwargs):
+    def init(self, config):
         if self.client_cls is None:
             return
         self.close()
-        self.client = self.client_cls(*args, **kwargs)
+        self._init_client(config)
+
+    def _init_client(self, config):
+        """
+        init client_cls by extracting necessary arguments from config,
+        assign a value to self.client
+        Args:
+            config: dict, dl-application config.
+
+        Returns:
+            None
+        """
+        raise NotImplementedError
 
     def close(self):
         self.client = None
@@ -38,6 +50,11 @@ class SentryClient(BaseAlert):
         client_cls = Client
     except ImportError:
         client_cls = None
+
+    def _init_client(self, config):
+        dsn = config.get('sentry_dsn', None)
+        if dsn:
+            self.client = self.client_cls(dsn)
 
 
 alert_handler = SentryClient()
