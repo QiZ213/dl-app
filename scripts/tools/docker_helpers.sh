@@ -40,7 +40,9 @@ lazy_run() {
 
 login_registry() {
   [[ $# != 1 ]] && die "Usage, login_registry registry"
-  [[ "$1" == "${PPD_REGISTRY}" ]] && mute eval ${PPD_REGISTRY_LOGIN_CMD}
+  if [[ "$1" == "${PPD_REGISTRY}" ]];then
+    mute eval ${PPD_REGISTRY_LOGIN_CMD}
+  fi
 }
 
 is_registry_available() {
