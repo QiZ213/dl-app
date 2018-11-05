@@ -19,6 +19,11 @@ def hello():
     return 'Hello! Service is running'
 
 
+@app.route("/hs")
+def health_status():
+    return "OK"
+
+
 @app.route("/service", methods=['POST'])
 def serve():
     request.get_data()
