@@ -5,7 +5,7 @@ CURR_DIR=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
 . "${CURR_DIR}/../common_settings.sh"
 
 if [[ $# -lt 1 ]]; then
-  red_echo "Illegal arguments: ./assemble.sh target [source] [git_tag] [git_branch]"
+  red_echo "Illegal arguments: ./assemble.sh target [source] [git_branch]"
   exit 128
 fi
 
@@ -17,8 +17,6 @@ shift
 SOURCE="$1"
 shift
 GIT_BRANCH="$1"
-shift
-GIT_TAG="$1"
 
 : ${TARGET:? TARGET should not be null}
 
@@ -48,12 +46,6 @@ check_required() {
   done
 }
 
-fetch_from_git() {
-  local branch=${GIT_TAG}
-  : ${branch:=${GIT_BRANCH}}
-  git clone --recursive --depth=1 ${SOURCE} -b ${branch} ${TARGET}
-}
-
 if [[ ! -e ${TARGET} ]]; then
   # setup user project
   mkdir -p ${TARGET}
@@ -62,7 +54,8 @@ if [[ ! -e ${TARGET} ]]; then
     cp -r ${SOURCE}/* ${TARGET}
     [[ -e ${SOURCE}/.git ]] && cp -r ${SOURCE}/.git ${TARGET}
   else
-    fetch_from_git
+    # fetch from git
+    git clone --recursive --depth=1 ${SOURCE} -b ${GIT_BRANCH} ${TARGET}
     die_if_err "fail to fetch codes from ${SOURCE}"
   fi
   check_required "source" "${TARGET}"
