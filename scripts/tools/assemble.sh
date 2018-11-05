@@ -49,15 +49,9 @@ check_required() {
 }
 
 fetch_from_git() {
-  if [[ ${GIT_TAG} ]]; then
-    tmp_curr_dir=$(pwd)
-    git clone --recursive ${SOURCE} ${TARGET} \
-    && cd ${TARGET} \
-    && git checkout -b ${GIT_TAG} ${GIT_TAG} \
-    && cd ${tmp_curr_dir}
-  else
-    git clone --recursive --depth=1 ${SOURCE} -b ${GIT_BRANCH} ${TARGET}
-  fi
+  local branch=${GIT_TAG}
+  : ${brach:=${GIT_BRANCH}}
+  git clone --recursive --depth=1 ${SOURCE} -b ${branch} ${TARGET}
 }
 
 if [[ ! -e ${TARGET} ]]; then

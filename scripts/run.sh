@@ -19,7 +19,6 @@ ARGUMENTS
                        if exists, structure of TASK_HOME must meet requirements of dl-application. See documents).
   -s                 fill in SOURCE_PATH, user project home, "scripts/common-settings.sh" is required in SOURCE_PATH.
   -n                 fill in TASK_NAME, be used to Image Tag, Container Name, default basename of task_home.
-  -v                 fill in TASK_VERSION, default 0.1-whoami
   -g                 fill in GIT_PATH, if code from gitlab, support only project component like "bird/dl-application"
   -b                 fill in GIT_BRANCH, default master
   -gt                fill in GIT_TAG
@@ -86,7 +85,6 @@ else
       -b) GIT_BRANCH=$2 ;;
       -s) SOURCE_PATH=$2 ;;
       -n) TASK_NAME=$2 ;;
-      -v) TASK_VERSION=$2 ;;
       -r) REGISTRY_IDC=$2;;
       -gt) GIT_TAG=$2 ;;
       -dt) DOCKER_TAG=$2 ;;
@@ -176,7 +174,6 @@ deploy_cmd=". ${PROJECT_BIN}/tools/deploy.sh \
   ${TASK_HOME} \
   ${IMAGE_EXISTED} \
   ${TASK_NAME} \
-  ${TASK_VERSION} \
   ${DOCKER_TAG} \
   ${TASK_TYPE} \
   ${DEVICE_TYPE} \

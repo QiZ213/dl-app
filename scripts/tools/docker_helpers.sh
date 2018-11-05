@@ -2,13 +2,12 @@
 # Script to help build and run docker images
 
 TASK_NAME=$1 # e.g. "poem-service"
-TASK_VERSION=$2 # e.g. "0.1"
-DOCKER_TAG=$3 # e.g. "poem-service:0.1"
-TASK_TYPE=$4 # e.g. "debug"
-DEVICE_TYPE=$5  # e.g. "gpu" or "cpu"
-REGISTRY_IDC=$6 # e.g. "aws" or "ppd"
-DRY_RUN=$7 # e.g. "yes"
-shift 7
+DOCKER_TAG=$2 # e.g. "poem-service:0.1"
+TASK_TYPE=$3 # e.g. "debug"
+DEVICE_TYPE=$4  # e.g. "gpu" or "cpu"
+REGISTRY_IDC=$5 # e.g. "aws" or "ppd"
+DRY_RUN=$6 # e.g. "yes"
+shift 6
 CMD="$@"
 
 DOCKER=docker
