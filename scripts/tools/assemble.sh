@@ -50,7 +50,7 @@ check_required() {
 
 fetch_from_git() {
   local branch=${GIT_TAG}
-  : ${brach:=${GIT_BRANCH}}
+  : ${branch:=${GIT_BRANCH}}
   git clone --recursive --depth=1 ${SOURCE} -b ${branch} ${TARGET}
 }
 
