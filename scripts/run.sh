@@ -23,6 +23,7 @@ ARGUMENTS
   -b                 fill in GIT_BRANCH or GIT_TAG, default master
   -dt                fill in DOCKER_TAG, docker image tag, default "TASK_NAME:TASK_VERSION"
   -h                 fill in REMOTE_HOST, default run on local, or run on REMOTE_HOST by ssh
+   -v                 fill in TASK_VERSION, default 0.1-whoami
   --existed          Image Existed, run image without building image firstly. if ignore, no.
   --cpu              DEVICE_TYPE, if ignore, let DEVICE_TYPE be gpu.
   --overwrite        When remote run, would overwrite same files on remote host. if ignore, no.
@@ -84,7 +85,8 @@ else
       -b) GIT_BRANCH=$2 ;;
       -s) SOURCE_PATH=$2 ;;
       -n) TASK_NAME=$2 ;;
-      -r) REGISTRY_IDC=$2;;
+      -r) REGISTRY_IDC=$2 ;;
+      -v) TASK_VERSION=$2 ;;
       -dt) DOCKER_TAG=$2 ;;
       --cpu) DEVICE_TYPE="cpu" ;;
       --existed) IMAGE_EXISTED="yes" ;;
@@ -105,8 +107,8 @@ DEFAULT_BASE_DIR=/opt
 if [[ -n ${GIT_PATH} ]]; then
   [[ ${GIT_PATH} =~ (http|git@).* ]] || GIT_PATH="git@git.ppdaicorp.com:${GIT_PATH}"
   GIT_PATH=${GIT_PATH%.git}
+  [[ -n ${GIT_BRANCH} ]] && : ${TASK_VERSION:=${GIT_BRANCH##*/}}
   : ${GIT_BRANCH:=master}
-  TASK_VERSION=${GIT_BRANCH##*/}
 fi
 : ${SOURCE_PATH:=${GIT_PATH}}
 
