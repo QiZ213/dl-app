@@ -1,26 +1,18 @@
 # -*- coding: utf-8 -*-
-import os
-import ssl
-
 __all__ = [
     'read_img_by_cv2'
     , 'write_img_by_cv2'
 ]
 
-try:
-    from urllib.request import urlopen
-except ImportError:
-    from urllib2 import urlopen
+import os
 
 import cv2
 import numpy as np
 
-NONE_CERT_CTX = ssl.create_default_context()
-NONE_CERT_CTX.check_hostname = False
-NONE_CERT_CTX.verify_mode = ssl.CERT_NONE
+import url_utils
 
 
-def read_img_by_cv2(fp):
+def read_img_by_cv2(fp, timeout=1):
     """ read image as opencv formatted image
 
     Args:
@@ -32,7 +24,7 @@ def read_img_by_cv2(fp):
     fp_name = ""
     if isinstance(fp, (bytes, str, unicode)):
         if fp.startswith(u'http://') or fp.startswith(u'https://'):
-            fp = urlopen(fp, context=NONE_CERT_CTX)
+            fp = url_utils.urlopen(fp, timeout=timeout)
         elif os.path.isfile(fp):
             fp_name = fp
 

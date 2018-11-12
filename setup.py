@@ -15,6 +15,7 @@ setup(
         , 'gunicorn'
         , 'gevent'
         , 'future'
+        , 'requests'
         , 'raven==6.6.0'
     ]
     , entry_points={
