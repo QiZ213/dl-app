@@ -15,6 +15,7 @@ setup(
         , 'gunicorn'
         , 'gevent'
         , 'future'
+        , 'mock'
         , 'requests'
         , 'raven==6.6.0'
     ]

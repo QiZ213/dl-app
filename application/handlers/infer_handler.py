@@ -1,44 +1,44 @@
 # -*- coding: utf-8 -*-
 
 import time
-import os
+from importlib import import_module
+from inspect import isclass
 
-from . import BaseHandler
-from application.utils.alert_utils import alert_handler
-
-EMPTY_REQ_ID = u"0"
-SUCCESS_INFO = u'success'
-FAIL_INFO = u'fail'
+from .base_handler import BaseHandler, HandlerError
+from ..handlers import *
 
 
 class InferHandler(BaseHandler):
 
-    def __init__(self, inferencer, infer_method=None):
-        self.inferencer = inferencer
-        if infer_method:
-            self.inferencer.infer = infer_method
+    def __init__(self, config, **kwargs):
+        super(BaseHandler, self).__init__(config, **kwargs)
+        main_file = self.get_config("main_file")
+        main_class = self.get_config("main_class")
+        infer_method = self.get_config("infer_method")
+        try:
+            file_obj = import_module(main_file)
+            if main_class:
+                inferencer_class = getattr(file_obj, main_class)
+                if not isclass(main_class):
+                    raise TypeError('{} not a python class'.format(main_class))
+                inferencer = inferencer_class()
+            else:
+                inferencer = file_obj
+            self.inferencer = inferencer
+            self.inferencer.infer = getattr(inferencer, infer_method)
+        except Exception as e:
+            raise HandlerError("Fail to init handler from module: {} ,class: {}", e)
 
     def handle(self, req_id, data, mark, params):
         req_id = req_id if req_id else EMPTY_REQ_ID
+        metas = {}
+        start = time.time() * 1000
+        result = self.inferencer.infer(data, mark, params, metas)
+        metas['latency'] = time.time() * 1000 - start
+        return ModelLog(result, req_id, metas=metas)
 
-        if not data:
-            return "no data in request"
-
-        try:
-            metas = {}
-            start = time.time() * 1000
-            result = self.inferencer.infer(data, mark, params, metas)
-            metas['latency'] = time.time() * 1000 - start
-            model_log = ModelLog(result, req_id, metas=metas)
-            return model_log
-        except Exception:
-            ctx = RequestContext(req_id, data, mark, params)
-            alert_handler.captureException(**ctx.to_dict())
-            import traceback
-            error_info = traceback.format_exc()
-            model_log = ModelLog(None, req_id, info=error_info)
-
-        return model_log
+    def fail(self, req_id, error_info):
+        return ModelLog(None, req_id, info=error_info)
 
 
 class ModelLog(object):
@@ -56,34 +56,3 @@ class ModelLog(object):
 
     def validate(self):
         return self.info == SUCCESS_INFO
-
-
-class RequestContext(object):
-    def __init__(self, req_id, data, mark, params, **kw):
-        self.req_id = req_id
-        self.data = data
-        self.mark = mark
-        self.params = params
-        self.kwargs = kw or None
-
-    @property
-    def app_name(self):
-        return os.getenv("PROJECT_NAME", "anonymous")
-
-    def to_dict(self):
-        data = {
-            "extra": {
-                "req_id": self.req_id,
-                "data": self.data,
-                "mark": self.mark,
-                "params": self.params
-            },
-            "tags": {
-                "app_name": self.app_name
-            }
-        }
-
-        if self.kwargs:
-            data['extra'].update(self.kwargs)
-
-        return data
