@@ -1,7 +1,9 @@
 #!/bin/bash
 
 source_existed() {
-  [[ -e $1 ]] && . $1
+  if [[ -e $1 ]]; then
+    . $1
+  fi
 }
 
 install_base_required() {
