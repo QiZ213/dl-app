@@ -7,7 +7,7 @@ source_existed() {
 }
 
 install_base_required() {
-apt-get install -yq --no-install-recommends \
+  apt-get install -yq --no-install-recommends \
     libglib2.0-0
 }
 
