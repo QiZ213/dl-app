@@ -6,7 +6,7 @@ FROM ${base}
 LABEL maintainer="Yun Zhu(zhuyun@cbdai.com)"
 
 # install os dependencies
-ADD ./dockers/install_os_dependencies.sh/opt/install_os_dependencies.sh
+ADD ./dockers/install_os_dependencies.sh /opt/install_os_dependencies.sh
 RUN /bin/bash /opt/install_os_dependencies.sh
 
 # Configure environment
