@@ -5,6 +5,10 @@ FROM ${base}
 #   https://github.com/jupyter/docker-stacks/blob/master/base-notebook/Dockerfile
 LABEL maintainer="Yun Zhu(zhuyun@cbdai.com)"
 
+# install os dependencies
+ADD ./scripts/installations /opt/installations
+RUN /bin/bash /opt/installations/install.sh
+
 # Configure environment
 ARG notebook_user=cbd
 ARG notebook_uid=1000

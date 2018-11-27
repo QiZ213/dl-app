@@ -33,6 +33,7 @@ target_required+=" scripts/common_utils.sh"
 target_required+=" scripts/start.sh"
 target_required+=" scripts/start_notebook.sh"
 target_required+=" scripts/start_service.sh"
+target_required+=" scripts/installations"
 
 # user project required components
 source_required="scripts/common_settings.sh"
