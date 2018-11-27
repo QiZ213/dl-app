@@ -1,5 +1,7 @@
 #!/bin/bash
 
+curr_dir=$(cd $(dirname ${BASH_SOURCE}); pwd)
+
 source_existed() {
   if [[ -e $1 ]]; then
     . $1
@@ -15,6 +17,6 @@ install_base_required() {
 # install os requirements
 apt-get update \
 && install_base_required \
-&& source_existed ./install_custom.sh \
+&& source_existed ${curr_dir}/install_custom.sh \
 && apt-get clean \
 && rm -rf /var/lib/apt/lists/*
