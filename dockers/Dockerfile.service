@@ -5,8 +5,8 @@ FROM ${base}
 LABEL maintainer="Yun Zhu(zhuyun@ppdai.com)"
 
 # install os dependencies
-ADD ./dockers/install_os_dependencies.sh /opt/install_os_dependencies.sh
-RUN /bin/bash /opt/install_os_dependencies.sh
+ADD ./scripts/install_os_requirements /opt/install_os_requirements
+RUN /bin/bash /opt/install_os_requirements/install.sh
 
 ARG project_home_in_docker
 ENV PROJECT_HOME=${project_home_in_docker}
