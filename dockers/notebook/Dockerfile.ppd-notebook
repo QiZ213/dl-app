@@ -6,8 +6,8 @@ FROM ${base}
 LABEL maintainer="Yun Zhu(zhuyun@cbdai.com)"
 
 # install os dependencies
-ADD ./scripts/install_os_requirements /opt/install_os_requirements
-RUN /bin/bash /opt/install_os_requirements/install.sh
+ADD ./scripts/installations /opt/installations
+RUN /bin/bash /opt/installations/install.sh
 
 # Configure environment
 ARG notebook_user=cbd

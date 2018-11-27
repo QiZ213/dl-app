@@ -15,6 +15,6 @@ install_base_required() {
 # install os requirements
 apt-get update \
 && install_base_required \
-&& source_existed ./custom_requirements.sh \
+&& source_existed ./install_custom.sh \
 && apt-get clean \
 && rm -rf /var/lib/apt/lists/*
