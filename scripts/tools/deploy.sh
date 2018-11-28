@@ -1,8 +1,8 @@
 #!/bin/bash
 # script to deploy project
-if [[ $# -lt 7 ]]; then
-  red_echo "Illegal arguments: ./deploy.sh task_home image_existed task_name docker_tag task_type device_type registry_idc dry_run [cmd]"
-  echo "e.g. $ /bin/bash deploy.sh ~/ocr yes poem poem:0.1 service|train|notebook|debug cpu|gpu ppd no [cmd]"
+if [[ $# -lt 8 ]]; then
+  red_echo "Illegal arguments: ./deploy.sh task_home image_existed task_name docker_tag task_type device_type registry_idc nv_gpu dry_run [cmd]"
+  echo "e.g. $ /bin/bash deploy.sh ~/ocr yes poem poem:0.1 service|train|notebook|debug cpu|gpu ppd 0 no [cmd]"
   exit 128
 fi
 curr_dir=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)

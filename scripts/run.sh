@@ -23,7 +23,8 @@ ARGUMENTS
   -b                 fill in GIT_BRANCH or GIT_TAG, default master
   -dt                fill in DOCKER_TAG, docker image tag, default "TASK_NAME:TASK_VERSION"
   -h                 fill in REMOTE_HOST, default run on local, or run on REMOTE_HOST by ssh
-   -v                 fill in TASK_VERSION, default 0.1-whoami
+  -v                 fill in TASK_VERSION, default 0.1-whoami
+  -gpu               file in NV_GPU, GPU isolation, same as CUDA_VISIBLE_DEVICES
   --existed          Image Existed, run image without building image firstly. if ignore, no.
   --cpu              DEVICE_TYPE, if ignore, let DEVICE_TYPE be gpu.
   --overwrite        When remote run, would overwrite same files on remote host. if ignore, no.
@@ -88,6 +89,7 @@ else
       -r) REGISTRY_IDC=$2 ;;
       -v) TASK_VERSION=$2 ;;
       -dt) DOCKER_TAG=$2 ;;
+      -gpu) NV_GPU=$2 ;;
       --cpu) DEVICE_TYPE="cpu" ;;
       --existed) IMAGE_EXISTED="yes" ;;
       --dry_run) DRY_RUN="yes" ;;
@@ -131,6 +133,7 @@ fi
 : ${REGISTRY_IDC:=local}
 : ${DRY_RUN:=no}
 : ${DOCKER_TAG:="${TASK_NAME}:${TASK_VERSION}"}
+NV_GPU="NV_GPU=${NV_GPU}"
 
 access_tips() {
   case "${SOURCE_REGISTRY}" in
@@ -176,8 +179,10 @@ deploy_cmd=". ${PROJECT_BIN}/tools/deploy.sh \
   ${TASK_TYPE} \
   ${DEVICE_TYPE} \
   ${REGISTRY_IDC} \
+  ${NV_GPU} \
   ${DRY_RUN} \
   ${CMD}"
+
 if [[ -z ${HOSTS} ]]; then
   # run locally
   ${deploy_cmd} && access_tips
