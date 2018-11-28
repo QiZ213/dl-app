@@ -10,7 +10,8 @@ source_existed() {
 
 install_base_required() {
   apt-get install -yq --no-install-recommends \
-    libglib2.0-0
+    libglib2.0-0 \
+  && pip install --no-cache-dir opencv-python==3.3.0.9
 }
 
 
