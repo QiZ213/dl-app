@@ -24,7 +24,7 @@ ARGUMENTS
   -dt                fill in DOCKER_TAG, docker image tag, default "TASK_NAME:TASK_VERSION"
   -h                 fill in REMOTE_HOST, default run on local, or run on REMOTE_HOST by ssh
   -v                 fill in TASK_VERSION, default 0.1-whoami
-  -gp                file in NV_GPU, default NULL, same as CUDA_VISIBLE_DEVICES
+  -gpu               file in NV_GPU, GPU isolation, same as CUDA_VISIBLE_DEVICES
   --existed          Image Existed, run image without building image firstly. if ignore, no.
   --cpu              DEVICE_TYPE, if ignore, let DEVICE_TYPE be gpu.
   --overwrite        When remote run, would overwrite same files on remote host. if ignore, no.
@@ -89,7 +89,7 @@ else
       -r) REGISTRY_IDC=$2 ;;
       -v) TASK_VERSION=$2 ;;
       -dt) DOCKER_TAG=$2 ;;
-      -gid) NV_GPU=$2 ;;
+      -gpu) NV_GPU=$2 ;;
       --cpu) DEVICE_TYPE="cpu" ;;
       --existed) IMAGE_EXISTED="yes" ;;
       --dry_run) DRY_RUN="yes" ;;
