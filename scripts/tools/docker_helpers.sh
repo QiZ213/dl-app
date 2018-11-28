@@ -6,8 +6,9 @@ DOCKER_TAG=$2 # e.g. "poem-service:0.1"
 TASK_TYPE=$3 # e.g. "debug"
 DEVICE_TYPE=$4  # e.g. "gpu" or "cpu"
 REGISTRY_IDC=$5 # e.g. "aws" or "ppd"
-DRY_RUN=$6 # e.g. "yes"
-shift 6
+NV_GPU=$6 # e.g. "NV_GPU=0" or "NV_GPU=0,1,2" or "NV_GPU="
+DRY_RUN=$7 # e.g. "yes"
+shift 7
 CMD="$@"
 
 DOCKER=docker
@@ -228,7 +229,7 @@ prepare() {
   DOCKER_BASE="${SOURCE_REGISTRY}/${DEEP_LEARNING_FRAMEWORK}:${DEEP_LEARNING_VERSION}-${PYTHON_ALIAS}-${SYSTEM}-${OS_VERSION}"
   BUILDING_ARGS="--build-arg base=${DOCKER_BASE} ${BUILDING_ARGS}"
   BUILD_CMD="${DOCKER} build -t ${DOCKER_TAG} ${BUILDING_ARGS} -f ${DOCKER_FILE} ${PROJECT_HOME}"
-  RUN_CMD="${DOCKER_ENGINE} run ${RUNNING_MODE} --name ${TASK_NAME} ${RUNNING_OPTIONS} ${DOCKER_TAG} ${CMD}"
+  RUN_CMD="${NV_GPU} ${DOCKER_ENGINE} run ${RUNNING_MODE} --name ${TASK_NAME} ${RUNNING_OPTIONS} ${DOCKER_TAG} ${CMD}"
 }
 
 build() {
