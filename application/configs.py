@@ -57,15 +57,19 @@ class Config(object):
         if overwrite:
             updated = dictionary
         else:
-            updated = {k: v for k, v in dictionary.items() if k not in section_dict or not section_dict[k]}
+            updated = {k: v for k, v in dictionary.items() if not self._is_existed(k, section_dict)}
         section_dict.update(updated)
         return self
 
     def set_config(self, section, name, value, overwrite=True):
         section_dict = self._sections.setdefault(section, {})
-        if overwrite or name not in section_dict or not section_dict[name]:
+        if overwrite or not self._is_existed(name, section_dict):
             section_dict[name] = value
         return self
+
+    @staticmethod
+    def _is_existed(config_key, section):
+        return config_key in section and section[config_key] is not None and section[config_key] != ""
 
     def __str__(self):
         return self._sections.__str__()

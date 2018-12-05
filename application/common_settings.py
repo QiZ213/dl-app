@@ -17,17 +17,19 @@ def contains_bin_or_scripts(path):
     return os.path.exists(bin_path) or os.path.exists(scripts_path)
 
 
-PROJECT_HOME = os.getenv('PROJECT_HOME')
-if not PROJECT_HOME:
-    search_path = os.path.abspath(os.curdir)
-    while os.path.basename(search_path):
-        if contains_bin_or_scripts(search_path):
-            PROJECT_HOME = search_path
-            break
-        search_path = os.path.abspath(os.path.join(search_path, os.pardir))
+PROJECT_HOME = None
+search_path = os.path.abspath(os.curdir)
+while os.path.basename(search_path):
+    if contains_bin_or_scripts(search_path):
+        PROJECT_HOME = search_path
+        break
+    search_path = os.path.abspath(os.path.join(search_path, os.pardir))
 
 if not PROJECT_HOME:
-    raise IOError("Cannot find bin or scripts, "
+    PROJECT_HOME = os.getenv('PROJECT_HOME')
+
+if not PROJECT_HOME:
+    raise IOError("Cannot find root of your project, "
                   + "please create folder named \"bin\" or \"scripts\" under root of your project")
 
 PROJECT_HOME = os.path.normpath(PROJECT_HOME)

@@ -10,24 +10,45 @@ except ImportError:
 from application.configs import Config, Configured
 from application.configs import NoSectionError
 
+TEST_CONFIG = {
+    "str_config": "a"
+    , "bool_config": False
+    , "int_config": 0
+    , "float_config": 0.0
+    , "empty_config": ""
+    , "none_config": None
+    , "raw_config": "raw"
+}
+
+UPDATE_CONFIG = {
+    "str_config": "b"
+    , "bool_config": True
+    , "int_config": 1
+    , "float_config": 0.1
+    , "empty_config": "not empty now"
+    , "none_config": "not none now"
+    , "new_config": "new"
+}
+
 
 class TestConfig(unittest.TestCase):
 
     def test_init_config_from_json(self):
-        cfg = Config(json_conf=os.path.join("tests/resources", "conf.json"))
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        cfg = Config(json_conf=os.path.join(current_dir, "resources", "conf.json"))
         self.assertEqual({"main_class": "", "main_file": "", "infer_method": ""}, cfg.get_section("exec"))
 
     def test_init_config_from_dict(self):
-        cfg = Config().from_dict({"exec": {"main_class": "inferencer"}})
-        self.assertEqual({"main_class": "inferencer"}, cfg.get_section("exec"))
+        cfg = Config().from_dict({"section": TEST_CONFIG})
+        self.assertEqual(TEST_CONFIG, cfg.get_section("section"))
 
     @staticmethod
     def _init_config():
-        return Config().from_dict({"exec": {"main_class": "inferencer", "main_file": "", "infer_method": ""}})
+        return Config().from_dict({"section": TEST_CONFIG})
 
     def test_has_section_should_return_true(self):
         cfg = self._init_config()
-        self.assertTrue(cfg.has_section("exec"))
+        self.assertTrue(cfg.has_section("section"))
 
     def test_has_section_should_return_false(self):
         cfg = self._init_config()
@@ -40,30 +61,25 @@ class TestConfig(unittest.TestCase):
 
     def test_get_section_should_be_immutable(self):
         cfg = self._init_config()
-        expected = {"main_class": "inferencer", "main_file": "", "infer_method": ""}
-        self.assertEqual(expected, cfg.get_section("exec"))
-        raw = cfg.get_section("exec")
-        raw["new_method"] = "new"
-        self.assertEqual(expected, cfg.get_section("exec"))
+        self.assertEqual(TEST_CONFIG, cfg.get_section("section"))
+        raw = cfg.get_section("section")
+        raw["new_config"] = "new"
+        self.assertEqual(TEST_CONFIG, cfg.get_section("section"))
 
     def test_get_config_should_raise_exception(self):
         cfg = self._init_config()
         with self.assertRaises(NoSectionError):
-            cfg.get_config("not existed", "infer_method")
-
-    def test_get_config_should_return_empty(self):
-        cfg = self._init_config()
-        self.assertEqual("", cfg.get_config("exec", "infer_method"))
+            cfg.get_config("not existed", "str_config")
 
     def test_get_config_should_return_value(self):
         cfg = self._init_config()
-        self.assertEqual("inferencer", cfg.get_config("exec", "main_class"))
+        self.assertEqual("a", cfg.get_config("section", "str_config"))
 
     def test_get_config_should_return_default(self):
         cfg = self._init_config()
-        self.assertEqual("default", cfg.get_config("exec", "not existed", "default"))
+        self.assertEqual("default", cfg.get_config("section", "not existed", "default"))
 
-    def test_set_new_section_shold_update(self):
+    def test_set_new_section_should_update(self):
         cfg = self._init_config()
         new_config_dict = {"new_name": "new_value"}
         cfg.set_section("new_config", new_config_dict)
@@ -71,62 +87,68 @@ class TestConfig(unittest.TestCase):
 
     def test_overwrite_old_section_should_update(self):
         cfg = self._init_config()
-        new_exec_config_dict = {"main_class": "a", "main_file": "b", "new_method": "new"}
-        cfg.set_section("exec", new_exec_config_dict)
-        expected_exec_config_dict = {
-            "main_class": "a"
-            , "main_file": "b"
-            , "infer_method": ""
-            , "new_method": "new"
+        cfg.set_section("section", UPDATE_CONFIG)
+        expected_section_config_dict = {
+            "str_config": "b"
+            , "bool_config": True
+            , "int_config": 1
+            , "float_config": 0.1
+            , "empty_config": "not empty now"
+            , "none_config": "not none now"
+            , "raw_config": "raw"
+            , "new_config": "new"
         }
-        self.assertEqual(expected_exec_config_dict, cfg.get_section("exec"))
+        self.assertEqual(expected_section_config_dict, cfg.get_section("section"))
 
-    def test_complete_old_section_with_new_config_should_update(self):
+    def test_complete_old_section_should_update(self):
         cfg = self._init_config()
-        new_exec_config_dict = {"new_method1": "new1", "new_method2": "new2"}
-        cfg.set_section("exec", new_exec_config_dict, False)
-        expected_exec_config_dict = {
-            "main_class": "inferencer"
-            , "main_file": ""
-            , "infer_method": ""
-            , "new_method1": "new1"
-            , "new_method2": "new2"
+        cfg.set_section("section", UPDATE_CONFIG, False)
+        expected_section_config_dict = {
+            "str_config": "a"
+            , "bool_config": False
+            , "int_config": 0
+            , "float_config": 0.0
+            , "empty_config": "not empty now"
+            , "none_config": "not none now"
+            , "raw_config": "raw"
+            , "new_config": "new"
         }
-        self.assertEqual(expected_exec_config_dict, cfg.get_section("exec"))
-
-    def test_complete_old_section_with_empty_config_should_update(self):
-        cfg = self._init_config()
-        new_exec_config_dict = {"main_file": "a"}
-        cfg.set_section("exec", new_exec_config_dict, False)
-        expected_exec_config_dict = {"main_class": "inferencer", "main_file": "a", "infer_method": ""}
-        self.assertEqual(expected_exec_config_dict, cfg.get_section("exec"))
-
-    def test_complete_old_section_with_config_should_not_update(self):
-        cfg = self._init_config()
-        new_exec_config_dict = {"main_class": "a"}
-        cfg.set_section("exec", new_exec_config_dict, False)
-        expected_exec_config_dict = {"main_class": "inferencer", "main_file": "", "infer_method": ""}
-        self.assertEqual(expected_exec_config_dict, cfg.get_section("exec"))
+        self.assertEqual(expected_section_config_dict, cfg.get_section("section"))
 
     def test_overwrite_config_should_update(self):
         cfg = self._init_config()
-        cfg.set_config("exec", "main_class", "a")
-        self.assertEqual("a", cfg.get_config("exec", "main_class"))
+        cfg.set_config("section", "str_config", "b")
+        self.assertEqual("b", cfg.get_config("section", "str_config"))
 
     def test_complete_config_with_new_config_should_update(self):
         cfg = self._init_config()
-        cfg.set_config("exec", "new_method", "new", False)
-        self.assertEqual("new", cfg.get_config("exec", "new_method"))
+        cfg.set_config("section", "new_config", "new", False)
+        self.assertEqual("new", cfg.get_config("section", "new_config"))
 
     def test_complete_config_with_empty_config_should_update(self):
         cfg = self._init_config()
-        cfg.set_config("exec", "main_file", "b", False)
-        self.assertEqual("b", cfg.get_config("exec", "main_file"))
+        cfg.set_config("section", "empty_config", "not empty any more", False)
+        self.assertEqual("not empty any more", cfg.get_config("section", "empty_config"))
 
-    def test_complete_config_with_config_should_not_update(self):
+    def test_complete_config_with_none_config_should_update(self):
         cfg = self._init_config()
-        cfg.set_config("exec", "main_class", "a", False)
-        self.assertEqual("inferencer", cfg.get_config("exec", "main_class"))
+        cfg.set_config("section", "none_config", "not none any more", False)
+        self.assertEqual("not none any more", cfg.get_config("section", "none_config"))
+
+    def test_complete_config_with_false_config_should_not_update(self):
+        cfg = self._init_config()
+        cfg.set_config("section", "bool_config", True, False)
+        self.assertEqual(False, cfg.get_config("section", "bool_config"))
+
+    def test_complete_config_with_zero_config_should_not_update(self):
+        cfg = self._init_config()
+        cfg.set_config("section", "int_config", 1, False)
+        self.assertEqual(0, cfg.get_config("section", "int_config"))
+
+    def test_complete_config_with_existed_config_should_not_update(self):
+        cfg = self._init_config()
+        cfg.set_config("section", "str_config", "b", False)
+        self.assertEqual("a", cfg.get_config("section", "str_config"))
 
 
 class TestConfigured(unittest.TestCase):
