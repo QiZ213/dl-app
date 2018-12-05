@@ -19,7 +19,7 @@ class InferHandler(BaseHandler):
             file_obj = import_module(main_file)
             if main_class:
                 inferencer_class = getattr(file_obj, main_class)
-                if not isclass(main_class):
+                if not isclass(inferencer_class):
                     raise TypeError('{} not a python class'.format(main_class))
                 inferencer = inferencer_class()
             else:
@@ -27,7 +27,8 @@ class InferHandler(BaseHandler):
             self.inferencer = inferencer
             self.inferencer.infer = getattr(inferencer, infer_method)
         except Exception as e:
-            raise HandlerError("Fail to init handler from module: {} ,class: {}", e)
+            raise HandlerError("Fail to init infer handler from module: {}, class: {}, method: {}".format(
+                main_file, main_class, infer_method), e)
 
     def handle(self, req_id, data, mark, params):
         req_id = req_id if req_id else EMPTY_REQ_ID
