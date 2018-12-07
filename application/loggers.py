@@ -72,7 +72,7 @@ class ConfiguredLogger(Configured):
                                                             , when='midnight'
                                                             , interval=1
                                                             , backupCount=10)
-                log_file_handler.setLevel(logging.ERROR)
+                log_file_handler.setLevel(self.log_file_error)
                 log_file_handler.setFormatter(logging.Formatter(MSG_FMT, DT_FMT))
                 log_file_handler.suffix = LOG_FILE_SUFFIX
             except Exception as e:
