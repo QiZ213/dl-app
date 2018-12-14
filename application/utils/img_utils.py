@@ -17,6 +17,7 @@ def read_img_by_cv2(fp, timeout=1):
 
     Args:
         fp: file name, url address or byte streaming
+        timeout: timeout for reading image from url, by default is 1s
 
     Returns:
         opencv formatted image
