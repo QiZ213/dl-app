@@ -3,8 +3,8 @@ import argparse
 
 from gunicorn.six import iteritems
 
-from application.service.flask.flask_server import app, setup_app
 from gunicorn.app.base import Application
+from .flask_server import app, setup_app
 from ...configs import Config
 
 

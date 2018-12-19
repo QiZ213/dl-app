@@ -26,7 +26,7 @@ DEFAULT_LOG_CONFIG_DICT = {
     },
     'handlers': {
         'console': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'formatter': 'default',
             'class': 'logging.StreamHandler',
         },
@@ -42,7 +42,7 @@ DEFAULT_LOG_CONFIG_DICT = {
     },
     'root': {
         'handlers': ['console', 'error_file'],
-        'level': 'ERROR'
+        'level': 'DEBUG'
     }
 }
 
@@ -73,21 +73,17 @@ class ConfiguredLogger(Configured):
                 json_config_file = os.path.join(PROJECT_HOME, 'confs', self.json_config)
                 self.dict_config = json.load(json_config_file)
             logging.config.dictConfig(self.dict_config)
+            logging.getLogger().setLevel(self.level)
         except Exception as e:
             raise ConfiguredLoggerError('fail to load from json config: {}'.format(self.json_config), e)
 
-    def get_logger(self, logger_name):
-        logger = logging.getLogger(logger_name)
-        logger.setLevel(self.level)
-        return logger
 
-
-log_config = Config().from_dict({'logger': {'level': 'WARNING'}})
-log = ConfiguredLogger(log_config)
+DEFAULT_LOGGER_CONFIG = Config().from_dict({'logger': {'level': 'DEBUG'}})
+ConfiguredLogger(DEFAULT_LOGGER_CONFIG)
 
 
 def get_logger(logger_name):
-    return log.get_logger(logger_name)
+    return logging.getLogger(logger_name)
 
 
 def cost_time(logger):

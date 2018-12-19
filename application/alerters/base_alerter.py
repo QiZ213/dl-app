@@ -12,7 +12,7 @@ class BaseAlerter(Configured):
 
     def __init__(self, config, **kwargs):
         super(BaseAlerter, self).__init__(config, **kwargs)
-        self.enabled = self.cfg.get("enabled", True)
+        self.enabled = self.get_config("enabled", True)
 
     def is_enabled(self):
         return self.enabled

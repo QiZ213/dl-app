@@ -15,5 +15,8 @@
   },
   "alerter": {
     "sentry_dsn": "http://d5b63b46a8bf4e09a3ff993092218f02:747e16a36d4e4c359b9b864fefe69286@sentry.ppdaicorp.com/56"
+  },
+  "logger": {
+    "level": "INFO"
   }
 }

@@ -45,7 +45,7 @@ def serve():
 
 
 def setup_app(application, config):
+    ConfiguredLogger(config)
     application.alerter = SentryAlerter(config)
     application.handler = InferHandler(config)
-    ConfiguredLogger(config).reload_config()
     return application
