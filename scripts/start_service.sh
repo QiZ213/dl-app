@@ -8,4 +8,5 @@ curr_dir=$(dirname $0)
 
 dl_service \
   --port=8080 \
-  --json_conf="${PROJECT_HOME}/confs/conf.json"
+  --base_json_conf="${PROJECT_HOME}/confs/base_conf.json" \
+  --update_json_confs="${PROJECT_HOME}/confs/conf.json"

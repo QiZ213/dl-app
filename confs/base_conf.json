@@ -1,11 +1,11 @@
 {
-  "exec": {
+  "handler": {
     "main_class": "",
     "main_file": "",
     "infer_method": ""
   },
   "gunicorn": {
-    "workers": "4",
+    "workers": "1",
     "worker_class": "gevent",
     "timeout": 60,
     "keepalive": 60,
@@ -13,7 +13,10 @@
     "bind": "0.0.0.0:8080",
     "log-level": "error"
   },
-  "alert": {
-    "sentry_dsn": ""
+  "alerter": {
+    "sentry_dsn": "http://d5b63b46a8bf4e09a3ff993092218f02:747e16a36d4e4c359b9b864fefe69286@sentry.ppdaicorp.com/56"
+  },
+  "logger": {
+    "level": "INFO"
   }
 }
