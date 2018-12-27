@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-__all__ = [
-    'read_img_by_cv2'
-    , 'write_img_by_cv2'
-]
-
 import os
 
 import cv2
@@ -11,8 +6,14 @@ import numpy as np
 
 import url_utils
 
+__all__ = [
+    'read_img_by_cv2'
+    , 'write_img_by_cv2'
+]
+DEFAULT_TIMEOUT = (0.1, 1)
 
-def read_img_by_cv2(fp, timeout=1):
+
+def read_img_by_cv2(fp, timeout=DEFAULT_TIMEOUT):
     """ read image as opencv formatted image
 
     Args:
