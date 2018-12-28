@@ -4,7 +4,7 @@ import logging
 import logging.config
 import os
 import time
-from functools import update_wrapper
+from functools import wraps
 
 from .common_settings import *
 from .configs import Configured, Config
@@ -88,12 +88,13 @@ def get_logger(logger_name):
 
 def cost_time(logger):
     def get_cost_time(func):
-        def decorate(*args, **kwargs):
+        @wraps(func)
+        def wrapped(*args, **kwargs):
             start = time.time() * 1000
             result = func(*args, **kwargs)
             logger.debug('{} cost {} millis'.format(func.__name__, time.time() * 1000 - start))
             return result
 
-        return update_wrapper(decorate, func)
+        return wrapped
 
     return get_cost_time

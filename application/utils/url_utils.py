@@ -3,8 +3,14 @@
 from io import BytesIO
 
 from requests import Session, Request
+from requests.adapters import HTTPAdapter
+
+__all__ = ['get_session', 'urlopen']
 
 _session = Session()
+_adaptor = HTTPAdapter(max_retries=3)
+_session.mount('http://', _adaptor)
+_session.mount('https://', _adaptor)
 
 
 def get_session():
