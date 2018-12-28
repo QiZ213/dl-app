@@ -11,7 +11,7 @@ from ..handlers import *
 class InferHandler(BaseHandler):
 
     def __init__(self, config, **kwargs):
-        super(BaseHandler, self).__init__(config, **kwargs)
+        super(InferHandler, self).__init__(config, **kwargs)
         main_file = self.get_config("main_file")
         main_class = self.get_config("main_class")
         infer_method = self.get_config("infer_method")
