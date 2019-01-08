@@ -36,8 +36,10 @@ link_externals() {
 
 # start docker task
 prepare
-link_externals
 if not_yes ${IMAGE_EXISTED}; then
   build
 fi
-run
+if not_yes ${BUILD_ONLY}; then
+  link_externals
+  run
+fi
