@@ -196,6 +196,10 @@ parse_task_type(){
       RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/log:${DOCKER_LOG_DIR}"
       RUNNING_OPTIONS+=" -v ${PROJECT_HOME}/models:${DOCKER_MODEL_DIR}"
       ;;
+    "test")
+      BUILD_ONLY="yes"
+      DOCKER_FILE="${PROJECT_HOME}/dockers/Dockerfile.test"
+      ;;
     *) die "unsupported task type: ${TASK_TYPE}" ;;
   esac
 }

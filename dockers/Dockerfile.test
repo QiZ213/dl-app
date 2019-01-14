@@ -1,0 +1,23 @@
+ARG base
+FROM ${base}
+
+# Docker script to set up test docker image.
+LABEL maintainer="Yun Zhu(zhuyun@ppdai.com)"
+
+# install os dependencies
+ADD ./scripts/installations /opt/installations
+RUN /bin/bash /opt/installations/install.sh
+
+# Install application
+ADD ./application /opt/dl-application/application
+ADD ./setup.py /opt/dl-application/setup.py
+RUN cd /opt/dl-application \
+    && python setup.py install \
+    && rm -rf /opt/dl-application
+
+# Install requirements
+ADD ./requirements_test.txt /opt/requirements_test.txt
+RUN pip install -i ${PYPI} --no-cache-dir -r /opt/requirements_test.txt \
+    && rm -rf /opt/requirements_test.txt
+
+WORKDIR /opt
