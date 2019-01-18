@@ -23,7 +23,7 @@ IMAGE_URL_CONTAINS_ERROR = ','.join([IMAGE_URL, 'http://not_exist', IMAGE_URL])
 
 
 def array_to_bytes(array):
-    comma_separated_shape = ','.join(str(i) for i in array.shape)  # comma-separated shape
+    comma_separated_shape = array.shape  # comma-separated shape
     dtype_name = array.dtype.name
     array_bytes = BytesIO(array.tobytes())
     return array_bytes, comma_separated_shape, dtype_name
@@ -90,10 +90,10 @@ class TestReadImgs(unittest.TestCase):
             self.assertTrue((old == new).all())
 
     def test_read_from_unsupported_type(self):
-        with self.assertRaises(TypeError):  # None is unsupported
+        with self.assertRaises(Exception):  # None is unsupported
             read_imgs_by_cv2(None)
 
-        with self.assertRaises(TypeError):  # list is unsupported
+        with self.assertRaises(Exception):  # list is unsupported
             read_imgs_by_cv2([IMAGE_PATH] * 4)
 
     def test_read_array_bytes_error(self):

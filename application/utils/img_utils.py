@@ -26,7 +26,7 @@ def read_imgs_by_cv2(fps, timeout=DEFAULT_TIMEOUT, params=None):
              byte streaming,
              ndarray_bytes with comma-separated shape in params
         timeout: timeout for reading image from url, by default is 1s each url
-        params: None or dict contains comma-separated shape of ndarray_bytes and dtype of ndarray_bytes,
+        params: None or dict contains shape of ndarray_bytes and dtype of ndarray_bytes,
 
     Returns: list of image array. if catch exception with I/O, the image is replaced by None.
 
@@ -34,27 +34,32 @@ def read_imgs_by_cv2(fps, timeout=DEFAULT_TIMEOUT, params=None):
 
     params = params if params is not None else {}
 
-    if hasattr(fps, 'read'):
-        if params.get('shape'):
-            fps_to_img_list = array_bytes_to_img_list
-        else:
-            fps_to_img_list = file_like_to_img_list
-    elif isinstance(fps, (bytes, str, unicode)):
+    if isinstance(fps, (bytes, str, unicode)):
         if fps.startswith(u'http://') or fps.startswith(u'https://'):
-            fps_to_img_list = urls_to_img_list
+            return urls_to_img_list(fps, timeout)
         else:
-            fps_to_img_list = pathes_to_img_list
+            return pathes_to_img_list(fps)
     else:
-        raise TypeError('Failed to read images from unsupported type')
+        if params.get('shape'):
+            shape = params.get('shape')
+            dtype = params.get('dtype', 'uint8')
+            return array_bytes_to_array_list(fps, shape, dtype)
+        else:
+            return file_like_to_img_list(fps)
 
-    img_list = fps_to_img_list(fps, timeout, params)
-    return img_list
 
+def array_bytes_to_array_list(fps, shape, dtype='uint8'):
+    """
+    Args:
+        fps: bytes, the result of ndarray.tobytes()
+        shape: list of int, the result of ndarray.shape
+        type: string, the result of ndarray.dtype.name
 
-def array_bytes_to_img_list(fps, timeout, params):
-    dtype = params.get('dtype', 'uint8')
-    shape = params.get('shape')
-    shape = [int(i) for i in shape.split(SEPARATOR)]
+    Returns: list of image ndarray
+
+    Notice: It's the same color as the input array bytes
+            , but it's not guaranteed that the order is RGB.
+    """
     if len(shape) not in [3, 4]:
         raise TypeError('Dimension of image array expects 3 or 4',
                         ', got ({!r})'.format(len(shape)))
@@ -68,13 +73,13 @@ def array_bytes_to_img_list(fps, timeout, params):
         return [a for a in array]
 
 
-def file_like_to_img_list(fps, timeout=None, params=None):
+def file_like_to_img_list(fps):
     img_array = np.asarray(bytearray(fps.read()), dtype=np.uint8)
     img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
     return [cv2.cvtColor(img, cv2.COLOR_BGR2RGB)]
 
 
-def pathes_to_img_list(fps, timeout=None, params=None):
+def pathes_to_img_list(fps):
     path_list = fps.split(SEPARATOR)
     img_list = []
     for path in path_list:
@@ -88,7 +93,7 @@ def pathes_to_img_list(fps, timeout=None, params=None):
     return img_list
 
 
-def urls_to_img_list(fps, timeout, params=None):
+def urls_to_img_list(fps, timeout):
     url_list = fps.split(SEPARATOR)
     img_list = []
     for url in url_list:
