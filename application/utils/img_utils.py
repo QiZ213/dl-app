@@ -26,7 +26,9 @@ def read_imgs_by_cv2(fps, timeout=DEFAULT_TIMEOUT, params=None):
              byte streaming,
              ndarray_bytes with comma-separated shape in params
         timeout: timeout for reading image from url, by default is 1s each url
-        params: None or dict contains shape of ndarray_bytes and dtype of ndarray_bytes,
+        params: None or dict contains
+                  shape of ndarray_bytes or comma-separated shape string
+                  and dtype of ndarray_bytes
 
     Returns: list of image array. if catch exception with I/O, the image is replaced by None.
 
@@ -42,6 +44,8 @@ def read_imgs_by_cv2(fps, timeout=DEFAULT_TIMEOUT, params=None):
     else:
         shape = params.get('shape')
         if shape:
+            if isinstance(shape, (str, unicode, bytes)):
+                shape = [int(i) for i in shape.split(SEPARATOR)]
             dtype = params.get('dtype', 'uint8')
             return array_bytes_to_array_list(fps, shape, dtype)
         else:
