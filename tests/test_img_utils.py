@@ -23,10 +23,10 @@ IMAGE_URL_CONTAINS_ERROR = ','.join([IMAGE_URL, 'http://not_exist', IMAGE_URL])
 
 
 def array_to_bytes(array):
-    comma_separated_shape = array.shape  # comma-separated shape
+    shape = array.shape
     dtype_name = array.dtype.name
     array_bytes = BytesIO(array.tobytes())
-    return array_bytes, comma_separated_shape, dtype_name
+    return array_bytes, shape, dtype_name
 
 
 class TestReadImgs(unittest.TestCase):
@@ -46,6 +46,22 @@ class TestReadImgs(unittest.TestCase):
         self.assertIsInstance(img_list[0], np.ndarray)
         self.assertIs(img_list[1], None)  # from error path, is replaced by None
         self.assertIsInstance(img_list[2], np.ndarray)
+
+    def __test_read_array_bytes(self, shape_type='list'):
+        origin_img_list = read_imgs_by_cv2(COMMA_SEP_IMG_PATH)
+        batch_img = np.array(origin_img_list)
+
+        array_bytes, shape, dtype = array_to_bytes(batch_img)
+        if shape_type == 'list':
+            pass
+        elif shape_type == 'string':
+            shape = ','.join(str(i) for i in shape)
+        else:
+            raise TypeError('Invalid shape_type')
+
+        img_list = read_imgs_by_cv2(array_bytes, params={'shape': shape, 'dtype': dtype})
+        for old, new in zip(origin_img_list, img_list):
+            self.assertTrue((old == new).all())
 
     def test_read_single_url(self):
         img_list = read_imgs_by_cv2(IMAGE_URL)
@@ -72,13 +88,8 @@ class TestReadImgs(unittest.TestCase):
         self.__test_contains_error(img_list)
 
     def test_read_array_bytes(self):
-        origin_img_list = read_imgs_by_cv2(COMMA_SEP_IMG_PATH)
-        batch_img = np.array(origin_img_list)
-
-        array_bytes, shape, dtype = array_to_bytes(batch_img)
-        img_list = read_imgs_by_cv2(array_bytes, params={'shape': shape, 'dtype': dtype})
-        for old, new in zip(origin_img_list, img_list):
-            self.assertTrue((old == new).all())
+        self.__test_read_array_bytes(shape_type='list')
+        self.__test_read_array_bytes(shape_type='string')
 
     def test_read_bytes(self):
         with open(IMAGE_PATH, 'rb') as f:
