@@ -44,6 +44,8 @@ def read_imgs_by_cv2(fps, timeout=DEFAULT_TIMEOUT, params=None):
     else:
         shape = params.get('shape')
         if shape:
+            if isinstance(shape, (str, unicode, bytes)):
+                shape = [int(i) for i in shape.split(SEPARATOR)]
             dtype = params.get('dtype', 'uint8')
             return array_bytes_to_array_list(fps, shape, dtype)
         else:
@@ -54,7 +56,7 @@ def array_bytes_to_array_list(fps, shape, dtype='uint8'):
     """
     Args:
         fps: bytes, the result of ndarray.tobytes()
-        shape: list of int or comma-separated string, the result of ndarray.shape
+        shape: list of int, the result of ndarray.shape
         type: string, the result of ndarray.dtype.name
 
     Returns: list of image ndarray
@@ -62,9 +64,6 @@ def array_bytes_to_array_list(fps, shape, dtype='uint8'):
     Notice: It's the same color as the input array bytes
             , but it's not guaranteed that the order is RGB.
     """
-    if isinstance(shape, (str, unicode, bytes)):
-        shape = [int(i) for i in shape.split(SEPARATOR)]
-
     if len(shape) not in [3, 4]:
         raise TypeError('Dimension of image array expects 3 or 4',
                         ', got ({!r})'.format(len(shape)))
