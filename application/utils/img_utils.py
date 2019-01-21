@@ -40,8 +40,8 @@ def read_imgs_by_cv2(fps, timeout=DEFAULT_TIMEOUT, params=None):
         else:
             return pathes_to_img_list(fps)
     else:
-        if params.get('shape'):
-            shape = params.get('shape')
+        shape = params.get('shape')
+        if shape:
             dtype = params.get('dtype', 'uint8')
             return array_bytes_to_array_list(fps, shape, dtype)
         else:
