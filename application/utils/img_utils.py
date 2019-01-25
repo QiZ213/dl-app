@@ -4,6 +4,7 @@ import traceback
 
 import cv2
 import numpy as np
+import six
 
 import url_utils
 
@@ -36,15 +37,15 @@ def read_imgs_by_cv2(fps, timeout=DEFAULT_TIMEOUT, params=None):
 
     params = params if params is not None else {}
 
-    if isinstance(fps, (bytes, str, unicode)):
-        if fps.startswith(u'http://') or fps.startswith(u'https://'):
+    if is_string(fps):
+        if fps.startswith('http://') or fps.startswith('https://'):
             return urls_to_img_list(fps, timeout)
         else:
             return pathes_to_img_list(fps)
     else:
         shape = params.get('shape')
         if shape:
-            if isinstance(shape, (str, unicode, bytes)):
+            if is_string(shape):
                 shape = [int(i) for i in shape.split(SEPARATOR)]
             dtype = params.get('dtype', 'uint8')
             return array_bytes_to_array_list(fps, shape, dtype)
@@ -109,6 +110,10 @@ def urls_to_img_list(fps, timeout):
             img = None
         img_list.append(img)
     return img_list
+
+
+def is_string(s):
+    return isinstance(s, (six.binary_type, six.text_type))
 
 
 def read_img_by_cv2(fp, timeout=DEFAULT_TIMEOUT):
