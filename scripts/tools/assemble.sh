@@ -83,7 +83,11 @@ assemble_components() {
     fi
   done
 
-  component_pattern=$(echo ${COMPONENT_ASSEMBLED} | sed 's/ /\|/g')  # replace components to be separated by a vertical line
+  # replace components to be separated by a vertical line
+  # , as well as, each of component starts with ^ and ends with $
+  component_pattern=$(echo ${COMPONENT_ASSEMBLED} | sed 's/ /\$\|^/g')
+  component_pattern="^${component_pattern}\$"
+
   remains=$(ls ${src} | grep -vE ${component_pattern} | xargs)
   copy_missing ${src} ${tgt} ${remains}
   [[ -e ${src}/.git ]] && cp -r ${src}/.git ${tgt}
