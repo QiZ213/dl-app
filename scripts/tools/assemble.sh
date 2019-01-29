@@ -48,11 +48,11 @@ assemble_components() {
 
   for i in $(ls -A ${src}); do
     case ${i} in
-      "requirements")
+      requirements)
         copy_missing ${src}/${i}/${PROJECT_NAME} ${tgt}
-        die_if_err "fail to copy ${src}/${i}/${PROJECT_NAME}"
+        die_if_err "fail to copy requirements"
         ;;
-      "confs|resources|scripts")
+      confs|resources|scripts)
         # copy the contents of project_name_folder to target
         mute copy_missing ${src}/${i}/${PROJECT_NAME} ${tgt}/${i} \
           || copy_missing ${src} ${tgt} ${i}

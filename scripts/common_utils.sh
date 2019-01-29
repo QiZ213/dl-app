@@ -91,17 +91,12 @@ abs_dir_path() {
 }
 
 copy_missing(){
-  src=$1
-  tgt=$2
+  local src=$1
+  local tgt=$2
   shift 2
   [[ -d ${tgt} ]] || mkdir -p ${tgt}
   if [[ -z "$1" ]]; then
-    # copy the contents of ${src} to ${tgt}
-    if [[ -d ${src} ]]; then
-      cp -nr ${src}/* ${tgt}
-    else
-      cp -n ${src} ${tgt}
-    fi
+    cp -nr ${src}/* ${tgt}
   else
     for i in $@; do
       parent_dir=$(dirname ${i})
