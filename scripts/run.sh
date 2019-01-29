@@ -165,7 +165,7 @@ access_tips() {
 clean_cmd="rm -rf ${TASK_HOME}"
 is_yes "${CLEAN}" && ${clean_cmd}
 
-assemble_cmd=". ${PROJECT_BIN}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${GIT_BRANCH}"
+assemble_cmd=". ${PROJECT_BIN}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${TASK_NAME} ${GIT_BRANCH}"
 ${assemble_cmd}
 
 TASK_HOME=$(abs_dir_path ${TASK_HOME})
