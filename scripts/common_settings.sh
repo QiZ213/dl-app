@@ -37,6 +37,9 @@ MODEL_DIR=
 # NOTEBOOK_DIR=~/dl-notebooks/$(basename ${PROJECT_HOME})
 NOTEBOOK_DIR=
 
+# specify resources dir to store something need to copy to docker image,
+RESOURCE_DIR=
+
 # notebook settings
 # specify port for jupyter notebook service, by default, it's "18888"
 NOTEBOOK_PORT=18888

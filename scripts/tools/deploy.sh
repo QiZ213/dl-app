@@ -34,6 +34,19 @@ link_externals() {
   link_dir ${NOTEBOOK_DIR:=${base_dir}/dl-notebooks/${TASK_NAME}} ${TASK_HOME}/notebooks
 }
 
+
+# append resources dir which defined in common_settings.sh to user project
+append_resources() {
+  local src=${RESOURCE_DIR}
+  local tgt=${TASK_HOME}/resources
+
+  if [[ -d ${src} ]]; then
+    copy_missing ${src} ${tgt} $(ls ${src})
+    blue_echo "copy ${src} to ${tgt}"
+  fi
+}
+
+
 # start docker task
 prepare
 if not_yes ${IMAGE_EXISTED}; then
@@ -41,5 +54,6 @@ if not_yes ${IMAGE_EXISTED}; then
 fi
 if not_yes ${BUILD_ONLY}; then
   link_externals
+  append_resources
   run
 fi
