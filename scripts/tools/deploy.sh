@@ -50,10 +50,10 @@ append_resources() {
 # start docker task
 prepare
 if not_yes ${IMAGE_EXISTED}; then
+  append_resources
   build
 fi
 if not_yes ${BUILD_ONLY}; then
   link_externals
-  append_resources
   run
 fi
