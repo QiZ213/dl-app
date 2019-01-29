@@ -96,7 +96,12 @@ copy_missing(){
   shift 2
   [[ -d ${tgt} ]] || mkdir -p ${tgt}
   if [[ -z "$1" ]]; then
-    cp -nr ${src} ${tgt}
+    # copy the contents of ${src} to ${tgt}
+    if [[ -d ${src} ]]; then
+      cp -nr ${src}/* ${tgt}
+    else
+      cp -n ${src} ${tgt}
+    fi
   else
     for i in $@; do
       parent_dir=$(dirname ${i})

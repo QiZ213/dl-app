@@ -41,57 +41,27 @@ TARGET_REQUIRED+=" scripts/installations"
 # user project required components
 SOURCE_REQUIRED="scripts/common_settings.sh"
 
-COMPONENT_ASSEMBLED="confs"
-COMPONENT_ASSEMBLED+=" resources"
-COMPONENT_ASSEMBLED+=" scripts"
-COMPONENT_ASSEMBLED+=" requirements"
-
-
-# there may be components with multiple code in user project
-# , each of which corresponds to a project name.
-get_component_folder() {
-  local src=$1
-  local cmpt=$2 # component
-
-  if [[ -n ${cmpt} && -d "${src}/${cmpt}" ]]; then
-    if [[ -n ${PROJECT_NAME} && -d "${src}/${cmpt}/${PROJECT_NAME}" ]]; then
-      echo ${cmpt}/${PROJECT_NAME}
-    else
-      echo ${cmpt}
-    fi
-  else
-    echo ""
-  fi
-}
-
 
 assemble_components() {
   local src=$1
   local tgt=$2
 
-  for cmpt in ${COMPONENT_ASSEMBLED}; do
-    component_folder=$(get_component_folder ${src} ${cmpt})
-    if [[ -z ${component_folder} ]]; then
-      continue
-    fi
-    if [[ ${cmpt} == requirements ]]; then
-      # for downward compatibility, requirements_*.txt in the root of project_home
-      cp -r ${src}/${component_folder}/* ${tgt}
-    else
-      [[ -d ${tgt}/${cmpt} ]] || mkdir ${tgt}/${cmpt}
-      cp -r ${src}/${component_folder}/* ${tgt}/${cmpt}
-    fi
+  for i in $(ls -A ${src}); do
+    case ${i} in
+      "requirements")
+        copy_missing ${src}/${i}/${PROJECT_NAME} ${tgt}
+        die_if_err "fail to copy ${src}/${i}/${PROJECT_NAME}"
+        ;;
+      "confs|resources|scripts")
+        # copy the contents of project_name_folder to target
+        mute copy_missing ${src}/${i}/${PROJECT_NAME} ${tgt}/${i} \
+          || copy_missing ${src} ${tgt} ${i}
+        ;;
+      *)
+        copy_missing ${src} ${tgt} ${i}
+        ;;
+    esac
   done
-
-  # replace components to be separated by a vertical line
-  # , as well as, each of component starts with ^ and ends with $
-  component_pattern=$(echo ${COMPONENT_ASSEMBLED} | sed 's/ /\$\|^/g')
-  component_pattern="^${component_pattern}\$"
-
-  remains=$(ls ${src} | grep -vE ${component_pattern} | xargs)
-  copy_missing ${src} ${tgt} ${remains}
-  [[ -e ${src}/.git ]] && cp -r ${src}/.git ${tgt}
-  [[ -e ${src}/.gitignore ]] && cp -r ${src}/.gitignore ${tgt}
 }
 
 
