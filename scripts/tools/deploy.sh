@@ -1,12 +1,11 @@
 #!/bin/bash
 # script to deploy project
-if [[ $# -lt 8 ]]; then
-  red_echo "Illegal arguments: ./deploy.sh task_home image_existed task_name docker_tag task_type device_type registry_idc nv_gpu dry_run [cmd]"
-  echo "e.g. $ /bin/bash deploy.sh ~/ocr yes poem poem:0.1 service|train|notebook|debug cpu|gpu ppd 0 no [cmd]"
+if [[ $# -lt 9 ]]; then
+  red_echo "Illegal arguments: ./deploy.sh task_home image_existed task_name module_name docker_tag task_type device_type registry_idc nv_gpu dry_run [cmd]"
+  echo "e.g. $ /bin/bash deploy.sh ~/ocr yes poem poem poem:0.1 service|train|notebook|debug cpu|gpu ppd 0 no [cmd]"
   exit 128
 fi
 curr_dir=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
-. ${curr_dir}/../common_settings.sh
 
 TASK_HOME="$1"
 IMAGE_EXISTED="$2"
@@ -35,22 +34,9 @@ link_externals() {
 }
 
 
-# append resources dir which defined in common_settings.sh to user project
-append_resources() {
-  local src=${RESOURCE_DIR}
-  local tgt=${TASK_HOME}/resources
-
-  if [[ -d ${src} ]]; then
-    copy_missing ${src} ${tgt} $(ls ${src})
-    blue_echo "copy ${src} to ${tgt}"
-  fi
-}
-
-
 # start docker task
 prepare
 if not_yes ${IMAGE_EXISTED}; then
-  append_resources
   build
 fi
 if not_yes ${BUILD_ONLY}; then

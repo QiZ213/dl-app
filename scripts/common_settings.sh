@@ -40,10 +40,6 @@ NOTEBOOK_DIR=
 # specify resources dir to store something need to copy to docker image,
 RESOURCE_DIR=
 
-# specify python module name,
-# , you only need to set it when project name is different from your python module name
-MODULE_NAME=
-
 # notebook settings
 # specify port for jupyter notebook service, by default, it's "18888"
 NOTEBOOK_PORT=18888

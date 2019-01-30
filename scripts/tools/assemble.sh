@@ -65,6 +65,18 @@ assemble_components() {
 }
 
 
+# append resources dir which defined in common_settings.sh to user project
+append_resources() {
+  local src=${RESOURCE_DIR}
+  local tgt=${TASK_HOME}/resources
+
+  if [[ -d ${src} ]]; then
+    copy_missing ${src} ${tgt} $(ls ${src})
+    blue_echo "copy ${src} to ${tgt}"
+  fi
+}
+
+
 check_required() {
   required=$(eval echo \$${1}_REQURIED)
   src=$2
@@ -85,10 +97,10 @@ if [[ ! -e ${TARGET} ]]; then
     # fetch from git
     tmp_source="${TARGET}/dl-tmp"
     mkdir ${tmp_source}
+    trap "rm -rf ${tmp_source}" RETURN EXIT
     git clone --recursive --depth=1 ${SOURCE} -b ${GIT_BRANCH} ${tmp_source}
     die_if_err "fail to fetch codes from ${SOURCE}"
     assemble_components ${tmp_source} ${TARGET}
-    rm -rf ${tmp_source}
   fi
 
   check_required "SOURCE" "${TARGET}"
@@ -99,3 +111,6 @@ else
 fi
 
 check_required "TARGET" "${TARGET}"
+
+. ${TARGET}/scripts/common_settings.sh
+append_resources

@@ -3,6 +3,9 @@
 curr_dir=$(dirname $0)
 . "${curr_dir}/common_settings.sh"  # import colors utils
 
+DL_APPLICATION_HOME=$(abs_dir_path ${PROJECT_HOME})
+DL_APPLICATION_BIN=${PROJECT_BIN}
+
 usage() {
   cat << USAGE >&2
 USAGE:
@@ -165,16 +168,20 @@ access_tips() {
 clean_cmd="rm -rf ${TASK_HOME}"
 is_yes "${CLEAN}" && ${clean_cmd}
 
-assemble_cmd=". ${PROJECT_BIN}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${TASK_NAME} ${GIT_BRANCH}"
+assemble_cmd=". ${DL_APPLICATION_BIN}/tools/assemble.sh ${TASK_HOME} ${SOURCE_PATH} ${TASK_NAME} ${GIT_BRANCH}"
 ${assemble_cmd}
 
 TASK_HOME=$(abs_dir_path ${TASK_HOME})
-PROJECT_HOME=$(abs_dir_path ${PROJECT_HOME})
 
-deploy_cmd=". ${PROJECT_BIN}/tools/deploy.sh \
+MODULE_NAME=$(basename ${SOURCE_PATH})
+[[ -d ${TASK_HOME}/${MODULE_NAME} ]] \
+  || MODULE_NAME=${TASK_NAME}
+
+deploy_cmd=". ${DL_APPLICATION_BIN}/tools/deploy.sh \
   ${TASK_HOME} \
   ${IMAGE_EXISTED} \
   ${TASK_NAME} \
+  ${MODULE_NAME} \
   ${DOCKER_TAG} \
   ${TASK_TYPE} \
   ${DEVICE_TYPE} \
@@ -189,7 +196,7 @@ if [[ -z ${HOSTS} ]]; then
 else
   # run remotely
   if not_yes "${OVERWRITE}"; then
-    blue_echo "PLease check ${TASK_HOME} and ${PROJECT_HOME} on ${HOSTS}"
+    blue_echo "PLease check ${TASK_HOME} and ${DL_APPLICATION_HOME} on ${HOSTS}"
     blue_echo "Add --overwrite to overwrite them directly"
     exit 0
   fi
@@ -197,8 +204,8 @@ else
   for host in ${HOSTS}; do
     ssh $(whoami)@${host} "mkdir -p ${TASK_HOME}"
     rsync -avz --progress -l ${TASK_HOME}/. $(whoami)@${host}:${TASK_HOME}
-    ssh $(whoami)@${host} "mkdir -p ${PROJECT_HOME}"
-    rsync -avz --progress -l ${PROJECT_HOME}/. $(whoami)@${host}:${PROJECT_HOME}
+    ssh $(whoami)@${host} "mkdir -p ${DL_APPLICATION_HOME}"
+    rsync -avz --progress -l ${DL_APPLICATION_HOME}/. $(whoami)@${host}:${DL_APPLICATION_HOME}
     ssh $(whoami)@${host} ${deploy_cmd}
   done
 fi
