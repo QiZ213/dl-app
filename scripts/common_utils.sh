@@ -91,8 +91,8 @@ abs_dir_path() {
 }
 
 copy_missing(){
-  local src=$1
-  local tgt=$2
+  local src=$1  # src is a directory and should be existent
+  local tgt=$2  # tgt is a directory or should be not existent
   shift 2
   [[ -d ${tgt} ]] || mkdir -p ${tgt}
   if [[ -z "$1" ]]; then

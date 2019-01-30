@@ -138,6 +138,8 @@ parse_task_type(){
       DOCKER_FILE="${PROJECT_HOME}/dockers/Dockerfile.service"
       BUILDING_ARGS+=" --build-arg project_home_in_docker=${DOCKER_HOME}"
       BUILDING_ARGS+=" --build-arg project_name=${TASK_NAME}"
+      : ${MODULE_NAME:=${TASK_NAME}}  # source from user project's common_settings.sh
+      BUILDING_ARGS+=" --build-arg module_name=${MODULE_NAME}"
       CMD=
       RUNNING_MODE="-d --restart=unless-stopped"
       RUNNING_OPTIONS+=" --net=bridge -p ${SERVING_PORT:=18080}:8080"

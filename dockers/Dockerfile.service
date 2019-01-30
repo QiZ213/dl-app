@@ -25,7 +25,8 @@ ADD ./requirements_service.txt ${PROJECT_HOME}/requirements_service.txt
 RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_service.txt
 
 # Assemble project
-ADD ./${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
+ARG module_name
+ADD ./${module_name} ${PROJECT_HOME}/${module_name}
 ADD ./confs ${PROJECT_HOME}/confs
 ADD ./resources ${PROJECT_HOME}/resources
 ADD ./scripts ${PROJECT_HOME}/bin
