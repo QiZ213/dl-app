@@ -50,7 +50,6 @@ assemble_components() {
     case ${i} in
       requirements)
         copy_missing ${src}/${i}/${PROJECT_NAME} ${tgt}
-        die_if_err "fail to copy requirements"
         ;;
       confs|resources|scripts)
         # copy the contents of project_name_folder to target
