@@ -2,13 +2,21 @@
 # Script to help build and run docker images
 
 TASK_NAME=$1 # e.g. "poem-service"
-DOCKER_TAG=$2 # e.g. "poem-service:0.1"
-TASK_TYPE=$3 # e.g. "debug"
-DEVICE_TYPE=$4  # e.g. "gpu" or "cpu"
-REGISTRY_IDC=$5 # e.g. "aws" or "ppd"
-NV_GPU=$6 # e.g. "NV_GPU=0" or "NV_GPU=0,1,2" or "NV_GPU="
-DRY_RUN=$7 # e.g. "yes"
-shift 7
+shift 1
+MODULE_NAME=$1 # e.g. "poem"
+shift
+DOCKER_TAG=$1 # e.g. "poem-service:0.1"
+shift 1
+TASK_TYPE=$1 # e.g. "debug"
+shift 1
+DEVICE_TYPE=$1  # e.g. "gpu" or "cpu"
+shift 1
+REGISTRY_IDC=$1 # e.g. "aws" or "ppd"
+shift 1
+NV_GPU=$1 # e.g. "NV_GPU=0" or "NV_GPU=0,1,2" or "NV_GPU="
+shift 1
+DRY_RUN=$1 # e.g. "yes"
+shift 1
 CMD="$@"
 
 DOCKER=docker
@@ -138,6 +146,7 @@ parse_task_type(){
       DOCKER_FILE="${PROJECT_HOME}/dockers/Dockerfile.service"
       BUILDING_ARGS+=" --build-arg project_home_in_docker=${DOCKER_HOME}"
       BUILDING_ARGS+=" --build-arg project_name=${TASK_NAME}"
+      BUILDING_ARGS+=" --build-arg module_name=${MODULE_NAME}"
       CMD=
       RUNNING_MODE="-d --restart=unless-stopped"
       RUNNING_OPTIONS+=" --net=bridge -p ${SERVING_PORT:=18080}:8080"

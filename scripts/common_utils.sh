@@ -91,12 +91,12 @@ abs_dir_path() {
 }
 
 copy_missing(){
-  src=$1
-  tgt=$2
+  local src=$1  # src is a directory and should be existent
+  local tgt=$2  # tgt is a directory or should be not existent
   shift 2
   [[ -d ${tgt} ]] || mkdir -p ${tgt}
   if [[ -z "$1" ]]; then
-    cp -nr ${src} ${tgt}
+    cp -nr ${src}/* ${tgt}
   else
     for i in $@; do
       parent_dir=$(dirname ${i})

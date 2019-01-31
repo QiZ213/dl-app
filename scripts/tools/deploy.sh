@@ -1,12 +1,11 @@
 #!/bin/bash
 # script to deploy project
-if [[ $# -lt 8 ]]; then
-  red_echo "Illegal arguments: ./deploy.sh task_home image_existed task_name docker_tag task_type device_type registry_idc nv_gpu dry_run [cmd]"
-  echo "e.g. $ /bin/bash deploy.sh ~/ocr yes poem poem:0.1 service|train|notebook|debug cpu|gpu ppd 0 no [cmd]"
+if [[ $# -lt 9 ]]; then
+  red_echo "Illegal arguments: ./deploy.sh task_home image_existed task_name module_name docker_tag task_type device_type registry_idc nv_gpu dry_run [cmd]"
+  echo "e.g. $ /bin/bash deploy.sh ~/ocr yes poem poem poem:0.1 service|train|notebook|debug cpu|gpu ppd 0 no [cmd]"
   exit 128
 fi
 curr_dir=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
-. ${curr_dir}/../common_settings.sh
 
 TASK_HOME="$1"
 IMAGE_EXISTED="$2"
@@ -33,6 +32,7 @@ link_externals() {
   link_dir ${MODEL_DIR:=${base_dir}/dl-models/${TASK_NAME}} ${TASK_HOME}/models
   link_dir ${NOTEBOOK_DIR:=${base_dir}/dl-notebooks/${TASK_NAME}} ${TASK_HOME}/notebooks
 }
+
 
 # start docker task
 prepare
