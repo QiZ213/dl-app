@@ -100,7 +100,7 @@ if [[ -z ${SOURCE_PATH} ]]; then
 fi
 if [[ ! -d ${SOURCE_PATH} ]]; then
   mkdir -p ${SOURCE_PATH}
-  die "${SOURCE_PATH} should be a directory if existed"
+  die_if_err "${SOURCE_PATH} should be a directory if existed"
   if [[ -n ${GIT_PATH} ]]; then
     [[ ${GIT_PATH} =~ (http|git@).* ]] || GIT_PATH="git@git.ppdaicorp.com:${GIT_PATH}"
     : ${GIT_BRANCH:=master}

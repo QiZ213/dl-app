@@ -1,7 +1,5 @@
 #!/bin/bash
 # Script to help build and run docker images
-curr_dir=$(dirname ${BASH_SOURCE[0]})
-. "${curr_dir}/../common_settings.sh"
 
 # err msg settings
 EMPTY_SETTING_ERR="should not be empty, check ${TARGET_HOME}/scripts/common_settings.sh"

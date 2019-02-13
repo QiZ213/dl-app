@@ -54,10 +54,10 @@ copy_externals() {
 
 link_externals() {
   default_base_dir=$(get_default_base_dir)
-  : ${DATA_DIR:=${default_base_dir}/dl-data/${task_name}}
-  : ${LOG_DIR:=${default_base_dir}/dl-log/${task_name}}
-  : ${MODEL_DIR:=${default_base_dir}/dl-models/${task_name}}
-  : ${NOTEBOOK_DIR:=${default_base_dir}/dl-notebooks/${task_name}}
+  : ${DATA_DIR:=${default_base_dir}/dl-data/${TASK_NAME}}
+  : ${LOG_DIR:=${default_base_dir}/dl-log/${TASK_NAME}}
+  : ${MODEL_DIR:=${default_base_dir}/dl-models/${TASK_NAME}}
+  : ${NOTEBOOK_DIR:=${default_base_dir}/dl-notebooks/${TASK_NAME}}
 
   link_dir ${DATA_DIR} ${TARGET_HOME}/data
   link_dir ${LOG_DIR} ${TARGET_HOME}/log
