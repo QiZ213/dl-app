@@ -1,29 +1,22 @@
 #!/bin/bash
-# script to assemble user project
+# script to assemble target project
+curr_dir=$(dirname ${BASH_SOURCE[0]})
+. "${curr_dir}/../common_settings.sh"
 
-CURR_DIR=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
-. "${CURR_DIR}/../common_settings.sh"
-
-if [[ $# -lt 1 ]]; then
-  red_echo "Illegal arguments: ./assemble.sh target [source] [project_name] [git_branch]"
+if [[ $# -lt 2 ]]; then
+  red_echo "Illegal arguments: ./assemble.sh source_path target_path"
   exit 128
 fi
 
-current_bin=${PROJECT_BIN}
-current_home=${PROJECT_HOME}
+SOURCE_PATH="$1"
+TARGET_PATH="$2"
 
-TARGET="$1"
-shift
-SOURCE="$1"
-shift
-PROJECT_NAME="$1"
-shift
-GIT_BRANCH="$1"
+PROJECT_NAME=$(basename ${TARGET_PATH})
 
+# required components for source code to fit dl-application framework
+SOURCE_REQUIRED="scripts/common_settings.sh"
 
-: ${TARGET:? TARGET should not be null}
-
-# a normal dl-application project required components
+# required components for target distribution to fit dl-application framework
 TARGET_REQUIRED="application"
 TARGET_REQUIRED+=" setup.py"
 TARGET_REQUIRED+=" confs"
@@ -38,11 +31,7 @@ TARGET_REQUIRED+=" scripts/start_notebook.sh"
 TARGET_REQUIRED+=" scripts/start_service.sh"
 TARGET_REQUIRED+=" scripts/installations"
 
-# user project required components
-SOURCE_REQUIRED="scripts/common_settings.sh"
-
-
-assemble_components() {
+assemble() {
   local src=$1
   local tgt=$2
 
@@ -63,53 +52,21 @@ assemble_components() {
   done
 }
 
-
-# append resources dir which defined in common_settings.sh to user project
-append_resources() {
-  local src=${RESOURCE_DIR}
-  local tgt=${TASK_HOME}/resources
-
-  if [[ -d ${src} ]]; then
-    copy_missing ${src} ${tgt} $(ls ${src})
-    blue_echo "copy ${src} to ${tgt}"
-  fi
-}
-
-
 check_required() {
-  required=$(eval echo \$${1}_REQURIED)
-  src=$2
-  for sub_path in ${required}; do
-    [[ -e "${src}/${sub_path}" ]]
-    die_if_err "${1} missing required files: ${sub_path}. Read documents about \"${1} required\"."
+  local src=$1
+  shift 1
+
+  for i in $@; do
+    [[ -e "${src}/${i}" ]] || die "${src} missing required files: ${i}"
   done
 }
 
-
-if [[ ! -e ${TARGET} ]]; then
-  # setup user project
-  mkdir -p ${TARGET}
-  if [[ -d ${SOURCE} ]]; then
-    # fetch from local files
-    assemble_components ${SOURCE} ${TARGET}
-  else
-    # fetch from git
-    tmp_source="${TARGET}/dl-tmp"
-    mkdir ${tmp_source}
-    trap "rm -rf ${tmp_source}" RETURN EXIT
-    git clone --recursive --depth=1 ${SOURCE} -b ${GIT_BRANCH} ${tmp_source}
-    die_if_err "fail to fetch codes from ${SOURCE}"
-    assemble_components ${tmp_source} ${TARGET}
-  fi
-
-  check_required "SOURCE" "${TARGET}"
-  # copy missing components to target folder
-  copy_missing ${current_home} ${TARGET} ${TARGET_REQUIRED}
+if [[ ! -e ${TARGET_PATH} ]]; then
+  check_required ${SOURCE_PATH} ${SOURCE_REQUIRED}
+  assemble ${SOURCE_PATH} ${TARGET_PATH}
+  copy_missing ${PROJECT_HOME} ${TARGET_PATH} ${TARGET_REQUIRED}
 else
-  yellow_echo "${TARGET} already existed"
+  yellow_echo "${TARGET_PATH} already existed"
 fi
 
-check_required "TARGET" "${TARGET}"
-
-. ${TARGET}/scripts/common_settings.sh
-append_resources
+check_required ${TARGET_PATH} ${TARGET_REQUIRED}

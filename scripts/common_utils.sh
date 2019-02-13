@@ -90,10 +90,28 @@ abs_dir_path() {
   echo $(cd $1 && pwd)
 }
 
+###################################################################
+# Copy items not existed in tgt from src to tgt
+# Usage:
+#   1. copy everything from src to tgt
+#     copy_missing src tgt
+#   2. copy specified items from src to tgt
+#     copy_missing src tgt item1 ... itemN
+# Globals:
+#   None
+# Arguments:
+#   src, required, source directory, should be existed
+#   tgt, required, target directory
+#   items, optional, items in source directory,
+#          which should be copied to target directory
+# Returns:
+#   None
+###################################################################
 copy_missing(){
-  local src=$1  # src is a directory and should be existent
-  local tgt=$2  # tgt is a directory or should be not existent
+  local src=$1
+  local tgt=$2
   shift 2
+
   [[ -d ${tgt} ]] || mkdir -p ${tgt}
   if [[ -z "$1" ]]; then
     cp -nr ${src}/* ${tgt}
@@ -103,5 +121,25 @@ copy_missing(){
       [[ "${parent_dir}" != "." ]] && mkdir -p ${tgt}/${parent_dir}
       cp -nr ${src}/${i} ${tgt}/${parent_dir}
     done;
+  fi
+}
+
+
+ip_address() {
+  if [[ $1 == public ]]; then
+    # please refer: https://ip.sb/api/
+    curl --silent -4 ip.sb
+  else
+    # Do not support run by ssh on remote.
+    ip addr | grep "inet\ " | grep -v docker0 | grep -v 127.0.0 | head -n 1 | awk '{print $2}' | sed 's/\/.*//'
+  fi
+}
+
+get_default_base_dir() {
+  : ${DEFAULT_BASE_DIR:="/opt"}
+  if [[ -w ${DEFAULT_BASE_DIR} ]]; then
+    echo "${DEFAULT_BASE_DIR}"
+  else
+    echo "/home/$(whoami)/${DEFAULT_BASE_DIR#/}"
   fi
 }
