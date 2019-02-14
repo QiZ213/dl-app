@@ -8,10 +8,21 @@ source_existed() {
   fi
 }
 
+pip_install() {
+  if [[ -n ${PYPI} ]]; then
+    pip install --no-cache-dir -i ${PYPI} $@
+  else
+    pip install --no-cache-dir $@
+  fi
+}
+
+apt_install() {
+  apt-get install -yq --no-install-recommends $@
+}
+
 install_base_required() {
-  apt-get install -yq --no-install-recommends \
-    libglib2.0-0 \
-    && pip install --no-cache-dir opencv-python==3.3.0.9
+  apt_install libglib2.0-0
+  pip_install opencv-python==3.3.0.9
 }
 
 
