@@ -11,8 +11,8 @@ BUILDING_ARGS+=" --build-arg notebook_uid=$(id -u)"
 BUILDING_ARGS+=" --build-arg notebook_gid=$(id -g)"
 
 # running parameters
-RUNNING_MODE="-d --restart=unless-stopped"
-RUNNING_OPTS="-v ${TARGET_HOME}:${TARGET_HOME}"
+RUNNING_OPTS="-d --restart=unless-stopped"
+RUNNING_OPTS+=" -v ${TARGET_HOME}:${TARGET_HOME}"
 RUNNING_OPTS+=" -v ${TARGET_HOME}/data:${TARGET_HOME}/data"
 RUNNING_OPTS+=" -v ${TARGET_HOME}/log:${TARGET_HOME}/log"
 RUNNING_OPTS+=" -v ${TARGET_HOME}/models:${TARGET_HOME}/models"

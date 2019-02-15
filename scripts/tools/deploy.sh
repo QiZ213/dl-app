@@ -3,36 +3,39 @@
 curr_dir=$(dirname ${BASH_SOURCE[0]})
 . "${curr_dir}/../common_settings.sh"
 
-if [[ $# -lt 9 ]]; then
+if [[ $# -lt 8 ]]; then
   red_echo "Illegal arguments: "
-  red_echo "  ./deploy.sh task_home image_existed task_name module_name docker_tag task_type device_type registry_idc nv_gpu dry_run [cmd]"
-  echo "e.g. $ /bin/bash deploy.sh ~/ocr yes poem poem poem:0.1 service|train|notebook|debug cpu|gpu ppd NV_GPU=0 no [cmd]"
+  red_echo "  ./deploy.sh target_home task_name task_type module_name docker_tag device_type registry_idc image_existed dry_run [cmd]"
+  echo "e.g. NV_GPU=1,2 bash deploy.sh ~/opt/quick-start examples service examples examples:0.1 gpu aws yes yes [cmd] "
   exit 128
 fi
 
-TARGET_HOME=$1 # e.g. "/home/bird/poem"
+TARGET_HOME=$1 # e.g. "~/opt/quick-start"
 shift 1
-IMAGE_EXISTED=$1 # "yes"
-shift 1
-TASK_NAME=$1 # e.g. "poem-service"
-shift 1
-MODULE_NAME=$1 # e.g. "poem"
-shift 1
-DOCKER_TAG=$1 # e.g. "poem-service:0.1"
+TASK_NAME=$1 # e.g. "examples"
 shift 1
 TASK_TYPE=$1 # e.g. "service"
+shift 1
+MODULE_NAME=$1 # e.g. "examples"
+shift 1
+DOCKER_TAG=$1 # e.g. "examples:0.1"
 shift 1
 DEVICE_TYPE=$1  # e.g. "gpu" or "cpu"
 shift 1
 REGISTRY_IDC=$1 # e.g. "aws" or "ppd"
 shift 1
-NV_GPU=$1 # e.g. "NV_GPU=0" or "NV_GPU=0,1,2" or "NV_GPU="
+IMAGE_EXISTED=$1 # e.g. "yes" or "no"
 shift 1
-DRY_RUN=$1 # e.g. "yes"
+DRY_RUN=$1 # e.g. "yes" or "no"
 shift 1
 CMD="$@"
 
-. ${TARGET_HOME}/scripts/common_settings.sh
+: ${BUILD_ONLY:=no}
+
+TASK_TYPE_SETTINGS=${PROJECT_BIN}/tools/task_types/${TASK_TYPE}.sh
+TARGET_COMMON_SETTINGS=${TARGET_HOME}/scripts/common_settings.sh
+
+. ${TARGET_COMMON_SETTINGS}
 . ${curr_dir}/docker_helpers.sh
 
 # link external dir to user project

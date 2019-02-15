@@ -1,7 +1,7 @@
 #!/bin/bash
 # project settings
-: ${PROJECT_BIN:=$(dirname ${BASH_SOURCE[0]})}
-: ${PROJECT_HOME:=$(dirname ${PROJECT_BIN})}
+: ${PROJECT_BIN:=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)}
+: ${PROJECT_HOME:=$(cd $(dirname ${PROJECT_BIN}); pwd)}
 if [[ -e ${PROJECT_BIN}/common_utils.sh ]]; then
   . ${PROJECT_BIN}/common_utils.sh
 fi
