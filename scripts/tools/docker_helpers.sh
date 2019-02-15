@@ -95,7 +95,8 @@ use_registered() {
 }
 
 parse_device_type(){
-  case "${DEVICE_TYPE}" in
+  [[ $# != 1 ]] && die "Usage: parse_device_type device_type"
+  case "$1" in
     "cpu")
       DOCKER_ENGINE="docker"
       SYSTEM="cpu"
@@ -105,36 +106,44 @@ parse_device_type(){
       check_settings CUDA_VERSION CUDNN_VERSION
       SYSTEM="gpu-cuda${CUDA_VERSION}-cudnn${CUDNN_VERSION}"
       ;;
-    *) die "invalid device_type: $1, should be either cpu or gpu, please check cmd" ;;
+    *) die "invalid device_type: $1, should be either cpu or gpu" ;;
   esac
 }
 
 parse_python_version() {
+  [[ $# != 1 ]] && die "Usage: parse_python_version python_version"
   case "${PYTHON_VERSION}" in
     "2") PYTHON_ALIAS="py27" ;;
     "3") PYTHON_ALIAS="py36" ;;
-    *) die "invalid python version: $1, should be either 2 or 3, please check ${TARGET_COMMON_SETTINGS}" ;;
+    *) die "invalid python version: $1, should be either 2 or 3" ;;
   esac
 }
 
 parse_registry_idc() {
-  case "${REGISTRY_IDC}" in
+  [[ $# != 1 ]] && die "Usage: parse_registry_idc registry_idc"
+  case "$1" in
     "aws") TARGET_REGISTRY=${AWS_REGISTRY} ;;
     "ppd") TARGET_REGISTRY=${PPD_REGISTRY} ;;
-    *) echo "use no target idc"; return 0 ;;
+    "local") return 0;;
+    *) die "invalid target idc: $1" ;;
   esac
   is_registry_available ${TARGET_REGISTRY} || die "${TARGET_REGISTRY} not available"
   login_registry ${TARGET_REGISTRY} || die "fail to login ${TARGET_REGISTRY}"
 }
 
 prepare(){
-  parse_device_type
-  parse_python_version
-  parse_registry_idc
+  check_settings \
+    PYTHON_VERSION \
+    OS_VERSION \
+    DEEP_LEARNING_FRAMEWORK \
+    DEEP_LEARNING_VERSION
+
+  parse_device_type ${DEVICE_TYPE}
+  parse_python_version ${PYTHON_VERSION}
+  parse_registry_idc ${REGISTRY_IDC}
 
   SOURCE_REGISTRY=$(get_current_registry)
 
-  check_settings OS_VERSION DEEP_LEARNING_FRAMEWORK DEEP_LEARNING_VERSION
   DOCKER_BASE="${DEEP_LEARNING_FRAMEWORK}:${DEEP_LEARNING_VERSION}-${PYTHON_ALIAS}-${SYSTEM}-${OS_VERSION}"
   [[ -n "${SOURCE_REGISTRY}" ]] && DOCKER_BASE="${SOURCE_REGISTRY}/${DOCKER_BASE}"
 
