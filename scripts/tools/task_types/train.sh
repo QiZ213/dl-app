@@ -11,7 +11,7 @@ BUILDING_ARGS+=" --build-arg train_uid=$(id -u)"
 BUILDING_ARGS+=" --build-arg train_gid=$(id -g)"
 
 # running parameters
-RUNNING_MODE="-d"
-RUNNING_OPTS="-v ${TARGET_HOME}/data:${DOCKER_DATA_DIR}"
+RUNNING_OPTS="-d"
+RUNNING_OPTS+=" -v ${TARGET_HOME}/data:${DOCKER_DATA_DIR}"
 RUNNING_OPTS+=" -v ${TARGET_HOME}/log:${DOCKER_LOG_DIR}"
 RUNNING_OPTS+=" -v ${TARGET_HOME}/models:${DOCKER_MODEL_DIR}"

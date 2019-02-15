@@ -27,7 +27,7 @@ colorful() {
   num=-1
   for s in $@; do
     num=$((num+1))
-    if [ ${num} -eq 0 ]; then
+    if [[ ${num} -eq 0 ]]; then
       continue
     fi
     case $((${num} % 4)) in

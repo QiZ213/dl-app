@@ -80,9 +80,6 @@ DEFAULT_BASE_DIR="$(get_default_base_dir)"
 : ${TASK_VERSION:=${GIT_BRANCH##*/}}
 : ${TASK_VERSION:="test-$(whoami)"}
 
-# parse gpu
-NV_GPU="NV_GPU=${NV_GPU}"
-
 # parse required parameters
 : ${CLEAN:="no"}
 : ${OVERWRITE:="no"}
@@ -124,20 +121,19 @@ TARGET_PATH=$(abs_dir_path ${TARGET_PATH})
 
 deploy_cmd=". ${PROJECT_BIN}/tools/deploy.sh \
   ${TARGET_PATH} \
-  ${IMAGE_EXISTED} \
   ${TASK_NAME} \
+  ${TASK_TYPE} \
   ${MODULE_NAME} \
   ${DOCKER_TAG} \
-  ${TASK_TYPE} \
   ${DEVICE_TYPE} \
   ${REGISTRY_IDC} \
-  ${NV_GPU} \
+  ${IMAGE_EXISTED} \
   ${DRY_RUN} \
   ${CMD}"
 
 if [[ -z ${HOSTS} ]]; then
   # run locally
-  ${deploy_cmd} && echo ${TIPS}
+  NV_GPU=${NV_GPU} ${deploy_cmd} && echo ${TIPS}
 else
   # run remotely
   if not_yes "${OVERWRITE}"; then
@@ -151,6 +147,6 @@ else
     rsync -avz --progress -l ${PROJECT_HOME}/. $(whoami)@${host}:${PROJECT_HOME}
     ssh $(whoami)@${host} "mkdir -p ${TARGET_PATH}"
     rsync -avz --progress -l ${TARGET_PATH}/. $(whoami)@${host}:${TARGET_PATH}
-    ssh $(whoami)@${host} ${deploy_cmd}
+    ssh $(whoami)@${host} NV_GPU=${NV_GPU} ${deploy_cmd}
   done
 fi
