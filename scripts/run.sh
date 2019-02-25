@@ -92,7 +92,8 @@ DEFAULT_BASE_DIR="$(get_default_base_dir)"
 
 # init source project
 if [[ -z ${SOURCE_PATH} ]]; then
-  SOURCE_PATH=${DEFAULT_BASE_DIR}/tmp/${TASK_NAME}
+  [[ -n ${GIT_PATH} ]] && SOURCE_PATH=${DEFAULT_BASE_DIR}/tmp/$(basename ${GIT_PATH} ".git")
+  : ${SOURCE_PATH:=${DEFAULT_BASE_DIR}/tmp/${TASK_NAME}}
   trap "rm -rf ${SOURCE_PATH}" EXIT
 fi
 if [[ ! -d ${SOURCE_PATH} ]]; then
@@ -105,6 +106,8 @@ if [[ ! -d ${SOURCE_PATH} ]]; then
   git clone --recursive --depth=1 ${GIT_PATH} -b ${GIT_BRANCH} ${SOURCE_PATH}
 fi
 SOURCE_NAME=$(basename ${SOURCE_PATH})
+echo ${SOURCE_PATH}
+echo ${SOURCE_NAME}
 if [[ -d ${SOURCE_PATH}/${SOURCE_NAME} ]]; then
   MODULE_NAME=${SOURCE_NAME}
 else
@@ -133,7 +136,7 @@ deploy_cmd=". ${PROJECT_BIN}/tools/deploy.sh \
 
 if [[ -z ${HOSTS} ]]; then
   # run locally
-  NV_GPU=${NV_GPU} ${deploy_cmd} && echo ${TIPS}
+  NV_GPU=${NV_GPU} ${deploy_cmd} && echo -e ${TIPS}
 else
   # run remotely
   if not_yes "${OVERWRITE}"; then

@@ -21,3 +21,8 @@ RUNNING_OPTS+=" -w=\"${TARGET_HOME}\""
 RUNNING_OPTS+=" -p ${NOTEBOOK_PORT:=18888}:8888"
 RUNNING_OPTS+=" -p ${SERVING_PORT:=18080}:8080"
 CMD="start_notebook.sh"
+
+# helping parameters
+URL=$(blue_echo "http://${IP}:${NOTEBOOK_PORT}/${TASK_NAME}")
+TIPS="Access notebook from ${URL} Use default password\n"
+TIPS+="Check running log by: $(green_echo docker logs -f ${TASK_NAME})"

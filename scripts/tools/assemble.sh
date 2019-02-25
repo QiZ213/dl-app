@@ -13,9 +13,6 @@ TARGET_PATH="$2"
 
 PROJECT_NAME=$(basename ${TARGET_PATH})
 
-# required components for source code to fit dl-application framework
-SOURCE_REQUIRED="scripts/common_settings.sh"
-
 # required components for target distribution to fit dl-application framework
 TARGET_REQUIRED="application"
 TARGET_REQUIRED+=" setup.py"
@@ -62,7 +59,6 @@ check_required() {
 }
 
 if [[ ! -e ${TARGET_PATH} ]]; then
-  check_required ${SOURCE_PATH} ${SOURCE_REQUIRED}
   assemble ${SOURCE_PATH} ${TARGET_PATH}
   copy_missing ${PROJECT_HOME} ${TARGET_PATH} ${TARGET_REQUIRED}
 else

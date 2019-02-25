@@ -140,6 +140,6 @@ get_default_base_dir() {
   if [[ -w ${DEFAULT_BASE_DIR} ]]; then
     echo "${DEFAULT_BASE_DIR}"
   else
-    echo "/home/$(whoami)/${DEFAULT_BASE_DIR#/}"
+    echo "~/${DEFAULT_BASE_DIR#/}"
   fi
 }
