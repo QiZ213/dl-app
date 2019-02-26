@@ -20,5 +20,5 @@ class BaseAlerter(Configured):
     def capture_exception(self, **kwargs):
         raise NotImplementedError
 
-    def capture_message(self, **kwargs):
+    def capture_message(self, message, **kwargs):
         raise NotImplementedError

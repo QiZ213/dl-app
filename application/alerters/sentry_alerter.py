@@ -25,9 +25,9 @@ class SentryAlerter(BaseAlerter):
                 raise AlerterError("fail to init sentry client", e)
 
     def capture_exception(self, **kwargs):
-        # TODO: check sentry's document
         if self.is_enabled():
-            self._client.captureException(extra=kwargs, tag=self.tag_ctx)
+            self._client.captureException(extra=kwargs, tags=self.tag_ctx)
 
-    def capture_message(self, **kwargs):
-        raise NotImplementedError
+    def capture_message(self, message, **kwargs):
+        if self.is_enabled():
+            self._client.captureMessage(message, extra=kwargs, tags=self.tag_ctx)
