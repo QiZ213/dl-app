@@ -106,8 +106,6 @@ if [[ ! -d ${SOURCE_PATH} ]]; then
   git clone --recursive --depth=1 ${GIT_PATH} -b ${GIT_BRANCH} ${SOURCE_PATH}
 fi
 SOURCE_NAME=$(basename ${SOURCE_PATH})
-echo ${SOURCE_PATH}
-echo ${SOURCE_NAME}
 if [[ -d ${SOURCE_PATH}/${SOURCE_NAME} ]]; then
   MODULE_NAME=${SOURCE_NAME}
 else
