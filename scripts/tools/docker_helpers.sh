@@ -32,7 +32,6 @@ lazy_run() {
 }
 
 check_settings() {
-  local var=${!1}
   for i in $@; do
     local var=${!i}
     : ${var:? $i should not be empty, please check ${TARGET_COMMON_SETTINGS}}

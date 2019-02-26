@@ -92,7 +92,8 @@ DEFAULT_BASE_DIR="$(get_default_base_dir)"
 
 # init source project
 if [[ -z ${SOURCE_PATH} ]]; then
-  SOURCE_PATH=${DEFAULT_BASE_DIR}/tmp/${TASK_NAME}
+  [[ -n ${GIT_PATH} ]] && SOURCE_PATH=${DEFAULT_BASE_DIR}/tmp/$(basename ${GIT_PATH} ".git")
+  : ${SOURCE_PATH:=${DEFAULT_BASE_DIR}/tmp/${TASK_NAME}}
   trap "rm -rf ${SOURCE_PATH}" EXIT
 fi
 if [[ ! -d ${SOURCE_PATH} ]]; then
@@ -133,7 +134,7 @@ deploy_cmd=". ${PROJECT_BIN}/tools/deploy.sh \
 
 if [[ -z ${HOSTS} ]]; then
   # run locally
-  NV_GPU=${NV_GPU} ${deploy_cmd} && echo ${TIPS}
+  NV_GPU=${NV_GPU} ${deploy_cmd} && echo -e ${TIPS}
 else
   # run remotely
   if not_yes "${OVERWRITE}"; then
