@@ -138,8 +138,8 @@ ip_address() {
 get_default_base_dir() {
   : ${DEFAULT_BASE_DIR:="/opt"}
   if [[ -w ${DEFAULT_BASE_DIR} ]]; then
-    echo "${DEFAULT_BASE_DIR}"
+    echo ${DEFAULT_BASE_DIR}
   else
-    echo "~/${DEFAULT_BASE_DIR#/}"
+    echo ~/${DEFAULT_BASE_DIR#/}
   fi
 }
