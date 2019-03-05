@@ -1,5 +1,4 @@
-ARG base
-FROM ${base}
+FROM base:py36-cpu-centos7
 
 # Docker script to append jupyter notebook. Please refer to:
 #   https://github.com/jupyter/docker-stacks/blob/master/base-notebook/Dockerfile
