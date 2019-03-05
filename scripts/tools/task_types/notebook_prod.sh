@@ -15,6 +15,7 @@ BUILDING_ARGS+=" --build-arg notebook_gid=$(id -g)"
 
 # running parameters
 RUNNING_OPTS="-d --restart=unless-stopped"
+RUNNING_OPTS+=" --add-host nexus3.love:10.1.62.214"
 RUNNING_OPTS+=" -v ${TARGET_HOME}/notebooks:/home/$(whoami)"
 RUNNING_OPTS+=" -p ${NOTEBOOK_PORT:=18888}:8888"
 CMD="start_notebook.sh"
