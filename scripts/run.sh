@@ -102,8 +102,8 @@ if [[ ! -d ${SOURCE_PATH} ]]; then
   if [[ -n ${GIT_PATH} ]]; then
     [[ ${GIT_PATH} =~ (http|git@).* ]] || GIT_PATH="git@git.ppdaicorp.com:${GIT_PATH}"
     : ${GIT_BRANCH:=master}
+    git clone --recursive --depth=1 ${GIT_PATH} -b ${GIT_BRANCH} ${SOURCE_PATH}
   fi
-  git clone --recursive --depth=1 ${GIT_PATH} -b ${GIT_BRANCH} ${SOURCE_PATH}
 fi
 SOURCE_NAME=$(basename ${SOURCE_PATH})
 if [[ -d ${SOURCE_PATH}/${SOURCE_NAME} ]]; then

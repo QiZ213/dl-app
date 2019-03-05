@@ -64,11 +64,11 @@ RUN echo "10.1.62.214 nexus3.love" | tee -a /etc/hosts \
       && pip install -i http://nexus3.love/repository/pypi/simple \
            --trusted-host=nexus3.love \
            --no-cache-dir \
-           -r /opt/requirements_service.txt \
+           -r /opt/requirements_production.txt \
       && pip install -i http://nexus3.love/repository/pypi/simple \
            --trusted-host=nexus3.love \
            --no-cache-dir \
-           -r /opt/requirements_production.txt \
+           -r /opt/requirements_service.txt \
       && rm -rf /opt/requirements_*
 
 # Assemble project

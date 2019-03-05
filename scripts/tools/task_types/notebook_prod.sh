@@ -1,9 +1,13 @@
 #!/bin/bash
-# Settings to start a prune notebook
+# Settings to start a prune notebook with production environment
+
+if [[ ! -e ${TARGET_HOME}/requirements_production.txt ]]; then
+  die "No such file or directory: '${TARGET_HOME}/requirements_production.txt'"
+fi
 
 # building parameters
-DOCKER_FILE="${PROJECT_HOME}/dockers/notebook/Dockerfile.ppd-notebook"
-BUILDING_ARGS+=" --build-arg notebook_password=${NOTEBOOK_PASSWORD:=123456}"
+DOCKER_FILE="${TARGET_HOME}/dockers/notebook/Dockerfile.ppd-prod-notebook"
+BUILDING_ARGS="--build-arg base=base:py36-cpu-centos7"
 BUILDING_ARGS+=" --build-arg notebook_base_url=${TASK_NAME}"
 BUILDING_ARGS+=" --build-arg notebook_user=$(whoami)"
 BUILDING_ARGS+=" --build-arg notebook_uid=$(id -u)"

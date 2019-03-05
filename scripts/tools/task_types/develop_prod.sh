@@ -1,5 +1,9 @@
 #!/bin/bash
-# Settings to start a develop environment
+# Settings to start a production environment for develop mode
+
+if [[ ! -e ${TARGET_HOME}/requirements_production.txt ]]; then
+  die "No such file or directory: '${TARGET_HOME}/requirements_production.txt'"
+fi
 
 # building parameters
 DOCKER_FILE="${TARGET_HOME}/dockers/notebook/Dockerfile.ppd-prod-notebook"
