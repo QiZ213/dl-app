@@ -1,13 +1,17 @@
-ARG base
-FROM ${base}
+FROM base:py36-cpu-centos7
 
 # Docker script to append jupyter notebook. Please refer to:
 #   https://github.com/jupyter/docker-stacks/blob/master/base-notebook/Dockerfile
-LABEL maintainer="Yun Zhu(zhuyun@cbdai.com)"
+LABEL maintainer="Orso Xie(xieyuhan@cbdai.com)"
 
-# install os dependencies
-ADD ./scripts/installations /opt/installations
-RUN /bin/bash /opt/installations/install.sh
+# Install dependencies
+RUN yum update -y -q \
+      && yum install -y -q python-devel mysql-devel gcc \
+      && yum clean all \
+      && mkdir /etc/ppd \
+      && touch /etc/ppd/env.yaml \
+      && echo "env: dev" | tee -a /etc/ppd/env.yaml
+
 
 # Configure environment
 ARG notebook_user=cbd
@@ -25,7 +29,6 @@ ARG notebook_base_url
 ENV BASE_URL=${notebook_base_url}
 
 # Install jupyter notebook
-#RUN pip install -i ${PYPI} --no-cache-dir jupyter
 RUN pip install -i ${PYPI} --no-cache-dir ipython==5.0.0 \
     tornado==4.5.1 \
     ipykernel==4.8.0 \
@@ -53,18 +56,19 @@ RUN groupadd -f -g ${GID} ${USER} \
     && echo "${USER} ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers.d/notebook \
     && echo "PATH=${PATH}:/usr/local/cuda-8.0:/usr/local/cuda-8.0/bin" | tee -a ${HOME}/.bashrc
 
-# Install application
-ADD ./application /opt/dl-application/application
-ADD ./setup.py /opt/dl-application/setup.py
-RUN cd /opt/dl-application \
-    && python setup.py install \
-    && rm -rf /opt/dl-application
 
-# Install requirements
+# Install requirements by inner source
 ADD ./requirements_* /opt/
-RUN pip install -i ${PYPI} --no-cache-dir -r /opt/requirements_train.txt \
-    && pip install -i ${PYPI} --no-cache-dir -r /opt/requirements_service.txt \
-    && rm -rf /opt/requirements_*
+RUN echo "10.1.62.214 nexus3.love" | tee -a /etc/hosts \
+      && pip install -i http://nexus3.love/repository/pypi/simple \
+           --trusted-host=nexus3.love \
+           --no-cache-dir \
+           -r /opt/requirements_production.txt \
+      && pip install -i http://nexus3.love/repository/pypi/simple \
+           --trusted-host=nexus3.love \
+           --no-cache-dir \
+           -r /opt/requirements_service.txt \
+      && rm -rf /opt/requirements_*
 
 # Assemble project
 COPY ./scripts/start.sh /usr/local/bin/

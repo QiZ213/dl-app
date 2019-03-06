@@ -10,15 +10,17 @@ fi
 PYTHON=python
 export PYTHONPATH=${PROJECT_HOME}:${PYTHONPATH}
 
+## Reference Documents:
+## http://git.ppdaicorp.com/bird/dl-application/wikis/%E9%85%8D%E7%BD%AEcommon_settings.sh
+
 # application settings
-PYTHON_VERSION=2
-OS_VERSION=ubuntu14.04
+PYTHON_VERSION=
+OS_VERSION=
 ## Setting the dependency of dl-framework, cuda, cudnn could refer to
-## http://confluence.ppdai.com/pages/viewpage.action?pageId=22519003
-CUDA_VERSION=8.0
-CUDNN_VERSION=6
-DEEP_LEARNING_FRAMEWORK=tensorflow
-DEEP_LEARNING_VERSION=1.4.0
+CUDA_VERSION=
+CUDNN_VERSION=
+DEEP_LEARNING_FRAMEWORK=
+DEEP_LEARNING_VERSION=
 
 # deployment settings
 # specify data dir to store raw data or persisted intermediate variables, for example,
