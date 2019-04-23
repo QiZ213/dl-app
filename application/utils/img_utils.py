@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import six
 
-import url_utils
+from .url_utils import urlopen
 
 __all__ = [
     'read_img_by_cv2'
@@ -103,7 +103,7 @@ def urls_to_img_list(fps, timeout):
     img_list = []
     for url in url_list:
         try:
-            bytes = url_utils.urlopen(url, timeout=timeout)
+            bytes = urlopen(url, timeout=timeout)
             img = file_like_to_img_list(bytes)[0]
         except Exception:
             traceback.print_exc()
