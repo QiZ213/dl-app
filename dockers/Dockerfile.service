@@ -26,9 +26,9 @@ RUN pip install -i ${PYPI} --no-cache-dir -r ${PROJECT_HOME}/requirements_servic
 
 # Assemble project
 ARG module_name
+ADD ./resources ${PROJECT_HOME}/resources
 ADD ./${module_name} ${PROJECT_HOME}/${module_name}
 ADD ./confs ${PROJECT_HOME}/confs
-ADD ./resources ${PROJECT_HOME}/resources
 ADD ./scripts ${PROJECT_HOME}/bin
 RUN chmod -R 750 ${PROJECT_HOME}/bin
 
