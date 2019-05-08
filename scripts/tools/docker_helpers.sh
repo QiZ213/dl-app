@@ -164,7 +164,7 @@ build() {
 
 run() {
   echo "running image ${TASK_NAME}"
-  [[ -n "${TARGET_REGISTRY}" ]] && use_registered ${DOCKER_TAG} ${SOURCE_REGISTRY}
+  [[ -n "${TARGET_REGISTRY}" ]] && use_registered ${DOCKER_TAG} ${TARGET_REGISTRY}
   delete_container ${TASK_NAME}
   lazy_run "${DOCKER_ENGINE} run --name ${TASK_NAME} ${RUNNING_OPTS} ${DOCKER_TAG} ${CMD}"
   echo "run ${DOCKER_TAG} successfully"
