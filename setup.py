@@ -19,7 +19,7 @@ setup(
     , install_requires=[
         'flask'
         , 'gunicorn'
-        , 'gevent'
+        , 'gevent==1.4.0'
         , 'future'
         , 'requests'
         , 'raven==6.6.0'
