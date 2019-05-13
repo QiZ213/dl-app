@@ -14,8 +14,11 @@ BUILDING_ARGS+=" --build-arg notebook_gid=$(id -g)"
 RUNNING_OPTS="-d --restart=unless-stopped"
 RUNNING_OPTS+=" -v ${TARGET_HOME}/notebooks:/home/$(whoami)"
 RUNNING_OPTS+=" -p ${NOTEBOOK_PORT:=18888}:8888"
+RUNNING_OPTS+=" -e RUN_USER=${RUN_USER}"
+RUNNING_OPTS+=" -e RUN_UID=${RUN_UID}"
+RUNNING_OPTS+=" -e RUN_GID=${RUN_GID}"
+RUNNING_OPTS+=" --group-add ${RUN_GID}"
 CMD="start_notebook.sh"
-
 
 # helping parameters
 URL=$(blue_echo "http://${IP}:${NOTEBOOK_PORT}/${TASK_NAME}")
