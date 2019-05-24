@@ -30,7 +30,7 @@ ARGUMENTS
   --overwrite        When remote run, would overwrite same files on remote host. if ignore, no.
   --clean            Clean task home firstly and assemble again. if ignore, no.
   --dry_run          Do not build docker image or run, but show docker command that are to be executed. if ignore, no.
-
+  --prod             Start docker by root
 [COMMAND]
 USAGE
 }
@@ -60,6 +60,7 @@ else
       --dry_run) DRY_RUN="yes" ;;
       --clean) CLEAN="yes" ;;
       --overwrite) OVERWRITE="yes";;
+      --prod) PROD="yes";;
       *) die "unsupported arguments $1, check usage by \"/bin/bash $0 --help\""
     esac
     [[ "$1" =~ ^--.* ]] || shift 1
@@ -89,6 +90,12 @@ DEFAULT_BASE_DIR="$(get_default_base_dir)"
 : ${REGISTRY_IDC:="local"}
 : ${DRY_RUN:="no"}
 : ${DOCKER_TAG:=${TASK_NAME}:${TASK_VERSION}}
+
+if not_yes ${PROD}; then
+  RUN_USER=$(whoami)
+  RUN_UID=$(id -u ${RUN_USER})
+  RUN_GID=$(id -g ${RUN_USER})
+fi
 
 # init source project
 if [[ -z ${SOURCE_PATH} ]]; then

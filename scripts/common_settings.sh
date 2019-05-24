@@ -7,8 +7,7 @@ if [[ -e ${PROJECT_BIN}/common_utils.sh ]]; then
 fi
 
 # python settings
-PYTHON=python
-export PYTHONPATH=${PROJECT_HOME}:${PYTHONPATH}
+
 
 ## Reference Documents:
 ## http://git.ppdaicorp.com/bird/dl-application/wikis/%E9%85%8D%E7%BD%AEcommon_settings.sh
@@ -52,4 +51,6 @@ NOTEBOOK_PASSWORD=123456
 # application settings
 # define port for application service, by default, it's "18080"
 SERVING_PORT=18080
+
+PYTHON=$(which "python${PYTHON_VERSION}")
 

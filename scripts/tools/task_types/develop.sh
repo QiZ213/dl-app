@@ -20,6 +20,10 @@ RUNNING_OPTS+=" -v ${TARGET_HOME}/notebooks:${TARGET_HOME}/notebooks"
 RUNNING_OPTS+=" -w=\"${TARGET_HOME}\""
 RUNNING_OPTS+=" -p ${NOTEBOOK_PORT:=18888}:8888"
 RUNNING_OPTS+=" -p ${SERVING_PORT:=18080}:8080"
+RUNNING_OPTS+=" -e RUN_USER=${RUN_USER}"
+RUNNING_OPTS+=" -e RUN_UID=${RUN_UID}"
+RUNNING_OPTS+=" -e RUN_GID=${RUN_GID}"
+RUNNING_OPTS+=" --group-add ${RUN_GID}"
 CMD="start_notebook.sh"
 
 # helping parameters
