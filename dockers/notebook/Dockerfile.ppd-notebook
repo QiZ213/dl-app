@@ -41,8 +41,12 @@ ADD ./dockers/notebook/tini /tini
 RUN chmod +x /tini
 ENTRYPOINT ["/tini", "--"]
 
-# Make /bin/sh be bash instead of dash
+# Make bash default shell instead of dash
 ENV SHELL=/bin/bash
+
+# Make utf8 default language
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
 # Create USER with specified UID and GID,and append it to "root" group.
 RUN test -d ${HOME} && rm -r -f ${HOME} || :
@@ -70,6 +74,8 @@ RUN pip install -i ${PYPI} --no-cache-dir -r /opt/requirements_train.txt \
 COPY ./scripts/start.sh /usr/local/bin/
 COPY ./scripts/start_notebook.sh /usr/local/bin/
 COPY ./dockers/notebook/jupyter_notebook_config.py /etc/jupyter/
+
+
 
 EXPOSE 8888
 WORKDIR ${HOME}
