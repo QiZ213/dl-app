@@ -2,7 +2,7 @@
 # Settings to start a prune notebook
 
 # building parameters
-DOCKER_FILE="${PROJECT_HOME}/dockers/notebook/Dockerfile.ppd-notebook"
+DOCKER_FILE="${TARGET_HOME}/dockers/notebook/Dockerfile.ppd-notebook"
 BUILDING_ARGS="--build-arg base=${DOCKER_BASE}"
 BUILDING_ARGS+=" --build-arg notebook_password=${NOTEBOOK_PASSWORD:=123456}"
 BUILDING_ARGS+=" --build-arg notebook_base_url=${TASK_NAME}"

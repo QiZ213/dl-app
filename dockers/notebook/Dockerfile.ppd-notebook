@@ -50,8 +50,9 @@ RUN groupadd -f -g ${GID} ${USER} \
     && useradd -m -s /bin/bash -N -u ${UID} -g ${GID} ${USER} \
     && chown -R ${USER}:${GID} ${HOME} \
     && usermod -a -G root ${USER} \
-    && echo "${USER} ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers.d/notebook \
-    && echo "PATH=${PATH}:/usr/local/cuda-8.0:/usr/local/cuda-8.0/bin" | tee -a ${HOME}/.bashrc
+    && echo "Defaults secure_path=${PATH}" | tee -a /etc/sudoers.d/notebook \
+    && echo "${USER} ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers.d/notebook
+
 
 # Install application
 ADD ./application /opt/dl-application/application
