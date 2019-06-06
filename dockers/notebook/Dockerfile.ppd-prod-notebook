@@ -44,8 +44,12 @@ ADD ./dockers/notebook/tini /tini
 RUN chmod +x /tini
 ENTRYPOINT ["/tini", "--"]
 
-# Make /bin/sh be bash instead of dash
+# Make bash default shell instead of dash
 ENV SHELL=/bin/bash
+
+# Make utf8 default language
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
 # Create USER with specified UID and GID,and append it to "root" group.
 RUN test -d ${HOME} && rm -r -f ${HOME} || :
