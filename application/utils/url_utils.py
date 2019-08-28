@@ -2,8 +2,12 @@
 
 from io import BytesIO
 
+import requests
 from requests import Session, Request
 from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 __all__ = ['get_session', 'urlopen']
 
