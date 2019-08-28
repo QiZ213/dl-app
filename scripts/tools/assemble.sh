@@ -37,7 +37,7 @@ assemble() {
       requirements)
         copy_missing ${src}/${i}/${PROJECT_NAME} ${tgt}
         ;;
-      confs|resources|scripts)
+      confs|resources|scripts|dockers)
         # copy the contents of project_name_folder to target
         mute copy_missing ${src}/${i}/${PROJECT_NAME} ${tgt}/${i} \
           || copy_missing ${src} ${tgt} ${i}
