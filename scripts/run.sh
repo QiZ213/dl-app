@@ -31,6 +31,7 @@ ARGUMENTS
   --clean            Clean task home firstly and assemble again. if ignore, no.
   --dry_run          Do not build docker image or run, but show docker command that are to be executed. if ignore, no.
   --prod             Start docker by root
+  --build            Build image only, not run image.
 [COMMAND]
 USAGE
 }
@@ -61,12 +62,13 @@ else
       --clean) CLEAN="yes" ;;
       --overwrite) OVERWRITE="yes";;
       --prod) PROD="yes";;
+      --build) BUILD_ONLY="yes";;
       *) die "unsupported arguments $1, check usage by \"/bin/bash $0 --help\""
     esac
     [[ "$1" =~ ^--.* ]] || shift 1
     shift 1
   done
-  CMD=\"$@\"
+  CMD=$@
 fi
 
 # parse global parameters
@@ -89,6 +91,7 @@ DEFAULT_BASE_DIR="$(get_default_base_dir)"
 : ${DEVICE_TYPE:="gpu"}
 : ${REGISTRY_IDC:="local"}
 : ${DRY_RUN:="no"}
+: ${BUILD_ONLY:="no"}
 : ${DOCKER_TAG:=${TASK_NAME}:${TASK_VERSION}}
 
 if not_yes ${PROD}; then
@@ -137,11 +140,12 @@ deploy_cmd=". ${PROJECT_BIN}/tools/deploy.sh \
   ${REGISTRY_IDC} \
   ${IMAGE_EXISTED} \
   ${DRY_RUN} \
+  ${BUILD_ONLY} \
   ${CMD}"
 
 if [[ -z ${HOSTS} ]]; then
   # run locally
-  NV_GPU=${NV_GPU} ${deploy_cmd} && echo -e ${TIPS}
+  NV_GPU=${NV_GPU} ${deploy_cmd} && not_yes ${BUILD_ONLY} && echo -e ${TIPS}
 else
   # run remotely
   if not_yes "${OVERWRITE}"; then
