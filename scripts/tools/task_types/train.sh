@@ -15,3 +15,6 @@ RUNNING_OPTS="-d"
 RUNNING_OPTS+=" -v ${TARGET_HOME}/data:${DOCKER_DATA_DIR}"
 RUNNING_OPTS+=" -v ${TARGET_HOME}/log:${DOCKER_LOG_DIR}"
 RUNNING_OPTS+=" -v ${TARGET_HOME}/models:${DOCKER_MODEL_DIR}"
+
+# TIPS
+TIPS="Check running log by: $(green_echo docker logs -f ${TASK_NAME})"

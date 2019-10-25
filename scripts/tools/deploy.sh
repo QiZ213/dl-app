@@ -28,9 +28,10 @@ IMAGE_EXISTED=$1 # e.g. "yes" or "no"
 shift 1
 DRY_RUN=$1 # e.g. "yes" or "no"
 shift 1
-CMD="$@"
+BUILD_ONLY=$1 # e.g. "yes" or "no"
+shift 1
+CMD=$@
 
-: ${BUILD_ONLY:=no}
 
 TASK_TYPE_SETTINGS=${PROJECT_BIN}/tools/task_types/${TASK_TYPE}.sh
 TARGET_COMMON_SETTINGS=${TARGET_HOME}/scripts/common_settings.sh
