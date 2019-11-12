@@ -17,11 +17,11 @@ setup(
     , description='helper for deep learning application'
     , packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"])
     , install_requires=[
-        'flask'
-        , 'gunicorn'
+        'flask==1.1.1'
+        , 'gunicorn==19.9.0'
         , 'gevent==1.4.0'
-        , 'future'
-        , 'requests'
+        , 'future==0.18.2'
+        , 'requests==2.22.0'
         , 'raven==6.6.0'
         , 'six==1.11.0'
     ]
