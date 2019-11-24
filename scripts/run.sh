@@ -135,7 +135,7 @@ TARGET_PATH=$(abs_dir_path ${TARGET_PATH})
 
 if is_yes ${ASSEMBLE_ONLY}; then
   . ${TARGET_PATH}/scripts/common_settings.sh  # get target project settings
-  [[ -d "${RESOURCE_DIR}" ]] && copy_missing ${RESOURCE_DIR} ${TARGET_HOME}/resources  # copy externals files
+  [[ -d "${RESOURCE_DIR}" ]] && copy_missing ${RESOURCE_DIR} ${TARGET_PATH}/resources  # copy externals files
   green_echo "assemble only from ${SOURCE_PATH} to ${TARGET_PATH}"
   exit 0
 fi
