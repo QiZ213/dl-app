@@ -32,6 +32,7 @@ ARGUMENTS
   --dry_run          Do not build docker image or run, but show docker command that are to be executed. if ignore, no.
   --prod             Start docker by root
   --build            Build image only, not run image.
+  --assemble         Assemble project only, neither build image, nor run image.
 [COMMAND]
 USAGE
 }
@@ -63,6 +64,7 @@ else
       --overwrite) OVERWRITE="yes";;
       --prod) PROD="yes";;
       --build) BUILD_ONLY="yes";;
+      --assemble) ASSEMBLE_ONLY="yes";;
       *) die "unsupported arguments $1, check usage by \"/bin/bash $0 --help\""
     esac
     [[ "$1" =~ ^--.* ]] || shift 1
@@ -92,6 +94,7 @@ DEFAULT_BASE_DIR="$(get_default_base_dir)"
 : ${REGISTRY_IDC:="local"}
 : ${DRY_RUN:="no"}
 : ${BUILD_ONLY:="no"}
+: ${ASSEMBLE_ONLY:="no"}
 : ${DOCKER_TAG:=${TASK_NAME}:${TASK_VERSION}}
 
 if not_yes ${PROD}; then
@@ -129,6 +132,11 @@ assemble_cmd=". ${PROJECT_BIN}/tools/assemble.sh ${SOURCE_PATH} ${TARGET_PATH}"
 ${assemble_cmd}
 
 TARGET_PATH=$(abs_dir_path ${TARGET_PATH})
+
+if is_yes ${ASSEMBLE_ONLY}; then
+  green_echo "assemble only from ${SOURCE_PATH} to ${TARGET_PATH}"
+  exit 0
+fi
 
 deploy_cmd=". ${PROJECT_BIN}/tools/deploy.sh \
   ${TARGET_PATH} \
